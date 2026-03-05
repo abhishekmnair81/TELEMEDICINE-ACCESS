@@ -285,19 +285,6 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-**Backend `.env` variables:**
-```env
-SECRET_KEY=your-secret-key
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_HOST_USER=your@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
-REDIS_URL=redis://localhost:6379/0
-```
-
----
 
 ### 3️⃣ Celery Worker (Medicine Reminders)
 
@@ -308,8 +295,6 @@ celery -A medical_backend worker --loglevel=info
 # Start beat scheduler for periodic tasks
 celery -A medical_backend beat --loglevel=info
 ```
-
----
 
 ### 4️⃣ Frontend Setup
 
@@ -325,20 +310,6 @@ npm start
 ```
 
 Frontend will be live at **http://localhost:3000**
-
----
-
-### 5️⃣ Ollama AI Setup (Optional)
-
-```bash
-# Install Ollama from https://ollama.com
-# Pull a medical-capable model
-ollama pull llama3.2
-
-# Build the FAISS knowledge index
-cd backend
-python store_index_ollama.py
-```
 
 ---
 
@@ -388,33 +359,6 @@ CustomUser (Patient / Doctor / Pharmacist / Admin)
 - ✅ **Protected Routes** on both frontend and backend
 - ✅ **OTP Verification** for pharmacist accounts
 - ✅ **Prescription validation** before pharmacy fulfillment
-
----
-
-## 📂 Environment Files
-
-Make sure to configure the following before running:
-
-| File | Description |
-|------|-------------|
-| `backend/.env` | Django secret key, email SMTP, Redis URL |
-| `frontend/.env` | React API base URL, WebSocket URL |
-
----
-
-## 🤝 Contributing
-
-1. **Fork** the repository
-2. Create a feature branch: `git checkout -b feature/AmazingFeature`
-3. Commit your changes: `git commit -m 'Add AmazingFeature'`
-4. Push to the branch: `git push origin feature/AmazingFeature`
-5. Open a **Pull Request**
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
