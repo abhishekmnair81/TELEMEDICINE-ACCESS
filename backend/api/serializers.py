@@ -1,38 +1,25 @@
-# serializers.py - Updated AppointmentSerializer to include nested doctor data
 from rest_framework import serializers
 from .models import (
-    # Core models
     ChatHistory, 
     Appointment, 
     Prescription,
     HealthRecord, 
     CustomUser, 
     MedicineImage, Conversation, OCRProcessingLog, ExtractedMedicalData,CustomUser, PharmacistProfile,
-
     CartItem, SavedForLater, Coupon, CouponUsage,
-    
-    # Profile models
     DoctorProfile, 
     PharmacistProfile,
-    
-    # Prescription & Medicine
     EnhancedPrescription, 
     Medicine, 
     MedicineOrder,
     MedicalProduct, 
     InventoryBatch, 
     Supplier,
-    
-    # Health tracking
     HealthVaultDocument, 
     DoctorConsultationNote,
     AIHealthInsight, 
-    
-    # Family & Emergency
     FamilyHealthNetwork, 
     EmergencyContact,
-    
-    # Video consultation
     VirtualWaitingRoom,
     VideoConsultationRoom,
     VideoCallMessage,
@@ -41,22 +28,17 @@ from .models import (
     VideoConsultationPrescription,
     ScreenShareSession,
     ConsultationFollowUp,
-    
-    # Health tracking models
     HealthMetric,
     HealthGoal,
     HealthActivity,
     HealthReport,
     MedicationReminder,
     MedicationLog,
-    
-    # Rating & Conversation
     DoctorRating,
     Conversation,
     HealthReportData,
 )
 
-# Define medicine choice constants
 MEDICINE_CATEGORIES = [
     ('antibiotic', 'Antibiotic'),
     ('painkiller', 'Painkiller'),
@@ -95,24 +77,19 @@ MEDICINE_STORAGE = [
 
 
 
-class ChatHistorySerializer(serializers.ModelSerializer):
-    """Serializer for chat messages with OCR support"""
-    
+class ChatHistorySerializer(serializers.ModelSerializer):    
     class Meta:
         model = ChatHistory
         fields = [
             'id', 'conversation', 'user_id', 'role', 'message', 
             'language', 'created_at', 
             'has_image', 'image_description',
-            # ✅ NEW OCR fields
             'ocr_extracted_text', 'image_type', 'ocr_confidence',
-            # ✅ NEW Voice fields
             'has_voice_input', 'voice_language'
         ]
         read_only_fields = ['id', 'created_at']
 
 class OCRProcessingLogSerializer(serializers.ModelSerializer):
-    """Serializer for OCR processing logs"""
     
     class Meta:
         model = OCRProcessingLog
@@ -124,7 +101,6 @@ class OCRProcessingLogSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
 class ExtractedMedicalDataSerializer(serializers.ModelSerializer):
-    """Serializer for structured medical data extraction"""
     
     class Meta:
         model = ExtractedMedicalData
@@ -139,37 +115,21 @@ class ExtractedMedicalDataSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """
-    FIXED: Complete UserSerializer with ALL patient profile fields
-    """
     full_name = serializers.SerializerMethodField()
     profile_picture_url = serializers.SerializerMethodField()
     
     class Meta:
         model = CustomUser
         fields = [
-            # Basic fields
             'id', 'username', 'email', 'phone_number', 'user_type',
             'first_name', 'last_name', 'full_name',
-            
-            # Profile fields
             'date_of_birth', 'gender', 'blood_group',
             'address', 'city', 'state', 'pincode',
-            
-            # Emergency contact
             'emergency_contact_name', 'emergency_contact_number',
-            
-            # Physical measurements
             'height', 'weight',
-            
-            # Medical information
             'allergies', 'chronic_conditions', 
             'current_medications', 'medical_history',
-            
-            # Profile picture
             'profile_picture', 'profile_picture_url',
-            
-            # System fields
             'is_verified', 'created_at'
         ]
         read_only_fields = ['id', 'username', 'created_at', 'is_verified']
@@ -186,7 +146,7 @@ class UserSerializer(serializers.ModelSerializer):
         return None
 
 class DoctorProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)  # ← CRITICAL: Nested user data
+    user = UserSerializer(read_only=True)  
     specialization_display = serializers.CharField(
         source='get_specialization_display', 
         read_only=True
@@ -196,7 +156,7 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         model = DoctorProfile
         fields = [
             'id', 
-            'user',  # ← CRITICAL: Must include this
+            'user', 
             'specialization', 'specialization_display',
             'license_number', 'experience_years', 'qualification',
             'consultation_fee', 'available_days', 'available_time_slots',
@@ -222,21 +182,18 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         ]
     
     def get_rating_count(self, obj):
-        """Get total number of ratings"""
         return obj.ratings.count()
     
     def get_rating_distribution(self, obj):
-        """Get rating distribution"""
         return obj.get_rating_distribution()
     
     def get_recent_reviews(self, obj):
-        """Get recent reviews"""
         recent = obj.get_recent_reviews(limit=3)
         return DoctorRatingSerializer(recent, many=True).data
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
-    doctor_details = DoctorProfileSerializer(source='doctor', read_only=True)  # Nested doctor data for frontend
+    doctor_details = DoctorProfileSerializer(source='doctor', read_only=True) 
 
     class Meta:
         model = Appointment
@@ -278,10 +235,6 @@ class PharmacistProfileSerializer(serializers.ModelSerializer):
 
 
 class EnhancedPrescriptionSerializer(serializers.ModelSerializer):
-    """
-    Serializer for EnhancedPrescription model
-    Includes computed fields for patient and doctor names
-    """
     patient_full_name = serializers.SerializerMethodField()
     doctor_full_name = serializers.SerializerMethodField()
     medication_count = serializers.SerializerMethodField()
@@ -290,21 +243,17 @@ class EnhancedPrescriptionSerializer(serializers.ModelSerializer):
         model = EnhancedPrescription
         fields = [
             'id',
-            # Foreign keys
             'patient',
             'doctor', 
             'appointment',
-            # Patient info
             'patient_name',
             'patient_age',
             'patient_gender',
             'patient_phone',
-            # Doctor info
             'doctor_name',
             'doctor_specialization',
             'doctor_registration',
             'hospital_name',
-            # Prescription details
             'diagnosis',
             'medications',
             'vital_signs',
@@ -313,10 +262,8 @@ class EnhancedPrescriptionSerializer(serializers.ModelSerializer):
             'follow_up_date',
             'date',
             'status',
-            # Timestamps
             'created_at',
             'updated_at',
-            # Computed fields
             'patient_full_name',
             'doctor_full_name',
             'medication_count',
@@ -324,55 +271,38 @@ class EnhancedPrescriptionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
     
     def get_patient_full_name(self, obj):
-        """Get full name from patient user if available"""
         if obj.patient:
             return obj.patient.get_full_name()
         return obj.patient_name
     
     def get_doctor_full_name(self, obj):
-        """Get full name from doctor user if available"""
         if obj.doctor:
             return obj.doctor.get_full_name()
         return obj.doctor_name
     
     def get_medication_count(self, obj):
-        """Get count of medications"""
         return len(obj.medications) if obj.medications else 0
 
 
 class PrescriptionCreateSerializer(serializers.Serializer):
-    """
-    Simple serializer for creating prescriptions during video consultation
-    Does NOT require patient/doctor ForeignKey IDs
-    """
-    # Patient information
     patient_name = serializers.CharField(max_length=200)
     patient_age = serializers.CharField(max_length=10, required=False, allow_blank=True)
     patient_gender = serializers.CharField(max_length=20, required=False, allow_blank=True)
     patient_phone = serializers.CharField(max_length=20)
-    
-    # Doctor information
     doctor_name = serializers.CharField(max_length=200)
     doctor_specialization = serializers.CharField(max_length=100, required=False, allow_blank=True)
     doctor_registration = serializers.CharField(max_length=100, required=False, allow_blank=True)
     hospital_name = serializers.CharField(max_length=200, required=False, allow_blank=True)
-    
-    # Prescription details
     diagnosis = serializers.CharField()
     medications = serializers.JSONField()
-    
-    # Optional fields
     vital_signs = serializers.JSONField(required=False, default=dict)
     lab_tests = serializers.CharField(required=False, allow_blank=True)
     notes = serializers.CharField(required=False, allow_blank=True)
     follow_up_date = serializers.DateField(required=False, allow_null=True)
     date = serializers.DateField()
-    
-    # Reference fields (optional)
     appointment_id = serializers.UUIDField(required=False, allow_null=True)
     
     def validate_medications(self, value):
-        """Validate medications list"""
         if not isinstance(value, list):
             raise serializers.ValidationError("Medications must be a list")
         
@@ -391,23 +321,14 @@ class PrescriptionCreateSerializer(serializers.Serializer):
         return value
     
     def validate_patient_phone(self, value):
-        """Validate patient phone number"""
         if not value or len(value) < 10:
             raise serializers.ValidationError("Valid phone number is required")
         return value
 
 
-# ============================================================================
-# ALTERNATIVE: If you want to keep using the old Prescription model
-# ============================================================================
-
 class SimplePrescriptionSerializer(serializers.ModelSerializer):
-    """
-    Simple serializer for existing Prescription model
-    Works without requiring patient/doctor/symptoms FK fields
-    """
     class Meta:
-        model = EnhancedPrescription  # Change to your model name
+        model = EnhancedPrescription 
         fields = [
             'id',
             'patient_name',
@@ -425,14 +346,11 @@ class SimplePrescriptionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at']
     
-    # Override create to handle any missing fields
     def create(self, validated_data):
-        # Set defaults for any required fields
         validated_data.setdefault('status', 'active')
         return super().create(validated_data)
     
 class MedicineImageSerializer(serializers.ModelSerializer):
-    """Serializer for medicine images"""
     image_url = serializers.SerializerMethodField()
     
     class Meta:
@@ -449,7 +367,6 @@ class MedicineImageSerializer(serializers.ModelSerializer):
         return None
 
 class PharmacyMedicineSerializer(serializers.ModelSerializer):
-    """✅ FIXED: Includes image URLs"""
     images = MedicineImageSerializer(many=True, read_only=True)
     primary_image = serializers.SerializerMethodField()
     
@@ -459,7 +376,6 @@ class PharmacyMedicineSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
     
     def get_primary_image(self, obj):
-        """Get primary image URL"""
         if hasattr(obj, 'images'):
             primary = obj.images.filter(is_primary=True).first()
             if primary and primary.image:
@@ -468,7 +384,6 @@ class PharmacyMedicineSerializer(serializers.ModelSerializer):
                     return request.build_absolute_uri(primary.image.url)
                 return primary.image.url
         
-        # Fallback to old single image field
         if obj.image:
             request = self.context.get('request')
             if request:
@@ -564,18 +479,12 @@ class VirtualWaitingRoomSerializer(serializers.ModelSerializer):
         return obj.doctor.get_full_name() if obj.doctor else ""
 
 
-# api/serializers.py
-
 from rest_framework import serializers
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
 
-
-
-
-#------------------------------------------------------------------------------------
 
 from rest_framework import serializers
 from .models import (
@@ -740,7 +649,6 @@ class ConsultationFollowUpSerializer(serializers.ModelSerializer):
         return obj.patient.get_full_name() if obj.patient else ""
 
 
-# Simple serializers for quick operations
 class CreateVideoRoomSerializer(serializers.Serializer):
     patient_id = serializers.UUIDField()
     doctor_id = serializers.UUIDField()
@@ -810,9 +718,6 @@ from .models import (
     HealthReport, MedicationReminder, MedicationLog
 )
 
-
-# Add this to your serializers.py file - HEALTH TRACKING SERIALIZERS FIX
-
 from rest_framework import serializers
 from .models import (
     HealthMetric, HealthGoal, HealthActivity, 
@@ -842,15 +747,11 @@ class HealthMetricSerializer(serializers.ModelSerializer):
 
 
 class HealthGoalSerializer(serializers.ModelSerializer):
-    """
-    FIXED: Properly handles date fields without datetime conversion
-    """
     patient_name = serializers.SerializerMethodField()
     goal_type_display = serializers.CharField(source='get_goal_type_display', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     days_remaining = serializers.SerializerMethodField()
     
-    # CRITICAL FIX: Explicitly define date fields
     start_date = serializers.DateField(format='%Y-%m-%d', input_formats=['%Y-%m-%d', 'iso-8601'])
     target_date = serializers.DateField(format='%Y-%m-%d', input_formats=['%Y-%m-%d', 'iso-8601'])
     
@@ -877,26 +778,20 @@ class HealthGoalSerializer(serializers.ModelSerializer):
         return None
     
     def validate_start_date(self, value):
-        """Convert datetime to date if needed"""
         if isinstance(value, datetime):
             return value.date()
         return value
     
     def validate_target_date(self, value):
-        """Convert datetime to date if needed"""
         if isinstance(value, datetime):
             return value.date()
         return value
 
 
 class HealthActivitySerializer(serializers.ModelSerializer):
-    """
-    FIXED: Properly handles date and time fields
-    """
     patient_name = serializers.SerializerMethodField()
     activity_type_display = serializers.CharField(source='get_activity_type_display', read_only=True)
     
-    # CRITICAL FIX: Explicitly define date/time fields
     activity_date = serializers.DateField(format='%Y-%m-%d', input_formats=['%Y-%m-%d', 'iso-8601'])
     activity_time = serializers.TimeField(
         format='%H:%M:%S', 
@@ -918,21 +813,16 @@ class HealthActivitySerializer(serializers.ModelSerializer):
         return obj.patient.get_full_name() if obj.patient else ""
     
     def validate_activity_date(self, value):
-        """Convert datetime to date if needed"""
         if isinstance(value, datetime):
             return value.date()
         return value
 
 
 class MedicationReminderSerializer(serializers.ModelSerializer):
-    """
-    FIXED: Properly handles date fields and JSON fields
-    """
     patient_name = serializers.SerializerMethodField()
     frequency_display = serializers.CharField(source='get_frequency_display', read_only=True)
     adherence_rate = serializers.SerializerMethodField()
     
-    # CRITICAL FIX: Explicitly define date fields
     start_date = serializers.DateField(format='%Y-%m-%d', input_formats=['%Y-%m-%d', 'iso-8601'])
     end_date = serializers.DateField(
         format='%Y-%m-%d', 
@@ -956,7 +846,6 @@ class MedicationReminderSerializer(serializers.ModelSerializer):
         return obj.patient.get_full_name() if obj.patient else ""
     
     def get_adherence_rate(self, obj):
-        """Calculate medication adherence rate"""
         total_logs = obj.logs.count()
         if total_logs == 0:
             return 100.0
@@ -965,33 +854,26 @@ class MedicationReminderSerializer(serializers.ModelSerializer):
         return round((taken_logs / total_logs) * 100, 1)
     
     def validate_start_date(self, value):
-        """Convert datetime to date if needed"""
         if isinstance(value, datetime):
             return value.date()
         return value
     
     def validate_end_date(self, value):
-        """Convert datetime to date if needed"""
         if value and isinstance(value, datetime):
             return value.date()
         return value
     
     def validate_time_slots(self, value):
-        """Ensure time_slots is a list"""
         if not isinstance(value, list):
             raise serializers.ValidationError("time_slots must be a list")
         return value
 
 
 class HealthReportSerializer(serializers.ModelSerializer):
-    """
-    FIXED: Properly handles date fields
-    """
     patient_name = serializers.SerializerMethodField()
     report_type_display = serializers.CharField(source='get_report_type_display', read_only=True)
     generated_by_name = serializers.SerializerMethodField()
     
-    # CRITICAL FIX: Explicitly define date fields
     start_date = serializers.DateField(format='%Y-%m-%d', input_formats=['%Y-%m-%d', 'iso-8601'])
     end_date = serializers.DateField(format='%Y-%m-%d', input_formats=['%Y-%m-%d', 'iso-8601'])
     
@@ -1013,13 +895,11 @@ class HealthReportSerializer(serializers.ModelSerializer):
         return obj.generated_by.get_full_name() if obj.generated_by else "System"
     
     def validate_start_date(self, value):
-        """Convert datetime to date if needed"""
         if isinstance(value, datetime):
             return value.date()
         return value
     
     def validate_end_date(self, value):
-        """Convert datetime to date if needed"""
         if isinstance(value, datetime):
             return value.date()
         return value
@@ -1044,7 +924,6 @@ class MedicationLogSerializer(serializers.ModelSerializer):
 
 
 class HealthDashboardSerializer(serializers.Serializer):
-    """Serializer for comprehensive health dashboard data"""
     latest_metrics = HealthMetricSerializer(many=True)
     active_goals = HealthGoalSerializer(many=True)
     recent_activities = HealthActivitySerializer(many=True)
@@ -1052,7 +931,6 @@ class HealthDashboardSerializer(serializers.Serializer):
     alerts = serializers.ListField()
 
 class DoctorRatingSerializer(serializers.ModelSerializer):
-    """Serializer for doctor ratings"""
     patient_name = serializers.SerializerMethodField()
     doctor_name = serializers.SerializerMethodField()
     
@@ -1074,8 +952,7 @@ class DoctorRatingSerializer(serializers.ModelSerializer):
 
 
 class DoctorRatingCreateSerializer(serializers.Serializer):
-    """Simple serializer for creating ratings"""
-    doctor_id = serializers.IntegerField()  # DoctorProfile ID
+    doctor_id = serializers.IntegerField()  
     appointment_id = serializers.UUIDField(required=False, allow_null=True)
     rating = serializers.IntegerField(min_value=1, max_value=5)
     review = serializers.CharField(required=False, allow_blank=True)
@@ -1085,7 +962,6 @@ class DoctorRatingCreateSerializer(serializers.Serializer):
 
 
 class ChatHistorySerializer(serializers.ModelSerializer):
-    """Serializer for individual chat messages"""
     class Meta:
         model = ChatHistory
         fields = [
@@ -1096,7 +972,6 @@ class ChatHistorySerializer(serializers.ModelSerializer):
 
 
 class ConversationSerializer(serializers.ModelSerializer):
-    """Serializer for conversation sessions"""
     message_count = serializers.IntegerField(read_only=True)
     preview = serializers.SerializerMethodField()
     
@@ -1110,7 +985,6 @@ class ConversationSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at', 'last_message_at', 'message_count']
     
     def get_preview(self, obj):
-        """Get preview of last message"""
         last_message = obj.messages.order_by('-created_at').first()
         if last_message:
             preview_text = last_message.message[:100]
@@ -1125,11 +999,8 @@ class ConversationSerializer(serializers.ModelSerializer):
 
 
 class ConversationDetailSerializer(serializers.ModelSerializer):
-    """Detailed conversation with OCR-enhanced messages"""
     messages = ChatHistorySerializer(many=True, read_only=True)
     message_count = serializers.IntegerField(read_only=True)
-    
-    # ✅ NEW: Statistics
     images_with_ocr_count = serializers.SerializerMethodField()
     prescriptions_count = serializers.SerializerMethodField()
     lab_reports_count = serializers.SerializerMethodField()
@@ -1140,22 +1011,18 @@ class ConversationDetailSerializer(serializers.ModelSerializer):
             'id', 'user', 'user_id_anonymous', 'title', 'language',
             'created_at', 'last_message_at', 'is_archived', 'is_pinned',
             'message_count', 'messages',
-            # ✅ NEW
             'images_with_ocr_count', 'prescriptions_count', 'lab_reports_count'
         ]
     
     def get_images_with_ocr_count(self, obj):
-        """Count messages with OCR extracted text"""
         return obj.messages.filter(
             ocr_extracted_text__isnull=False
         ).exclude(ocr_extracted_text='').count()
     
     def get_prescriptions_count(self, obj):
-        """Count prescription images"""
         return obj.messages.filter(image_type='prescription').count()
     
     def get_lab_reports_count(self, obj):
-        """Count lab report images"""
         return obj.messages.filter(image_type='lab_report').count()
 
 
@@ -1176,7 +1043,6 @@ class HealthReportDataSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'generated_at']
 
 class MedicineDetailedSerializer(serializers.ModelSerializer):
-    """Comprehensive medicine serializer with all fields"""
     
     is_low_stock = serializers.SerializerMethodField()
     is_expired = serializers.SerializerMethodField()
@@ -1186,46 +1052,21 @@ class MedicineDetailedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medicine
         fields = [
-            # Basic
             'id', 'name', 'generic_name', 'brand_name', 'manufacturer',
-            
-            # Classification
             'category', 'form', 'strength', 'composition', 'therapeutic_class',
-            
-            # Usage
             'indications', 'dosage_instructions', 'contraindications',
             'side_effects', 'precautions', 'drug_interactions',
-            
-            # Legal
             'requires_prescription', 'schedule_drug',
-            
-            # Packaging
             'pack_size', 'packaging_type',
-            
-            # Pricing
             'mrp', 'price', 'discount_percentage', 'gst_percentage',
-            
-            # Stock
             'stock_quantity', 'minimum_stock_level', 'reorder_quantity',
-            
-            # Storage
             'storage_instructions', 'shelf_life', 'batch_number',
             'manufacturing_date', 'expiry_date',
-            
-            # Regulatory
             'drug_license_number', 'hsn_code',
-            
-            # Additional
             'description', 'image', 'is_refrigerated', 'is_temperature_sensitive',
-            
-            # Status
             'is_active', 'is_banned',
-            
-            # Computed
             'is_low_stock', 'is_expired', 'is_expiring_soon',
             'selling_price_with_gst',
-            
-            # Timestamps
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
@@ -1244,7 +1085,6 @@ class MedicineDetailedSerializer(serializers.ModelSerializer):
 
 
 class MedicalProductSerializer(serializers.ModelSerializer):
-    """Serializer for medical products (non-medicines)"""
     
     is_low_stock = serializers.SerializerMethodField()
     selling_price_with_gst = serializers.SerializerMethodField()
@@ -1274,7 +1114,6 @@ class MedicalProductSerializer(serializers.ModelSerializer):
 
 
 class InventoryBatchSerializer(serializers.ModelSerializer):
-    """Serializer for inventory batch tracking"""
     
     product_name = serializers.SerializerMethodField()
     
@@ -1298,7 +1137,6 @@ class InventoryBatchSerializer(serializers.ModelSerializer):
 
 
 class SupplierSerializer(serializers.ModelSerializer):
-    """Serializer for supplier management"""
     
     class Meta:
         model = Supplier
@@ -1312,14 +1150,9 @@ class SupplierSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 
-# Unified Product Serializer (for frontend convenience)
 class UnifiedProductSerializer(serializers.Serializer):
-    """
-    Unified serializer that can handle both medicines and medical products
-    Used for search and listing where both types appear together
-    """
     id = serializers.UUIDField()
-    product_type = serializers.CharField()  # 'medicine' or 'medical_product'
+    product_type = serializers.CharField() 
     name = serializers.CharField()
     category = serializers.CharField()
     manufacturer_or_brand = serializers.CharField()
@@ -1329,31 +1162,21 @@ class UnifiedProductSerializer(serializers.Serializer):
     image_url = serializers.CharField(allow_null=True)
     is_low_stock = serializers.BooleanField()
     expiry_date = serializers.DateField(allow_null=True)
-    
-    # Medicine-specific fields (optional)
     generic_name = serializers.CharField(required=False, allow_null=True)
     form = serializers.CharField(required=False, allow_null=True)
     strength = serializers.CharField(required=False, allow_null=True)
     requires_prescription = serializers.BooleanField(required=False)
-    
-    # Medical product specific fields (optional)
     brand = serializers.CharField(required=False, allow_null=True)
     barcode = serializers.CharField(required=False, allow_null=True)
 
 class MedicineImageUploadSerializer(serializers.Serializer):
-    """
-    Serializer for creating medicines with images
-    Provides better validation errors
-    """
-    # Required fields
+    
     name = serializers.CharField(max_length=200)
     category = serializers.ChoiceField(choices=MEDICINE_CATEGORIES)
     form = serializers.CharField(max_length=50, required=False, allow_blank=True)
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
     mrp = serializers.DecimalField(max_digits=10, decimal_places=2)
     stock_quantity = serializers.IntegerField(min_value=0)
-    
-    # Optional fields
     generic_name = serializers.CharField(max_length=200, required=False, allow_blank=True)
     manufacturer = serializers.CharField(max_length=200, required=False, allow_blank=True)
     brand = serializers.CharField(max_length=200, required=False, allow_blank=True)
@@ -1370,7 +1193,6 @@ class MedicineImageUploadSerializer(serializers.Serializer):
     requires_prescription = serializers.BooleanField(default=False)
     
     def validate(self, data):
-        """Additional validation"""
         if data['price'] > data['mrp']:
             raise serializers.ValidationError({
                 'price': 'Selling price cannot be greater than MRP'
@@ -1378,7 +1200,6 @@ class MedicineImageUploadSerializer(serializers.Serializer):
         return data
     
 class CartItemSerializer(serializers.ModelSerializer):
-    """Serializer for cart items"""
     medicine_details = PharmacyMedicineSerializer(source='medicine', read_only=True)
     subtotal = serializers.SerializerMethodField()
     
@@ -1396,7 +1217,6 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartSummarySerializer(serializers.Serializer):
-    """Serializer for cart summary/totals"""
     items = CartItemSerializer(many=True)
     subtotal = serializers.DecimalField(max_digits=10, decimal_places=2)
     discount = serializers.DecimalField(max_digits=10, decimal_places=2)
@@ -1407,25 +1227,21 @@ class CartSummarySerializer(serializers.Serializer):
 
 
 class AddToCartSerializer(serializers.Serializer):
-    """Serializer for adding items to cart"""
     medicine_id = serializers.IntegerField()
     quantity = serializers.IntegerField(min_value=1, default=1)
     session_id = serializers.CharField(required=False, allow_null=True)
 
 
 class UpdateCartItemSerializer(serializers.Serializer):
-    """Serializer for updating cart item quantity"""
     quantity = serializers.IntegerField(min_value=0)
 
 
 class ApplyCouponSerializer(serializers.Serializer):
-    """Serializer for applying coupon"""
     coupon_code = serializers.CharField(max_length=50)
     session_id = serializers.CharField(required=False, allow_null=True)
 
 
 class SavedForLaterSerializer(serializers.ModelSerializer):
-    """Serializer for saved items"""
     medicine_details = PharmacyMedicineSerializer(source='medicine', read_only=True)
     
     class Meta:
@@ -1435,7 +1251,6 @@ class SavedForLaterSerializer(serializers.ModelSerializer):
 
 
 class CouponSerializer(serializers.ModelSerializer):
-    """Serializer for coupons"""
     is_valid_now = serializers.SerializerMethodField()
     discount_display = serializers.SerializerMethodField()
     
@@ -1461,7 +1276,6 @@ class CouponSerializer(serializers.ModelSerializer):
 
 
 class PharmacistProfileSerializer(serializers.ModelSerializer):
-    """Nested profile fields for a pharmacist's pharmacy details."""
 
     class Meta:
         model = PharmacistProfile
@@ -1480,13 +1294,6 @@ class PharmacistProfileSerializer(serializers.ModelSerializer):
 
 
 class PharmacistUserSerializer(serializers.ModelSerializer):
-    """
-    Serializer for pharmacist user profile.
-    Reads and writes both CustomUser fields AND the related PharmacistProfile.
-    All pharmacy_* fields and delivery_* fields are flattened onto the root object.
-    """
-
-    # ── Pharmacy profile fields (flat on root, not nested) ──────────────────
     pharmacy_name     = serializers.CharField(required=False, allow_blank=True)
     pharmacy_license  = serializers.CharField(required=False, allow_blank=True)
     pharmacy_address  = serializers.CharField(required=False, allow_blank=True)
@@ -1498,19 +1305,16 @@ class PharmacistUserSerializer(serializers.ModelSerializer):
         max_digits=3, decimal_places=2, read_only=True, default=0.00
     )
 
-    # ── Profile picture URL (absolute) ──────────────────────────────────────
     profile_picture_url = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
         fields = [
-            # CustomUser fields
             'id', 'username', 'email', 'first_name', 'last_name',
             'phone_number', 'gender', 'date_of_birth',
             'address', 'city', 'state', 'pincode',
             'profile_picture', 'profile_picture_url',
             'is_verified', 'user_type',
-            # PharmacistProfile fields (flattened)
             'pharmacy_name', 'pharmacy_license', 'pharmacy_address',
             'pharmacy_phone', 'pharmacy_email',
             'delivery_available', 'delivery_radius_km', 'rating',
@@ -1530,15 +1334,11 @@ class PharmacistUserSerializer(serializers.ModelSerializer):
         return None
 
     def to_representation(self, instance):
-        """
-        Output: merge CustomUser data + PharmacistProfile data into one flat dict.
-        This is what the frontend receives.
-        """
+        
         data = super().to_representation(instance)
 
-        # Pull pharmacy profile data and merge it in
         try:
-            pp = instance.pharmacist_profile  # related_name='pharmacist_profile'
+            pp = instance.pharmacist_profile  
             data['pharmacy_name']      = pp.pharmacy_name      or ''
             data['pharmacy_license']   = pp.pharmacy_license   or ''
             data['pharmacy_address']   = pp.pharmacy_address   or ''
@@ -1548,7 +1348,6 @@ class PharmacistUserSerializer(serializers.ModelSerializer):
             data['delivery_radius_km'] = pp.delivery_radius_km
             data['rating']             = str(pp.rating)        if pp.rating else '0.00'
         except PharmacistProfile.DoesNotExist:
-            # Profile doesn't exist yet — leave defaults
             data.setdefault('pharmacy_name', '')
             data.setdefault('pharmacy_license', '')
             data.setdefault('pharmacy_address', '')
@@ -1561,35 +1360,27 @@ class PharmacistUserSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
-        """
-        Update both CustomUser and PharmacistProfile in one call.
-        """
-        # ── Fields that belong to PharmacistProfile ──────────────────────────
+
         pharmacy_fields = {
             'pharmacy_name', 'pharmacy_license', 'pharmacy_address',
             'pharmacy_phone', 'pharmacy_email',
             'delivery_available', 'delivery_radius_km',
         }
 
-        # Separate pharmacy data from user data
         pharmacy_data = {}
         for field in pharmacy_fields:
             if field in validated_data:
                 pharmacy_data[field] = validated_data.pop(field)
 
-        # ── Update CustomUser ─────────────────────────────────────────────────
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        # ── Update (or create) PharmacistProfile ─────────────────────────────
         if pharmacy_data:
             pp, _ = PharmacistProfile.objects.get_or_create(user=instance)
 
             for attr, value in pharmacy_data.items():
                 setattr(pp, attr, value)
-
-            # delivery_radius_km must be int
             if 'delivery_radius_km' in pharmacy_data:
                 try:
                     pp.delivery_radius_km = int(pharmacy_data['delivery_radius_km'])
