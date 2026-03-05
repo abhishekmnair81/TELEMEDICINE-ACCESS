@@ -33,19 +33,14 @@ LANGUAGE_PROMPTS = {
 
 
 CRITICAL_EMERGENCY_KEYWORDS = [
-    # Cardiac emergencies
     'heart attack', 'cardiac arrest', 'heart stopped',
     
-    # Respiratory emergencies
     'cannot breathe', 'not breathing', 'stopped breathing',
     
-    # Neurological emergencies
     'unconscious', 'stroke', 'seizure right now',
     
-    # Severe bleeding
     'severe bleeding', 'bleeding wont stop',
     
-    # Poisoning
     'overdosed', 'drank poison',
 ]
 
@@ -196,7 +191,6 @@ IMAGE_ANALYSIS_STRUCTURE = {
 }
 
 def is_medical_query(message: str) -> bool:
-    """Enhanced medical query detection with better accuracy"""
     message_lower = message.lower()
 
     non_medical_matches = sum(1 for keyword in NON_MEDICAL_KEYWORDS if keyword in message_lower)
@@ -231,7 +225,7 @@ def is_medical_query(message: str) -> bool:
 
 
 def classify_severity(message: str) -> str:
-    """Classify medical query severity"""
+
     message_lower = message.lower()
 
     critical_count = sum(1 for keyword in CRITICAL_EMERGENCY_KEYWORDS if keyword in message_lower)
@@ -246,7 +240,7 @@ def classify_severity(message: str) -> str:
 
 
 def is_greeting(message: str) -> bool:
-    """Check if message is a simple greeting"""
+
     greetings = [
         'hi', 'hello', 'hey', 'namaste', 'vanakkam', 'namaskar',
         'good morning', 'good afternoon', 'good evening', 'good night',
@@ -258,7 +252,7 @@ def is_greeting(message: str) -> bool:
 
 
 def classify_image_query_intent(query: str) -> str:
-    """Classify if query is about medical image analysis"""
+
     query_lower = query.lower()
 
     image_keywords = [
@@ -277,7 +271,6 @@ def classify_image_query_intent(query: str) -> str:
 
 
 def get_medical_image_disclaimer(language: str) -> str:
-    """Get appropriate medical image analysis disclaimer"""
     disclaimers = {
         'English': """⚠️ IMPORTANT MEDICAL DISCLAIMER ⚠️
 
@@ -319,7 +312,6 @@ This information is for educational guidance only, not medical advice.""",
 
 
 def build_enhanced_image_analysis_prompt(user_message: str, language: str, elaborate: bool = False) -> str:
-    """Build specialized prompt for medical image analysis with structured output"""
 
     language_instruction = LANGUAGE_PROMPTS.get(language, LANGUAGE_PROMPTS["English"])
 
