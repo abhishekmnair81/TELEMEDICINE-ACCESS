@@ -25,9 +25,9 @@ const ChatInterface = () => {
   const [uploadProgress, setUploadProgress] = useState(0)
   const [showHealthReportModal, setShowHealthReportModal] = useState(false)
   
-  // ✅ NEW: Voice Input State
   const [isListening, setIsListening] = useState(false)
-  const [voiceSupported, setVoiceSupported] = useState(false)
+  const [voiceSupported, setVoiceSupported] = useState(true)
+  const [voiceError, setVoiceError] = useState(null)
   
   // Hospital Finder State
   const [showHospitalFinder, setShowHospitalFinder] = useState(false)
@@ -51,90 +51,374 @@ const ChatInterface = () => {
 
   const languages = ["English", "Hindi", "Kannada", "Tamil", "Telugu", "Malayalam"]
 
-  // ✅ VOICE INPUT: Initialize Speech Recognition
-  useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-      recognitionRef.current = new SpeechRecognition()
-      
-      recognitionRef.current.continuous = false
-      recognitionRef.current.interimResults = true
-      
-      // Map our language names to browser language codes
-      const langMap = {
-        'English': 'en-US',
-        'Hindi': 'hi-IN',
-        'Kannada': 'kn-IN',
-        'Tamil': 'ta-IN',
-        'Telugu': 'te-IN',
-        'Malayalam': 'ml-IN'
-      }
-      
-      recognitionRef.current.lang = langMap[language] || 'en-US'
-      
-      recognitionRef.current.onresult = (event) => {
-        let interimTranscript = ''
-        let finalTranscript = ''
-        
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript
-          } else {
-            interimTranscript += transcript
-          }
-        }
-        
-        if (finalTranscript) {
-          setInputMessage(prev => prev + ' ' + finalTranscript)
-        }
-      }
-      
-      recognitionRef.current.onerror = (event) => {
-        console.error('[Voice] Recognition error:', event.error)
-        setIsListening(false)
-        
-        if (event.error === 'not-allowed') {
-          alert('Microphone access denied. Please enable microphone permissions.')
-        }
-      }
-      
-      recognitionRef.current.onend = () => {
-        setIsListening(false)
-      }
-      
-      setVoiceSupported(true)
-    } else {
-      console.warn('[Voice] Speech recognition not supported in this browser')
+    useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognition) {
       setVoiceSupported(false)
+      return
     }
-    
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop()
+
+    const langMap = {
+      English: 'en-US', Hindi: 'hi-IN', Kannada: 'kn-IN',
+      Tamil: 'ta-IN', Telugu: 'te-IN', Malayalam: 'ml-IN'
+    }
+
+    // Abort and discard previous instance before creating new one
+    if (recognitionRef.current) {
+      try { recognitionRef.current.abort() } catch (_) {}
+      recognitionRef.current = null
+    }
+
+    // Check microphone permission first
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: 'microphone' }).then((permissionStatus) => {
+        if (permissionStatus.state === 'denied') {
+          setVoiceSupported(false)
+          return
+        }
+        setVoiceSupported(true)
+      }).catch(() => {
+        setVoiceSupported(true) // assume supported if permissions API fails
+      })
+    } else {
+      setVoiceSupported(true)
+    }
+
+    const recognition = new SpeechRecognition()
+    recognition.continuous = true
+    recognition.interimResults = true
+    recognition.maxAlternatives = 1
+    recognition.lang = langMap[language] || 'en-US'
+
+    recognition.onresult = (event) => {
+      let finalText = ''
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          finalText += transcript
+        }
       }
+      if (finalText.trim()) {
+        setInputMessage(prev => prev ? (prev + ' ' + finalText).trim() : finalText.trim())
+      }
+    }
+
+    recognition.onerror = (event) => {
+      console.error('[Voice] error:', event.error)
+      setIsListening(false)
+
+      if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+        setVoiceSupported(false)
+        alert('Microphone access denied. Please allow microphone in browser settings and use http://localhost:3000.')
+      } else if (event.error === 'network') {
+        // network error = not HTTPS or mic blocked by browser policy
+        alert(
+          'Voice input requires HTTPS or localhost.\n\n' +
+          'Please open the app at http://localhost:3000 (not 127.0.0.1 and not an IP address).\n\n' +
+          'Also make sure your browser allows microphone access for this site.'
+        )
+        setVoiceSupported(false)
+      } else if (event.error === 'no-speech') {
+        // silent — user just didn't speak, don't alert
+        setIsListening(false)
+      } else if (event.error === 'aborted') {
+        // intentional stop, ignore
+      } else {
+        console.warn('[Voice] unhandled error:', event.error)
+        setIsListening(false)
+      }
+    }
+
+    recognition.onend = () => {
+      // If still supposed to be listening (continuous mode ended unexpectedly), restart
+      setIsListening(prev => {
+        if (prev) {
+          // auto-restart on unexpected end
+          try { recognition.start() } catch (_) {}
+          return true
+        }
+        return false
+      })
+    }
+
+    recognitionRef.current = recognition
+
+    return () => {
+      try { recognition.abort() } catch (_) {}
+      recognitionRef.current = null
     }
   }, [language])
 
-  // ✅ VOICE INPUT: Toggle listening
-  const toggleVoiceInput = () => {
-    if (!recognitionRef.current) return
-    
-    if (isListening) {
-      recognitionRef.current.stop()
-      setIsListening(false)
-    } else {
-      try {
-        recognitionRef.current.start()
-        setIsListening(true)
-      } catch (error) {
-        console.error('[Voice] Failed to start recognition:', error)
-        alert('Could not start voice recognition. Please try again.')
+  const toggleVoiceInput = async () => {
+  if (isListening) {
+    if (recognitionRef.current?.mediaRecorder?.state === 'recording') {
+      recognitionRef.current.mediaRecorder.stop()
+    }
+    setIsListening(false)
+    return
+  }
+
+  setVoiceError(null)
+
+  // Request microphone
+  let stream
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        channelCount: 1,
+        sampleRate: 16000,
+        echoCancellation: true,
+        noiseSuppression: true,
       }
+    })
+  } catch (err) {
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      setVoiceError('Mic blocked. Click 🔒 in address bar → allow microphone.')
+    } else if (err.name === 'NotFoundError') {
+      setVoiceError('No microphone found. Please connect one.')
+    } else {
+      setVoiceError('Cannot access microphone: ' + err.message)
+    }
+    return
+  }
+
+  // Pick best supported format
+  const mimeType = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/ogg',
+    'audio/mp4',
+  ].find(t => MediaRecorder.isTypeSupported(t)) || ''
+
+  let mediaRecorder
+  try {
+    mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {})
+  } catch (err) {
+    mediaRecorder = new MediaRecorder(stream)
+  }
+
+  const audioChunks = []
+
+  mediaRecorder.ondataavailable = (event) => {
+    if (event.data && event.data.size > 0) {
+      audioChunks.push(event.data)
     }
   }
 
-  // ✅ VOICE OUTPUT: Enhanced with Web Speech Synthesis
+  mediaRecorder.onstop = async () => {
+    stream.getTracks().forEach(t => t.stop())
+    setIsListening(false)
+
+    if (audioChunks.length === 0) {
+      setVoiceError('No audio captured. Please try again.')
+      return
+    }
+
+    const totalSize = audioChunks.reduce((sum, c) => sum + c.size, 0)
+    console.log('[Voice] Total audio size:', totalSize, 'bytes, chunks:', audioChunks.length)
+
+    if (totalSize < 1000) {
+      setVoiceError('Recording too short. Please speak for 2-3 seconds.')
+      return
+    }
+
+    const actualMime = mediaRecorder.mimeType || 'audio/webm'
+    const audioBlob = new Blob(audioChunks, { type: actualMime })
+
+    setIsLoading(true)
+    setVoiceError(null)
+
+    try {
+      const formData = new FormData()
+      const ext = actualMime.includes('ogg') ? 'ogg'
+                : actualMime.includes('mp4') ? 'mp4'
+                : 'webm'
+
+      formData.append('audio', audioBlob, `voice.${ext}`)
+      formData.append('language', language)
+      formData.append('selected_language', language)
+
+      console.log('[Voice] Sending:', actualMime, audioBlob.size, 'bytes')
+
+      const response = await fetch('http://localhost:8000/api/voice/transcribe/', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+      console.log('[Voice] Result:', data)
+
+      if (!response.ok) {
+        throw new Error(data.error || `Server error ${response.status}`)
+      }
+
+      if (data.success && data.text && data.text.trim().length > 1) {
+        // Update language if detected from voice
+        if (data.language && data.language !== 'English') {
+          setLanguage(data.language)
+          setDetectedLanguage(data.language)
+        }
+        setIsLoading(false)
+        handleSendVoiceMessage(data.text.trim(), data.language || language)
+      } else {
+        setIsLoading(false)
+        setVoiceError(data.error || 'Could not understand. Please try again.')
+      }
+
+    } catch (error) {
+      setIsLoading(false)
+      console.error('[Voice] Error:', error)
+      setVoiceError('Transcription failed: ' + error.message)
+    }
+  }
+
+  mediaRecorder.onerror = (event) => {
+    console.error('[Voice] MediaRecorder error:', event)
+    stream.getTracks().forEach(t => t.stop())
+    setIsListening(false)
+    setVoiceError('Recording error. Please try again.')
+  }
+
+  // Store for stop button
+  recognitionRef.current = { mediaRecorder }
+
+  // Collect data every 250ms for better chunks
+  mediaRecorder.start(250)
+  setIsListening(true)
+  console.log('[Voice] Recording started with:', mediaRecorder.mimeType)
+}
+
+  const handleSendVoiceMessage = async (text, voiceLanguage = null) => {
+    if (!text || isLoading) return
+
+    setInputMessage('')
+    setIsLoading(true)
+
+    // Use voice detected language or current selected language
+    const msgLanguage = voiceLanguage || language
+
+    const userMsgId = Date.now()
+    setMessages(prev => [
+      ...prev,
+      { id: userMsgId, role: 'user', content: text, timestamp: new Date() }
+    ])
+
+    abortControllerRef.current = new AbortController()
+
+    try {
+      const response = await fetch('http://localhost:8000/api/chat/stream/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          msg: text,
+          user_id: isAuthenticated ? currentUser.id : userId,
+          language: msgLanguage,
+          conversation_id: currentConversationId,
+        }),
+        signal: abortControllerRef.current.signal,
+      })
+
+      if (!response || !response.body) throw new Error('No response')
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let assistantMessage = ''
+      const assistantMsgId = Date.now() + 1
+
+      setMessages(prev => [
+        ...prev,
+        { id: assistantMsgId, role: 'assistant', content: '', timestamp: new Date(), streaming: true }
+      ])
+
+      let buffer = ''
+      let fullResponseText = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          if (!line.trim() || !line.startsWith('data: ')) continue
+          try {
+            const data = JSON.parse(line.slice(6).trim())
+            if (data.chunk) {
+              assistantMessage += data.chunk
+              fullResponseText = assistantMessage
+              setMessages(prev =>
+                prev.map(msg =>
+                  msg.id === assistantMsgId
+                    ? { ...msg, content: assistantMessage, streaming: true }
+                    : msg
+                )
+              )
+            }
+            if (data.conversation_id) {
+              setCurrentConversationId(data.conversation_id)
+              setConversationsRefreshTrigger(prev => prev + 1)
+            }
+            if (data.detected_language) {
+              setDetectedLanguage(data.detected_language)
+              setLanguage(data.detected_language)
+            }
+            if (data.show_hospitals) {
+              setShowHospitalFinder(true)
+              setHospitalEmergencyLevel(data.emergency_level || null)
+            }
+            if (data.done) {
+              setMessages(prev =>
+                prev.map(msg =>
+                  msg.id === assistantMsgId ? { ...msg, streaming: false } : msg
+                )
+              )
+              setConversationsRefreshTrigger(prev => prev + 1)
+
+              // Auto read aloud the response after voice input
+              if (fullResponseText.trim()) {
+                setTimeout(() => {
+                  const ttsLanguage = detectedLanguage || language
+                  const langMap = {
+                    English: 'en-US', Hindi: 'hi-IN', Kannada: 'kn-IN',
+                    Tamil: 'ta-IN', Telugu: 'te-IN', Malayalam: 'ml-IN'
+                  }
+                  if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel()
+                    const utterance = new SpeechSynthesisUtterance(fullResponseText)
+                    utterance.lang = langMap[ttsLanguage] || 'en-US'
+                    utterance.rate = 0.9
+                    const voices = window.speechSynthesis.getVoices()
+                    const preferred = voices.find(v =>
+                      v.lang.startsWith((langMap[ttsLanguage] || 'en-US').split('-')[0])
+                    )
+                    if (preferred) utterance.voice = preferred
+                    window.speechSynthesis.speak(utterance)
+                  }
+                }, 500)
+              }
+              break
+            }
+          } catch (_) {}
+        }
+      }
+      try { reader.releaseLock() } catch (_) {}
+
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        setMessages(prev => [
+          ...prev,
+          { id: Date.now() + 2, role: 'assistant', content: 'Sorry, error occurred. Please try again.', timestamp: new Date(), error: true }
+        ])
+      }
+    } finally {
+      setIsLoading(false)
+      abortControllerRef.current = null
+    }
+  }
+
   const readAloud = async (text, id) => {
     try {
       // Stop existing speech
@@ -191,11 +475,13 @@ const ChatInterface = () => {
             setSpeakingId(null)
           }
           
-          utterance.onerror = (error) => {
-            console.error('[Voice] Synthesis error:', error)
+          utterance.onerror = (event) => {
+            if (event.error === 'interrupted' || event.error === 'canceled') {
+              setSpeakingId(null)
+              return
+            }
+            console.warn('[Voice] Synthesis error:', event.error)
             setSpeakingId(null)
-            // Fallback to server TTS on error
-            throw error
           }
           
           window.speechSynthesis.speak(utterance)
@@ -257,6 +543,13 @@ const ChatInterface = () => {
       localStorage.setItem(STORAGE_KEY, currentConversationId)
     }
   }, [currentConversationId])
+
+  useEffect(() => {
+    if (voiceError) {
+      const t = setTimeout(() => setVoiceError(null), 4000)
+      return () => clearTimeout(t)
+    }
+  }, [voiceError])
 
   // Check authentication on mount
   useEffect(() => {
@@ -718,11 +1011,7 @@ const ChatInterface = () => {
                 Ask me anything about symptoms, conditions, or wellness.
                 Upload medical images for analysis.
               </p>
-              {/* {voiceSupported && (
-                <p className="voice-notice">
-                  🎤 Voice input available - click the microphone button!
-                </p>
-              )} */}
+
             </div>
           ) : (
             messages.map((msg) => (
@@ -829,27 +1118,25 @@ const ChatInterface = () => {
               accept="image/jpeg,image/jpg,image/png,image/webp"
               style={{ display: 'none' }}
             />
-            
-            {/* <button
+
+            <button
               className="upload-btn"
               onClick={() => fileInputRef.current?.click()}
-              disabled={isLoading || selectedImage}
-              title="Upload prescription/lab report/CT/X-ray"
+              disabled={isLoading || !!selectedImage}
+              title="Upload medical image"
             >
               <FaImage size={18} />
             </button>
-            
-            {voiceSupported && (
-              <button
-                className={`voice-btn ${isListening ? 'voice-active' : ''}`}
-                onClick={toggleVoiceInput}
-                disabled={isLoading}
-                title={isListening ? "Stop listening" : "Start voice input"}
-              >
-                {isListening ? <FaMicrophoneSlash size={18} /> : <FaMicrophone size={18} />}
-              </button>
-            )} */}
-            
+
+            <button
+              className={`voice-btn ${isListening ? 'voice-active' : ''}`}
+              onClick={toggleVoiceInput}
+              disabled={isLoading}
+              title={isListening ? 'Stop voice input' : 'Start voice input'}
+            >
+              {isListening ? <FaMicrophoneSlash size={18} /> : <FaMicrophone size={18} />}
+            </button>
+
             <input
               type="text"
               value={inputMessage}
@@ -857,18 +1144,20 @@ const ChatInterface = () => {
               onKeyDown={handleKeyDown}
               placeholder={
                 isListening
-                  ? "🎤 Listening..."
-                  : selectedImage 
-                    ? "Describe your concern (optional)" 
-                    : detectedLanguage 
-                      ? `Type or speak in ${detectedLanguage}...` 
-                      : "Type or speak in any language..."
+                  ? '🎤 Listening... speak now'
+                  : voiceError
+                    ? voiceError
+                    : selectedImage
+                      ? 'Describe your concern (optional)'
+                      : detectedLanguage
+                        ? `Type or speak in ${detectedLanguage}...`
+                        : 'Type your message or click mic to speak...'
               }
               disabled={isLoading}
               maxLength={500}
-              className="message-field"
+              className={`message-field ${voiceError ? 'message-field-error' : ''}`}
             />
-            
+
             <button
               className="send-btn"
               onClick={handleSendMessage}
