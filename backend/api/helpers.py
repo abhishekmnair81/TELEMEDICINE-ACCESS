@@ -22,12 +22,68 @@ GTTS_LANGUAGE_MAP = {
 }
 
 LANGUAGE_PROMPTS = {
-    'English': 'You must respond ONLY in English language.',
-    'Hindi': 'आपको केवल हिंदी भाषा में जवाब देना है।',
-    'Kannada': 'ನೀವು ಕನ್ನಡ ಭಾಷೆಯಲ್ಲಿ ಮಾತ್ರ ಉತ್ತರಿಸಬೇಕು।',
-    'Tamil': 'நீங்கள் தமிழ் மொழியில் மட்டுமே பதிலளிக்க வேண்டும்.',
-    'Telugu': 'మీరు తెలుగు భాషలో మాత్రమే సమాధానం ఇవ్వాలి.',
-    'Malayalam': 'നിങ്ങൾ മലയാളം ഭാഷയിൽ മാത്രം മറുപടി നൽകണം.'
+    'English': (
+        'You must respond ONLY in English language.'
+    ),
+
+    'Hindi': (
+        'CRITICAL INSTRUCTION: The user is writing in Hinglish '
+        '(Hindi words typed in English/Roman letters). '
+        'You MUST reply in Hinglish — Hindi words written in Roman script. '
+        'NEVER use Devanagari script (हिंदी). '
+        'ALWAYS write Hindi words in English letters. '
+        'Example: "Aapko doctor se milna chahiye. '
+        'Yeh symptoms serious lag rahe hain. '
+        'Dard kab se ho raha hai?" '
+        'Medical terms stay in English: fever, pain, tablet, doctor, hospital.'
+    ),
+
+    'Kannada': (
+        'CRITICAL INSTRUCTION: The user is writing in Kanglish '
+        '(Kannada words typed in English/Roman letters). '
+        'You MUST reply in Kanglish — Kannada words written in Roman script. '
+        'NEVER use Kannada script (ಕನ್ನಡ). '
+        'ALWAYS write Kannada words in English letters. '
+        'Example: "Nimma symptoms nodi doctor hatra hogbeku. '
+        'Jvara idhre rest thakolli. Novu eshthu dina aythu?" '
+        'Medical terms stay in English: fever, pain, tablet, doctor, hospital.'
+    ),
+
+    'Tamil': (
+        'CRITICAL INSTRUCTION: The user is writing in Tanglish '
+        '(Tamil words typed in English/Roman letters). '
+        'You MUST reply in Tanglish — Tamil words written in Roman script. '
+        'NEVER use Tamil script (தமிழ்). '
+        'ALWAYS write Tamil words in English letters. '
+        'Example: "Ungalukku doctor kita poganam. '
+        'Indha symptoms serious ah irukku. '
+        'Vali eppo start achu?" '
+        'Medical terms stay in English: fever, pain, tablet, doctor, hospital.'
+    ),
+
+    'Telugu': (
+        'CRITICAL INSTRUCTION: The user is writing in Tenglish '
+        '(Telugu words typed in English/Roman letters). '
+        'You MUST reply in Tenglish — Telugu words written in Roman script. '
+        'NEVER use Telugu script (తెలుగు). '
+        'ALWAYS write Telugu words in English letters. '
+        'Example: "Meeru doctor dggara vellali. '
+        'Ee symptoms chala serious ga unnai. '
+        'Noppi eppatinundi undi?" '
+        'Medical terms stay in English: fever, pain, tablet, doctor, hospital.'
+    ),
+
+    'Malayalam': (
+        'CRITICAL INSTRUCTION: The user is writing in Manglish '
+        '(Malayalam words typed in English/Roman letters). '
+        'You MUST reply in Manglish — Malayalam words written in Roman script. '
+        'NEVER use Malayalam script (മലയാളം). '
+        'ALWAYS write Malayalam words in English letters. '
+        'Example: "Ningal doctor ine kaananam. '
+        'Ee symptoms serious aanu. '
+        'Vedana evideyaanu? Enthu muthala undu?" '
+        'Medical terms stay in English: fever, pain, tablet, doctor, hospital.'
+    ),
 }
 
 
@@ -1783,80 +1839,79 @@ MODERATE_TRIAGE_KEYWORDS = [
 
 
 def detect_emergency_level(message: str) -> str:
-    """
-    STRICTEST emergency detection - only life-threatening situations
-    
-    Returns: 'critical', 'urgent', or None
-    """
     if not message:
         return None
-    
-    message_lower = message.lower()
-    
-    # ✅ CHECK FOR NEGATION FIRST - "not having", "no chest pain", etc.
+
+    message_lower = message.lower().strip()
+
+    # Patterns that mean the user is ASKING ABOUT something, not experiencing it
+    question_only_patterns = [
+        r'^what (is|are|causes?|happens?)',
+        r'^how (does?|do|is|are|to)',
+        r'^(can you |please )?(explain|tell me|describe|define)',
+        r'^(i want to know|i am learning|just curious)',
+        r'information about',
+        r'tell me about',
+    ]
+    for pat in question_only_patterns:
+        if re.search(pat, message_lower):
+            return None
+
+    # Negation: "no chest pain", "not having", "never had"
     negation_patterns = [
-        'not having', 'no ', "don't have", "doesn't have", 
-        'without', 'never had', 'not experiencing',
-        'what is', 'what are', 'how to', 'can you explain',
-        'tell me about', 'information about'
+        r"\bno\b.{0,20}(pain|bleeding|breath|conscious|seiz)",
+        r"\bnot\b.{0,20}(having|experiencing|feeling)",
+        r"\bnever\b.{0,20}(had|experienced)",
+        r"\bwithout\b",
+        r"\bdoesn't?\b.{0,15}(hurt|bleed|work)",
     ]
-    
-    has_negation = any(neg in message_lower for neg in negation_patterns)
-    
-    # ✅ CHECK IF IT'S JUST A QUESTION (not experiencing symptoms)
-    question_indicators = [
-        'what is', 'what are', 'what causes', 'how to',
-        'can you explain', 'tell me about', 'information about',
-        'should i', 'when should', 'do i need'
+    for pat in negation_patterns:
+        if re.search(pat, message_lower):
+            return None
+
+    # Words that signal the user is experiencing it RIGHT NOW
+    active_now_patterns = [
+        r"\b(i am|i'm|i have|i've|experiencing|happening|right now|just (started|happened)|suddenly|cannot|can't)\b",
+        r"\b(please help|help me|need help|emergency|urgent)\b",
+        r"\b(my (chest|heart|head|stomach|arm|leg|eye|body))\b",
     ]
-    
-    is_question = any(q in message_lower for q in question_indicators)
-    
-    # ✅ CRITICAL: Only trigger on ACTUAL emergencies with action words
-    critical_action_patterns = [
-        'right now', 'happening now', 'currently happening',
-        'just started', 'suddenly started', 'just happened',
-        'i am having', 'i have', 'experiencing now',
-        'cant breathe', 'cannot breathe', "can't breathe"
+    has_active = any(re.search(p, message_lower) for p in active_now_patterns)
+
+    # CRITICAL symptoms - only trigger if user seems to be experiencing them
+    critical_symptoms = [
+        r"\b(heart attack|cardiac arrest|stroke|cannot breathe|can't breathe|not breathing|stopped breathing)\b",
+        r"\b(unconscious|unresponsive|passed out|seizure|convuls)\b",
+        r"\b(severe bleeding|bleeding won.?t stop|heavy bleeding)\b",
+        r"\b(overdos|drank poison|swallowed poison)\b",
+        r"\b(anaphylaxis|throat (closing|swelling))\b",
+        r"\b(chest pain).{0,30}(sweat|arm|jaw|radiat)\b",
     ]
-    
-    has_active_emergency = any(action in message_lower for action in critical_action_patterns)
-    
-    # ✅ If it's just a question OR has negation, NOT an emergency
-    if is_question or has_negation:
-        logger.info(f"[Emergency Detection] ℹ️ Just a question or negation - not emergency")
-        return None
-    
-    # Check for critical keywords (much shorter list now)
-    critical_found = False
-    for keyword in CRITICAL_EMERGENCY_KEYWORDS:
-        if keyword in message_lower:
-            # Must have active emergency indicator
-            if has_active_emergency:
-                logger.info(f"[Emergency Detection] 🚨 CRITICAL: {keyword} (active emergency)")
-                critical_found = True
-                break
-            else:
-                logger.info(f"[Emergency Detection] ℹ️ Keyword '{keyword}' but no active emergency")
-    
-    if critical_found:
-        return 'critical'
-    
-    # For 'urgent' - keep your existing logic but don't make it critical
-    severe_modifiers = ['severe ', 'extreme ', 'terrible ', 'unbearable ', 'worst ', 'intense ']
+    for pat in critical_symptoms:
+        if re.search(pat, message_lower):
+            if has_active:
+                return 'critical'
+            # Even without explicit "I have", very direct phrasing = critical
+            direct_phrases = [
+                r"^(chest pain|can't breathe|not breathing|heart attack|stroke|seizure)",
+                r"(chest pain|can't breathe|bleeding).{0,20}(help|please|now|bad)",
+            ]
+            if any(re.search(p, message_lower) for p in direct_phrases):
+                return 'critical'
+
+    # URGENT symptoms
     urgent_symptoms = [
-        'chest pain', 'difficulty breathing', 'vomiting blood', 
-        'bleeding heavily', 'high fever', 'severe headache'
+        r"\b(severe|extreme|unbearable|excruciating).{0,20}(pain|headache|bleeding|vomit)\b",
+        r"\b(high fever|fever above 10[34]|fever (won.?t|not) (go down|break))\b",
+        r"\b(difficulty breathing|shortness of breath|breathless)\b",
+        r"\b(vomiting blood|coughing up blood|blood in (vomit|stool|urine))\b",
+        r"\b(sudden (vision|hearing) loss|sudden blindness)\b",
+        r"\b(severe (dizziness|headache|abdominal|stomach) pain)\b",
     ]
-    
-    has_severe = any(mod in message_lower for mod in severe_modifiers)
-    has_urgent_symptom = any(symptom in message_lower for symptom in urgent_symptoms)
-    
-    if has_severe and has_urgent_symptom and has_active_emergency:
-        logger.info(f"[Emergency Detection] ⚠️ URGENT detected")
-        return 'urgent'
-    
-    logger.info(f"[Emergency Detection] ℹ️ No emergency - general medical query")
+    for pat in urgent_symptoms:
+        if re.search(pat, message_lower):
+            if has_active:
+                return 'urgent'
+
     return None
 
 
@@ -1925,70 +1980,35 @@ While not immediately life-threatening, this requires professional medical evalu
 
 
 def should_show_hospitals(message: str) -> bool:
-    """
-    ✅ STRICTEST: Only show hospitals for CRITICAL life-threatening emergencies or explicit requests
-    
-    Returns: True ONLY if:
-    1. CRITICAL life-threatening emergency happening NOW
-    2. Explicit "find hospital" / "hospital near me" request
-    """
     if not message:
         return False
-    
+
     message_lower = message.lower()
-    
-    # ✅ CHECK FOR NEGATION (not having, no chest pain, what is...)
-    negation_patterns = ['not ', 'no ', "don't", "doesn't", 'never', 'without', 'what is', 'what are', 'how to', 'tell me about']
-    has_negation = any(neg in message_lower for neg in negation_patterns)
-    
-    # ✅ CHECK IF JUST A QUESTION (not experiencing symptoms)
-    question_patterns = ['what is', 'what are', 'how to', 'tell me about', 'can you explain', 'what causes', 'why does']
-    is_question = any(q in message_lower for q in question_patterns)
-    
-    if has_negation or is_question:
-        logger.info(f"[Hospital Finder] ℹ️ Question or negation - NO hospitals")
-        return False
-    
-    # ============================================================
-    # 1. EXPLICIT hospital/clinic location requests
-    # ============================================================
+
+    # Explicit hospital requests always show
     explicit_requests = [
-        'nearest hospital', 'hospital near me', 'find hospital',
-        'where is hospital', 'hospital location', 'hospital address',
-        'emergency room near', 'where can i go', 'take me to hospital',
-        'closest hospital', 'hospital nearby', 'show me hospitals',
+        r'\b(nearest|closest|nearby|find|where is|show me|hospital near|hospital location)\b.{0,20}\b(hospital|clinic|emergency|doctor)\b',
+        r'\b(hospital|clinic|emergency room|urgent care)\b.{0,20}\b(near|close|location|address|around)\b',
+        r'\b(take me to|go to|get to).{0,20}(hospital|emergency)\b',
+        r'\bhospital near me\b',
+        r'\bnearest hospital\b',
+        r'\bemergency room near\b',
     ]
-    
-    for request in explicit_requests:
-        if request in message_lower:
-            logger.info(f"[Hospital Finder] 🏥 Explicit hospital request: {request}")
+    for pat in explicit_requests:
+        if re.search(pat, message_lower):
+            logger.info(f"[Hospital Finder] Explicit hospital request detected")
             return True
-    
-    # ============================================================
-    # 2. ONLY for CRITICAL emergencies (NOT urgent, NOT general)
-    # ============================================================
+
+    # Only show for CRITICAL emergencies, not urgent or general
     emergency_level = detect_emergency_level(message)
-    
     if emergency_level == 'critical':
-        logger.info(f"[Hospital Finder] 🚨 CRITICAL emergency - showing hospitals")
+        logger.info(f"[Hospital Finder] Critical emergency - showing hospitals")
         return True
-    
-    # ✅ CRITICAL FIX: Don't show for 'urgent' or general queries
-    if emergency_level == 'urgent':
-        logger.info(f"[Hospital Finder] ⚠️ Urgent but NOT critical - NO hospitals (see doctor within 24h)")
-        return False
-    
-    logger.info(f"[Hospital Finder] ℹ️ General query - NO hospitals needed")
+
     return False
 
 
 def check_ai_response_for_hospital_trigger(ai_response: str) -> bool:
-    """
-    ✅ FIXED: Only trigger if AI explicitly says "emergency" or "call 108/102"
-    Don't trigger just for "see a doctor"
-    
-    Returns: True only for emergency-level recommendations
-    """
     if not ai_response:
         return False
     
@@ -2012,251 +2032,446 @@ def check_ai_response_for_hospital_trigger(ai_response: str) -> bool:
 
 
 
-# Malayalam romanization patterns (Manglish) - COMPREHENSIVE
 MALAYALAM_PATTERNS = [
-    # Common pronouns and question words
-    r'\b(enikku?|eniku|njan|njaan|ente|entey|enik|njangal|njangalkku?)\b',
-    r'\b(enthanu|enthan|engane|evidey?|evide|entha|enthu|engana|enthaa)\b',
-    r'\b(ningal|ningale|nammal|namuk|avanu|avan|aval|avale|avar)\b',
-    r'\b(eppol|eppo|ethra|enthina|yaar|aaranu|aaraan|aara)\b',
-    
-    # Common verbs - MASSIVELY EXPANDED
-    r'\b(undu?|und|illa|ilya|illaa|aayi|aayirunnu|aanu|aan)\b',
-    r'\b(vendey?|venam|venda|varanam|varilla|varan|vanna|vannu)\b',
-    r'\b(parayam|ariyam|cheyyam|cheyyan|cheyyatte|paranju|parayan)\b',
-    r'\b(kannam|kanan|kelkam|kelkan|varaam|pokan|pokam)\b',
-    r'\b(kayikam|kayikan|kayichu|aakam|aakan|kittan|kittiyilla)\b',
-    r'\b(kodukkam|kodukkan|tharum|tharaan|edukkan|edukkam)\b',
-    r'\b(poyi|povuka|poyittu|poyittundu|pokkunnu|pokunnilla)\b',
-    
-    # Common adjectives and adverbs
+    # Whisper-style transcriptions
+    r'\b(enikku|eniku|nannu|njan|njaan|ente|entey|njangal|njangalku)\b',
+    r'\b(enthanu|enthan|engane|evidey|entha|enthu|engana|enthaa|enthokke)\b',
+    r'\b(ningal|ningale|nammal|namuk|avanu|avan|aval|avale|avannu)\b',
+    r'\b(eppol|eppo|ethra|aaranu|aaraan|evide|evideyaa)\b',
+    r'\b(cheyyanam|cheyyunnu|cheythu|cheyyanda|cheyyan)\b',
+    r'\b(enthe|enthanu|enthaanu|enthu|entha|enthokke|enthineya)\b',
+    r'\b(nokku|nokkam|nokkuka|parayan|paranju|parayum)\b',
+    r'\b(vayar|vayaru|thalavedan|thalayivedana|vedana|vyadhi)\b',
+    r'\b(doktare|doctore|aasupathri|marunnu|marunu|oushadham)\b',
+    r'\b(sukham|sukhama|rogam|arogya|pidikku|pidikkum)\b',
+    r'\b(nallathu|nallath|nannayi|sheriyayi|shari|sheriyanu)\b',
+    r'\b(alle|alleda|allee|undo|undoo|undu|und)\b',
+    r'\b(poyi|povuka|pokunnu|pokum|vannu|vann)\b',
+    r'\b(cheyyu|cheyyum|cheythu|cheyyuka|cheyyanam)\b',
+    r'\b(ippol|ippo|appozu|appol|pinne|appozha)\b',
+    r'\b(njan|njaan|njaane|njangal)\b',
+    r'\b(thalavedana|thalavedan|thalayil|thalakku)\b',
+    r'\b(vayathin|vayathu|vayarinu|vayaril|hridayam)\b',
+
+    # Core verbs
+    r'\b(undu|und|illa|ilya|illaa|aayi|aayirunnu|aanu|aan)\b',
+    r'\b(venam|venda|varanam|varilla|vanna|vannu|varatte)\b',
+    r'\b(parayam|ariyam|cheyyam|cheyyan|paranju|parayan)\b',
+    r'\b(kaanan|kaananam|kandu|kandilla|nokkan|nokkam)\b',
+    r'\b(kittan|kittiyilla|kodukkam|kodukkan|tharum|tharaan)\b',
+    r'\b(ariyam|ariyilla|ariyunnu|arikayanu|arinjilla)\b',
+    r'\b(kaanam|kaanunnu|kaanilla|kaaniyirunnilla)\b',
+    r'\b(thinnam|thinnunnu|kazhikkunnu|kazhikkam|kudikkunnu)\b',
+    r'\b(uyarkkam|uyarkkuka|kidakkunnu|ezhunelkkuka)\b',
+    r'\b(odicchu|odum|odunnu|nadakkunnu|nadakkanam)\b',
+    r'\b(padikunnu|padikkunnu|padichu|padikkam)\b',
+    r'\b(kelkkunnu|kelkkanam|kelkkunnundo|kettu|ketu)\b',
+    r'\b(marannu|marannilla|marakkunnu|marakkanam)\b',
+    r'\b(manassilayi|manassila|manassilaayi|purinjilla)\b',
+
+    # Medical / body / feelings
+    r'\b(vedana|nenju|thalayachan|vali|novu|pani|thooki|veppam)\b',
+    r'\b(vayaru|vayar|thala|kannu|kivi|mookkil|naavu|vayil|kal|kai)\b',
+    r'\b(veekkam|thallu|doctorinu|hospitalil|marunnu|kashaayam)\b',
+    r'\b(rogam|asugham|sukham|kashttam|kashtam|santosham|aarogyam)\b',
+    r'\b(shevasam|ulsasam|maarbu|mulachu|mutti|thirikkal)\b',
+    r'\b(raktham|mootram|malam|veekkam|punn|muram|thazhamppu)\b',
+    r'\b(jwaraam|pani|thottu|kanneer|nattu|kurukkal|vedana)\b',
+    r'\b(thalavedana|thalayivedana|thalakku|thalakkunnu)\b',
+    r'\b(valikkuka|valikkunu|valikkunundo|novu|noppundu)\b',
+    r'\b(ozhukkam|ozhukkilla|mayakkam|thalachil|thalakal)\b',
+    r'\b(manappuram|veezhcha|moochu|moochu mutt|shwasam)\b',
+    r'\b(hridayam|nenjil|nenjinu|nenjattu|ullu|ullil)\b',
+    r'\b(kaal|kaallinu|kaikku|kaiyinu|mulachu|mulach)\b',
+    r'\b(kannu|kanninu|kanna|kannukku|kaazhcha|kaazhcha illa)\b',
+    r'\b(kivi|kivinutha|kiviyil|kivi vayikkunnu|maandam)\b',
+    r'\b(thottu|thottal|thottilla|parakkam|parashyam)\b',
+    r'\b(sleep|urakkam|urachu|urakkanam|urakkam varunnilla)\b',
+    r'\b(stress|tension|veruppu|vishamam|dukhkham|sambhavam)\b',
+    r'\b(paranoia|bhayam|bhayapadunnu|bhayanakam|atanku)\b',
+    r'\b(allergy|thadicchal|chirichal|pottikkal|chirayunnu)\b',
+    r'\b(blood pressure|sugar|diabetes|thyroid|cancer|tumour)\b',
+
+    # Adjectives / intensifiers
     r'\b(nalla|nallathu|nannayi|valare|kooduthal|kurach|kurache)\b',
     r'\b(cheriya|valiya|puthiya|pazhaya|mosham|moshamaayi)\b',
-    r'\b(mattey?|verey|athrem|ingane|angane|ithupole)\b',
-    
-    # Family and social terms
-    r'\b(chettan|chechi|chetta|ammaye?|achane?|amma|achan|appa)\b',
-    r'\b(uppappa|aacha|umma|ninte|mone|mole|pennu|aannu)\b',
-    
-    # Medical/health terms - COMPREHENSIVE
-    r'\b(vedana|nenju|thala|vali|novu|pani|thooki|veppam)\b',
-    r'\b(visham|kai|kaal|vayar|vayaru|tala|kannu|kivi)\b',
-    r'\b(veekkam|thallu|chavittu|kozhupu|thanne|vayil|naavu)\b',
-    r'\b(doctorinu|hospitalilek|doctorde|vaidyan|hospitalil)\b',
-    r'\b(rogam|asugham|sukham|oushadham|marunnu|marunn)\b',
-    r'\b(pokam|pokaan|porum|kashttam|kashtam|santosham)\b',
-    
-    # Common words - MASSIVELY EXPANDED
-    r'\b(shari|sheriyanu|sheri|athu|ithu|ethu|athe|ithe)\b',
-    r'\b(appozhaan|ippo|ippol|pinne|pinna|appol|appoozha)\b',
-    r'\b(koodey?|koode|kure|oru|onnu|randu|moonnu|naalu)\b',
-    r'\b(aanen|alley?|aanennu|allaathe|enkilum|enkil)\b',
-    r'\b(endhu?|enthinu|ethrem|ethrayum|ellam|ellaam)\b',
-    r'\b(parayunnu|parayan|paranhu|chodhichu|chodhikkam)\b',
-    r'\b(pattu|upayogikkan|vendenn|ellaarum|angane|ingane)\b',
-    
-    # Time expressions
-    r'\b(innu|inne|naale|kaaleyi|raathri|rathri|reethri)\b',
-    r'\b(prabhaathe|ucha|vaikittu|vaikunneram)\b',
-    
-    # Common particles
-    r'\b(aano|aane|alle|ille|allo|illo|um|undallo)\b',
+    r'\b(valuthu|cheruthu|pedikkam|pediyundu|kedakkam)\b',
+    r'\b(adipoli|kidu|mast|ente ammo|ayyoo|ayyo|aiyoo)\b',
+    r'\b(mushkilaanu|mushkilanu|pettannu|pettenna|sudden)\b',
+    r'\b(ethrayo|ethreyum|valare|athikam|kurachu|nannaayi)\b',
+    r'\b(venda|vendatha|pedikkenda|bhayappedenda)\b',
+    r'\b(sherikkum|sachivam|sathyam|sathyamaanu|nijam)\b',
+
+    # Family
+    r'\b(chettan|chechi|chetta|ammaye|achane|umma|uppa|mole|mone)\b',
+    r'\b(amma|achan|appa|uppappa|ammamma|appupan|vallyamma)\b',
+    r'\b(muthachan|muthassi|ammavan|ammaayi|appooppan|appuppan)\b',
+    r'\b(aniyathi|aniyan|muthappan|muthamma|kaakka|amma)\b',
+    r'\b(chechi|chettan|mol|mon|kochu|kochu mol|kochu mon)\b',
+
+    # Time / discourse
+    r'\b(innu|inne|naale|kaaleyi|raathri|rathri|vaikittu)\b',
+    r'\b(aano|aane|alle|ille|allo|illo|undallo|atho|itho)\b',
+    r'\b(shari|sheriyanu|sheri|athu|ithu|ethu|athe|ithe|pinne)\b',
+    r'\b(ippo|ippol|appozhaan|pinne|pinna|appol|eppozhaanennu)\b',
+    r'\b(raavilae|raavile|udane|pattiyilla|pattum|patilla)\b',
+    r'\b(munpe|munpil|pinnale|pinnalil|innale|innalethe)\b',
+    r'\b(onnum|onnum|onnum|oru|oru nimisham|oru neram)\b',
+    r'\b(kure neram|kure naal|kure divasam|kure naalaayi)\b',
+    r'\b(ippozhu|ippozhaanennu|appozhaanennu|enthu neram)\b',
+
+    # Questions / responses
+    r'\b(aano|aane|sheri|aayirikkum|aayirikkumo|undaakum)\b',
+    r'\b(enthu parranju|enthu paranju|enthu cheythu)\b',
+    r'\b(enthokke|enthokkeyaanu|evideyaanu|engott)\b',
+    r'\b(paranjilla|paranjillallo|parayillallo|ariyilla)\b',
+    r'\b(manassilaayo|manassilaaythallo|purinjallo)\b',
+
+    # Unique Malayalam phrases
+    r'\b(njan doctor|njan hospital|njan medicine|kure naal)\b',
+    r'\b(sherikkum|vishwasikkaan|manasilayi|manasilayilla)\b',
+    r'\b(enikku ariyilla|enikku manasilaayi|enikku parayaan)\b',
+    r'\b(njan vichaarikkukayaanu|njan parayan|njan kelkkunnu)\b',
+    r'\b(veruthe|veruthennu|vedikkuka|vedikkanam|kedillathe)\b',
+    r'\b(okay|otay|aathe|aathe mone|aathe mole|njan okke)\b',
 ]
 
-# Tamil romanization (Tanglish) - MASSIVELY EXPANDED
 TAMIL_PATTERNS = [
-    # Common pronouns and question words
-    r'\b(enakku?|enaku|naan|naanu|ennaku|enoda|enakaga)\b',
-    r'\b(yenna|enna|epdi|eppadi|yeppadi|enga|enge|engey?)\b',
-    r'\b(ungal|ungala|unkal|engada|naanga|namma|nammala)\b',
-    r'\b(yaar|yaaru|yaarukku?|yaarelam|ellam|ellarum)\b',
-    
-    # Common verbs - MASSIVELY EXPANDED
-    r'\b(irukku?|iruku|irukken|illa|illai|ilai|illaya|illaiye)\b',
-    r'\b(venam|vena|vendaam|venda|venaam|varum|varuma)\b',
-    r'\b(sollunga|sollu|solla|sollitaanga|sonnanga|sonnen)\b',
-    r'\b(pannunga|pannu|pannalam|pannanum|pannitaanga|pannen)\b',
-    r'\b(vaa|vaanga|ponga|po|poidalam|poitu|poittu)\b',
-    r'\b(aagum|aaga|aagama|aayidum|aachu|aana|aachu)\b',
-    r'\b(saapdunga|saapdu|saapten|kudunga|kudu|kuduthen)\b',
-    
-    # Common adjectives and adverbs
-    r'\b(nalla|nalladhu|nallaah?|romba|perusa|chinna|sinna)\b',
-    r'\b(pudusa|pazhaya|kevalamaa|mosamaa|azaga|azhaga)\b',
-    r'\b(adhu|idhu|adhaan|idhaan|mattum|mattuma)\b',
-    
-    # Family and social terms
-    r'\b(anna|akka|thambi|thangachi|mama|mami|maama)\b',
-    r'\b(amma|appa|ammaa|appaa|paatti|thatha|patti)\b',
-    
-    # Medical/health terms - COMPREHENSIVE
-    r'\b(vedanai|thalai|vali|noi|valiy?|kaayichchal|kaayichaal)\b',
-    r'\b(suram|juram|kai|kaal|vayiru|vayir|kannupaka|kannu)\b',
-    r'\b(veekkam|soodu|kammal|kashtam|nenju|moochu)\b',
-    r'\b(doctorta|hospitalku|doctorkitta|vaidyar|marundhu)\b',
-    r'\b(marundhu|rogam|noyal|arogiyam|arogiyama)\b',
-    
-    # Common words - MASSIVELY EXPANDED
-    r'\b(theriyuma|theriyum|theriyadhu|therinjukka)\b',
-    r'\b(konjam|konnchi|seriya|seri|seriyana|serithaana)\b',
-    r'\b(eppothu|eppo|anga|inge|ippo|ipo|appo)\b',
-    r'\b(paarunga|paaru|paathale|paakkanam|paatha)\b',
-    r'\b(mudiyala|mudiyum|mudiyadha|agadhu|aagadhu)\b',
-    r'\b(vaanga|varum|vandhuduven|vandhutan|vanthen)\b',
-    
-    # Time expressions
-    r'\b(innikku?|innaiku|naalaikku?|nethu|yesterday)\b',
-    r'\b(kaalai|madhiyam|saayangaalam|raathri)\b',
-    
-    # Common particles
-    r'\b(dhan|dhaan|than|thaan|la|tha|da|nga)\b',
+    # Pronouns & question words
+    r'\b(enakku|enaku|naan|naanu|ennaku|enoda|naanga|nangaluku)\b',
+    r'\b(yenna|enna|epdi|eppadi|yeppadi|enga|enge|engey|ennanu)\b',
+    r'\b(ungal|ungala|unkal|naanga|namma|nammala|ungaluku)\b',
+    r'\b(yaar|yaaru|yaarukku|ellarum|ellam|yavlo)\b',
+    r'\b(seyyanam|seyyanum|seithen|seiyanum|seiyal)\b',
+    r'\b(enakku|unakku|avanukku|avalukku|nammakku|ungalukku)\b',
+    r'\b(yenna|yennadhu|yenna pannureenga|yenna achu)\b',
+    r'\b(eppadi|yeppadi|epdi irukeenga|epdi irukinga)\b',
+
+    # Core verbs
+    r'\b(irukku|iruku|irukken|illai|ilai|illaya|ilaiye|irundha)\b',
+    r'\b(venam|vena|vendaam|venda|varum|varuma|varuveen|varaama)\b',
+    r'\b(sollunga|sollu|solla|sonnanga|sonnen|solunga|solren)\b',
+    r'\b(pannunga|pannu|pannalam|pannanum|pannitaanga|pannaama)\b',
+    r'\b(poidalam|poitu|poittu|vaanga|vaa|povomaa|poga)\b',
+    r'\b(aagum|aaga|aayidum|aachu|aana|aagala)\b',
+    r'\b(therium|theriyum|theriyaadu|therinjuchu|therila)\b',
+    r'\b(paakanum|paakaren|paakuren|paakuren|paartha)\b',
+    r'\b(kelkanum|kelkuren|kettaen|kettilla|kelkala)\b',
+    r'\b(saapduven|saapduvaen|saapitaen|saapidala|kudikuren)\b',
+    r'\b(thoonguven|thoonguvaen|thoonginaen|thoongala)\b',
+    r'\b(nadakuren|nadanthaen|nadakala|nadakanum)\b',
+    r'\b(padikuren|padichhaen|padikkala|padikkanum)\b',
+    r'\b(vanthaen|varaen|varuvaen|vara maataen|varuvom)\b',
+    r'\b(ponaen|povaen|poren|pogala|poganum)\b',
+
+    # Medical / body
+    r'\b(vedanai|thalai|vali|noi|kaayichchal|suram|juram|kasham)\b',
+    r'\b(vayiru|vayir|kannupaka|kannu|nenju|moochu|kai|kaal|thol)\b',
+    r'\b(doctorta|hospitalku|doctorkitta|marundhu|neerilippu|tablet)\b',
+    r'\b(rogam|noyal|arogiyam|arogiyama|udalnilamai)\b',
+    r'\b(muchu|maarppu|thommalu|thalai suthuthu|vomit)\b',
+    r'\b(rathiram|moottiram|malaivu|veekkam|punn|kaayam)\b',
+    r'\b(thalai vali|vayiru vali|nenju vali|kaal vali|kai vali)\b',
+    r'\b(juram|kaayicchal|oora|ooral|sirukkal|irummal)\b',
+    r'\b(thalaichuttal|mayal|maayakkam|thalarchi|susti)\b',
+    r'\b(moochu tinapal|moochu vaangudhu|moochu padaral)\b',
+    r'\b(hridayam|nenjam|nenjathu|nenjukku|ullam)\b',
+    r'\b(kannu|kannuku|paarvai|paakka mudiyala|kurudanam)\b',
+    r'\b(kivi|seviyal|kivi kekkala|seviyal kekkala)\b',
+    r'\b(thooimai|allargi|allergy|thidichu|thadicchal)\b',
+    r'\b(pressure|sugar|diabetis|thyroid|cancer|kaayicchal)\b',
+    r'\b(thookam|thookam varala|padukka mudiyala|kadamai)\b',
+    r'\b(bayam|tension|stress|kovalai|visanam|kavalay)\b',
+
+    # Adjectives / intensifiers
+    r'\b(nalladhu|nallaah|romba|perusa|chinna|sinna|super|mosama)\b',
+    r'\b(pudusa|pazhaya|kevalamaa|mosamaa|semma|namma|konjam)\b',
+    r'\b(periya|chinna|nalla|ketta|azhaga|mosama|semma)\b',
+    r'\b(romba nalla|romba mosam|romba vali|romba bayam)\b',
+    r'\b(konjam|kocham|siru|peru|muzhusa|muzhuvadum)\b',
+    r'\b(mudiyala|mudiyum|mudinja|mudinjuchu|mudichirukku)\b',
+    r'\b(aacharyam|aachu|purichirukku|purila|therila)\b',
+
+    # Family
+    r'\b(anna|akka|thambi|thangachi|mama|mami|maama|paati|thatha)\b',
+    r'\b(amma|appa|ammaa|appaa|chithi|periappa|periyamma)\b',
+    r'\b(athai|maama|chithappa|periyappa|periyamma|chithi)\b',
+    r'\b(paati|thatha|patti|thaatha|aaya|ayya|ayah)\b',
+    r'\b(paiyan|ponnu|pillai|kulandhai|baby|pasanga)\b',
+
+    # Time / discourse
+    r'\b(innikku|innaiku|naalaikku|nethu|kaalai|madhiyam|iravula)\b',
+    r'\b(theriyuma|theriyum|theriyadhu|konjam|konnchi|puriyuthu)\b',
+    r'\b(eppothu|eppo|inga|inge|ippo|ipo|appo|appovae)\b',
+    r'\b(paarunga|paaru|mudiyala|mudiyum|mudiyadha|mudinjuchu)\b',
+    r'\b(dhan|dhaan|than|thaan|thaane|yaa|ooh)\b',
+    r'\b(ipothe|ippove|ipovae|appothe|appove|appovae)\b',
+    r'\b(mundha|munnadhi|pinnadi|pinnadhi|appozhudhu)\b',
+    r'\b(seekiram|mella|velaga|kashtama|aasaiya)\b',
+
+    # Questions / responses
+    r'\b(aama|aaamaa|illai|illaya|seri|sari|okay|otay)\b',
+    r'\b(enna achu|enna panrom|enna panna|enna solra)\b',
+    r'\b(yenna solreenga|yenna panneenga|yenna aagum)\b',
+    r'\b(theriyuma|therinjucha|purinju|purinjucha)\b',
+
+    # Unique Tamil phrases
+    r'\b(enna panrathu|enna seivom|epdi irukeenga|nalla irukeenga)\b',
+    r'\b(romba naal|konjam naal|innikku matum)\b',
+    r'\b(doctor kita poga|hospital poga|marundhu vaanga)\b',
+    r'\b(vali edukkaradhu|vali thaangala|romba vali)\b',
 ]
 
-# Telugu romanization (Tenglish) - MASSIVELY EXPANDED
 TELUGU_PATTERNS = [
-    # Common pronouns and question words
-    r'\b(naku|naaku|nenu|neenu|nannu|naa|naavalla)\b',
-    r'\b(enti|ela|yela|elaa|ekkada|eppudu?|epudu|yeppudu?)\b',
-    r'\b(meeku|mee|meeru|manam|manaku|mana|manamu)\b',
-    r'\b(evaru|yevaru|evariki|andaru|andariki|emi)\b',
-    
-    # Common verbs - MASSIVELY EXPANDED
-    r'\b(undi|undhi|undha|ledu|ledhu|leda|ledaa|ledhu)\b',
-    r'\b(vaddu|vaddhu|vaddha|raadu|radhu|raadha|ravaali)\b',
-    r'\b(cheppandi|cheppu|cheppali|cheppana|cheppara|cheppanu)\b',
-    r'\b(cheyyandi|chey|cheyyali|cheyyaali|chesanu|chesaanu)\b',
-    r'\b(raave|raandi|raavali|raavaalante|vacchi|vachchaanu)\b',
-    r'\b(avutundi|avutadhi|aindi|avtundhi|ayyindhi)\b',
-    r'\b(thinandi|thinu|thinaali|thinanu|ivvandi|ivvu)\b',
-    
-    # Common adjectives and adverbs
-    r'\b(bagundi|baagundi|baaga|chaalaa|chaala|pedhha|chinna)\b',
-    r'\b(kotha|paatha|mosam|manchidi|andhamaina|chakkaga)\b',
-    r'\b(adhi|idhi|aa|ee|danini|dhini|idi|adi)\b',
-    
-    # Family and social terms
-    r'\b(anna|akka|tammudu|chelli|babai|atta|maama)\b',
-    r'\b(amma|nanna|nana|ammana|nannagaru|ammamma)\b',
-    
-    # Medical/health terms - COMPREHENSIVE
-    r'\b(noppi|thala|kashtam|kastam|vedana|manta|mandu)\b',
-    r'\b(jwaram|cheyyi|kaalu|kalu|vayithalli|ottu|gundelu)\b',
-    r'\b(veppam|manta|budakaluga|kastam|noppi|nashtam)\b',
-    r'\b(doctorki|hospitalki|doctorgaru|vaidyudu|vaidyudi)\b',
-    r'\b(mandu|rogam|arogya|arogyam|arogyamu)\b',
-    
-    # Common words - MASSIVELY EXPANDED
-    r'\b(telusaa|telusa|thelsindhi|teliyale|teliyadu)\b',
-    r'\b(konchem|kontha|zara|saraina|sare|sariga)\b',
-    r'\b(ippudu?|ipudu|akkada|ikkada|appudu?|apudu)\b',
-    r'\b(choodandi|chudu|choosanu|chusara|chudu)\b',
-    r'\b(kaavaali|kaavaalante|raavaali|undaali|undali)\b',
-    r'\b(chepta|cheptha|cheptaanu|kaavalante)\b',
-    
-    # Time expressions
-    r'\b(eppudu?|repu|ninna|nedu|reypu|paata)\b',
-    r'\b(udayam|madhyaanam|sayantram|raatri)\b',
-    
-    # Common particles
-    r'\b(gaa|kaa|naa|ee|aa|oo|ani|ani|kada)\b',
+    # Pronouns & question words
+    r'\b(naku|naaku|nenu|neenu|nannu|naavalla|memu|meeru)\b',
+    r'\b(enti|ela|yela|elaa|ekkada|eppudu|yeppudu|enduku|emiti)\b',
+    r'\b(meeku|meeru|manam|manaku|manamu|meerandariki)\b',
+    r'\b(evaru|yevaru|evariki|andaru|andariki|elanti)\b',
+    r'\b(chesindhi|chesaanu|cheyyali|cheyyalani|chestaa)\b',
+    r'\b(nenu|meeru|vaadu|aame|vaallu|meeru|memu|modhi)\b',
+    r'\b(enti|emiti|emundi|entundi|enti vishayam|em aindi)\b',
+    r'\b(ela|elaa|ela undi|ela chesaaru|ela cheppali)\b',
+
+    # Core verbs
+    r'\b(undi|undhi|undha|ledu|ledhu|leda|ledaa|unnaraa)\b',
+    r'\b(vaddu|vaddhu|raadu|radhu|ravaali|raavali|raavadam)\b',
+    r'\b(cheppandi|cheppu|cheppali|chesanu|chesaanu|cheppukunta)\b',
+    r'\b(cheyyandi|cheyyali|cheyyaali|chesaanu|chestaanu)\b',
+    r'\b(raave|raandi|ravaali|vacchi|vachchaanu|vasthaanu)\b',
+    r'\b(avutundi|avutadhi|aindi|avtundhi|ayyindhi|avvadam)\b',
+    r'\b(telustundi|telusthundi|telusaa|teliyadu|teliyadu)\b',
+    r'\b(vinnanu|vinnaanu|vinnadu|vinadam|vinaali)\b',
+    r'\b(choodaali|choodaanu|choosanu|chusaanu|chudaali)\b',
+    r'\b(tintaanu|tintundi|tinnaanu|tinadam|tinaali)\b',
+    r'\b(taagutaanu|taagutundi|taaginaanu|taagadam)\b',
+    r'\b(padutaanu|padutundi|padukovadam|padukovali)\b',
+    r'\b(nadustunna|nadustunnanu|nadichanu|nadavadam)\b',
+    r'\b(veltaanu|veltundi|vellaanu|velladam|vellali)\b',
+    r'\b(vasthanu|vasthundi|vachchanu|ravadam|raavali)\b',
+
+    # Medical / body
+    r'\b(noppi|thala|kashtam|kastam|vedana|manta|mandu|javaramu)\b',
+    r'\b(jwaram|cheyyi|kaalu|kalu|vayithalli|ottu|gundelu|motte)\b',
+    r'\b(doctorki|hospitalki|doctorgaru|maatalu|vayyaram|gudda)\b',
+    r'\b(rogam|arogya|arogyam|arogyamu|janma|pilupa|dhaga)\b',
+    r'\b(dimma|thalaburra|vadakam|vegati|parigedu|pallu)\b',
+    r'\b(noppi|noppiga|noppigaundi|chaalaa noppi|baaga noppi)\b',
+    r'\b(thala noppi|vayithu noppi|nenu noppi|ottu noppi)\b',
+    r'\b(jwaram|jwaramgaundi|joram|kaayam|veppam|nidu)\b',
+    r'\b(daggara|daggaragaa|matlaadadam|matlaadali)\b',
+    r'\b(moochu|moochu tiyyadam|moochu levadu|gunde)\b',
+    r'\b(kannu|kannulu|choodadam|choodalenu|kannu noppi)\b',
+    r'\b(chevi|chevillu|vinadam|vinaledu|chevi noppi)\b',
+    r'\b(thalla|thallaadi|vomit|vaanti|vaantiga undi)\b',
+    r'\b(nidra|nidra raaledu|nidrapovadam|melukonaledu)\b',
+    r'\b(bayam|tension|stress|kaaladham|vishaadham)\b',
+    r'\b(pressure|sugar|diabetis|thyroid|cancer|gunde noppi)\b',
+    r'\b(raktham|muutram|malamu|cheedhu|punn|gadda)\b',
+
+    # Adjectives / intensifiers
+    r'\b(bagundi|baagundi|baaga|chaalaa|chaala|pedha|chinna|pedda)\b',
+    r'\b(kotha|paatha|mosam|manchidi|andhamaina|chakkaga|chala)\b',
+    r'\b(chaalaa manchidi|chaalaa kastam|chaalaa noppi)\b',
+    r'\b(konchem|kochem|koddiga|pedda|chinna|bayya|bhayya)\b',
+    r'\b(baagaa|baagaledu|manchiga|manchiga ledu|kashtanga)\b',
+    r'\b(veelaite|veelanante|veelakapothe|avvadam ledu)\b',
+
+    # Family
+    r'\b(tammudu|chelli|babai|atta|nannagaru|ammamma|thaatha)\b',
+    r'\b(nanna|ammana|amma|avadhaanam|akka|anna|maama)\b',
+    r'\b(pinni|peddamma|chinnamma|babai|mama|attayya)\b',
+    r'\b(pillalu|pilla|abbayi|ammayi|bidda|biddalu)\b',
+
+    # Time / discourse
+    r'\b(repu|ninna|nedu|reypu|paata|udayam|madhyaanam|raatri)\b',
+    r'\b(telusaa|telusa|thelsindhi|teliyale|teliyadu|telustundha)\b',
+    r'\b(konchem|kontha|saraina|sare|sariga|cheppemaa|adhe)\b',
+    r'\b(ippudu|ipudu|akkada|ikkada|appudu|apudu|antey|anthe)\b',
+    r'\b(choodandi|chudu|choosanu|chusara|chepta|cheppataniki)\b',
+    r'\b(mundu|mundhu|taruvata|taruvaata|akkadi|ikkadi)\b',
+    r'\b(vegam|veganga|mellaga|aagutundi|avvadam|kaadu)\b',
+
+    # Unique Telugu phrases
+    r'\b(ela undi|enti vishayam|evvadu cheppadu|ela chesaaru)\b',
+    r'\b(kosta undi|kastanga undi|manchiga ledu)\b',
+    r'\b(doctor daggara vellali|hospital ki vellali)\b',
+    r'\b(maatalu vinandi|cheppandi|ardham chesukunnaru)\b',
+    r'\b(noppi thaagaledu|chaalaa noppi|baadha gaa undi)\b',
 ]
 
-# Kannada romanization (Kanglish) - MASSIVELY EXPANDED
 KANNADA_PATTERNS = [
-    # Common pronouns and question words
-    r'\b(nanage|nange|naanu|naan|nannu|nanna|naa|naavu)\b',
-    r'\b(yenu|yaav|hege|heege|yelli|yaake|yavag|yaavag)\b',
-    r'\b(nimma|nimmage|nimge|navu|namage|naavu|namma)\b',
-    r'\b(yaaru|yaarunu|yaaranna|ellaru|yellaru|yaava)\b',
-    
-    # Common verbs - MASSIVELY EXPANDED
-    r'\b(ide|idey?|idhe|illa|ilde|ille|ilva|idya|ide)\b',
+    # Pronouns & question words
+    r'\b(nanage|nange|naanu|naan|nannu|nanna|naavu|navarige)\b',
+    r'\b(yenu|yaav|hege|heege|yelli|yaake|yavag|yaavag|yeshtu)\b',
+    r'\b(nimma|nimmage|nimge|navu|namage|namma|navarige)\b',
+    r'\b(yaaru|yaarunu|yaaranna|ellaru|yellaru|avaru)\b',
+    r'\b(maadabeku|maadali|maadide|maadu|maadthini)\b',
+    r'\b(naanu|neevu|avanu|avalu|avaru|namma|nimma)\b',
+    r'\b(yenu|yenidhu|yenu aagide|yenu aaythu|yenu madli)\b',
+    r'\b(hege|heege|hege iddira|hege maadali|hege hogi)\b',
+
+    # Core verbs
+    r'\b(idhe|ildhe|ille|ilva|idya|iddhe|idheyaa)\b',
     r'\b(beda|beku|bekilla|beko|barutta|bandu|bartini)\b',
-    r'\b(heli|helakke|helalu|helidare|helidru|helodu)\b',
-    r'\b(maadi|maadakke|maadbeku|maadide|maadidare|maadu)\b',
+    r'\b(heli|helakke|helalu|helidare|helidru|helodu|helthini)\b',
+    r'\b(maadi|maadakke|maadbeku|maadide|maadu|maadona)\b',
     r'\b(baa|banni|hogu|hogakke|hogona|hogbedi|hogthini)\b',
-    r'\b(aagutta|aagthide|aaithu|aagbeku|aagtide)\b',
-    r'\b(thinno|thinnu|thinbeku|thinde|kodu|kodthini)\b',
-    
-    # Common adjectives and adverbs
-    r'\b(chennagide|chennagi|chennag|thumba|dodda|chikka)\b',
-    r'\b(hosa|haala|ketta|olleyadu|sundara|olleya)\b',
-    r'\b(adhu|idhu|aa|ii|ivanu|avanu|avalu)\b',
-    
-    # Family and social terms
-    r'\b(anna|akka|thambi|thangi|ajja|ajji|amma)\b',
-    r'\b(amma|appa|ammana|appana|aththayya|maava)\b',
-    
-    # Medical/health terms - COMPREHENSIVE
-    r'\b(novu|tale|kashta|kashtaa|hotta|sorethana|noppu)\b',
-    r'\b(jvara|jwara|kai|kaalu|hotte|hotta|vayithalli)\b',
-    r'\b(hotta|novu|sorethana|kaashu|thala|tale|moogu)\b',
-    r'\b(doctorge|hospitalge|doctarige|vaidyaru|vaidya)\b',
-    r'\b(maddu|roga|arogyaa|arogya|aushadha)\b',
-    
-    # Common words - MASSIVELY EXPANDED
+    r'\b(aagutta|aagthide|aaithu|aagbeku|aagtide|aagthilla)\b',
+    r'\b(gothu|gottilla|gottide|gothaagide|gothaagilla)\b',
+    r'\b(nodbeku|nodthini|nodthilla|nodidhe|nodala)\b',
+    r'\b(kelisabeku|kelthini|kelthilla|kelidhe|kelala)\b',
+    r'\b(tinbeku|tinthini|tinnthilla|tindhe|tinala)\b',
+    r'\b(kudibeku|kudithini|kudithilla|kudidhe|kudiala)\b',
+    r'\b(madkobaeku|madkothini|madkothilla|madkodhe)\b',
+    r'\b(hogbeku|hogthini|hogthilla|hodhe|hogala)\b',
+    r'\b(barбeku|barthini|barthilla|bandhe|barala)\b',
+    r'\b(maathadabeku|maathadthini|maathadthilla|maathadidhe)\b',
+
+    # Medical / body
+    r'\b(novu|tale|kashta|kashtaa|hotta|sorethana|noppu|vedane)\b',
+    r'\b(jvara|jwara|kai|kaalu|hotte|tala|tale|moogu|kannu|bevu)\b',
+    r'\b(doctorge|hospitalge|doctarige|maathu|oushadha|maddu)\b',
+    r'\b(roga|arogyaa|arogya|aushadha|gunaamu|dehavasthe)\b',
+    r'\b(talabyatha|thumba|hasivu|baayi|gedda|makkalu)\b',
+    r'\b(tale novu|hotte novu|kaal novu|kai novu|novu idhe)\b',
+    r'\b(jwara|jwaravidhe|jwara idhe|odale|odaladhe)\b',
+    r'\b(kesaru|kesarithu|kempu|kempaaythu|kempaagide)\b',
+    r'\b(moochu|moochuttu|moochu kashtaa|haagilla)\b',
+    r'\b(kannu|kannige|nodu|nodokke|nodilla|nodala)\b',
+    r'\b(kivi|kivige|kelisabeku|kelilla|kelala)\b',
+    r'\b(vomit|vaaanthiaaythu|vaanti|vaanti bandide)\b',
+    r'\b(nidde|nidde barilla|nidde aagilla|jaagide)\b',
+    r'\b(bhaya|tenshan|stress|kalata|chintne|dukha)\b',
+    r'\b(pressure|sugar|diabetis|thyroid|cancer|gunde novu)\b',
+    r'\b(raktha|mutra|mala|kaayile|gaayanaa|punn)\b',
+
+    # Adjectives / intensifiers
+    r'\b(chennagide|chennagi|chennag|thumba|dodda|chikka|tumba)\b',
+    r'\b(hosa|haala|ketta|olleyadu|sundara|olleya|bari|baree)\b',
+    r'\b(thumba chennagide|thumba kashtaa|thumba novu)\b',
+    r'\b(swalpa|swalpaa|dodda|chikka|hecchu|kammi)\b',
+    r'\b(aagilla|aagthilla|aagbeku|maadalla|maadthilla)\b',
+    r'\b(gothaagide|gothaaygide|gotthu|gottilla)\b',
+
+    # Family
+    r'\b(ajja|ajji|aththayya|maava|appa|amma|anna|akka|tangi|tamma)\b',
+    r'\b(doddappa|doddamma|chikkappa|chikkamma|atthe|maava)\b',
+    r'\b(makkalu|makkal|huduga|hudugi|bidda|biddalu)\b',
+    r'\b(ganda|hendthi|henbidda|gandu bidda|jothe)\b',
+
+    # Time / discourse
+    r'\b(ivatt|naale|ninne|heege|beegane|adre|adru|aadre)\b',
+    r'\b(beligge|madhyaahna|saayamkaala|raathri|irulinda)\b',
     r'\b(gothu|gottilla|gottila|gottaythu|gottide|gottu)\b',
-    r'\b(konje|kontha|sarina|sari|sarige|sariyaagi)\b',
-    r'\b(yeshtu|yaava|yeshtu|yavaga|illi|alli|illa)\b',
-    r'\b(nodu|nodakke|nodidare|nodona|nodthiya|nodi)\b',
-    r'\b(agbeku|agalla|agthu|agtilla|aglilla|aagodu)\b',
-    r'\b(helthini|helthiya|helidhe|helbekadre)\b',
-    
-    # Time expressions
-    r'\b(ivatt|naale|ninne|yeshtu|yeashtu|heege)\b',
-    r'\b(beligge|madhyaahna|saayamkaala|raathri)\b',
-    
-    # Common particles
-    r'\b(alla|alle|appa|enu|yaake|henge|li|ge)\b',
+    r'\b(konje|kontha|sarina|sari|sarige|sariyaagi|summane)\b',
+    r'\b(nodu|nodakke|nodidare|nodona|nodi|nodthini|nodthilla)\b',
+    r'\b(agbeku|agalla|agthu|agtilla|aglilla|agthide|agthilla)\b',
+    r'\b(mundhe|mundhhe|nantara|nantare|appozhige|appozhigu)\b',
+    r'\b(bega|begane|nidhaana|nidhaanavaagi|asupatrege)\b',
+
+    # Questions / responses
+    r'\b(howdu|howdaa|illa|illaa|sari|sariya|okay|otay)\b',
+    r'\b(yenu aagide|yenu aaythu|yenu madtheera)\b',
+    r'\b(hege iddira|hege irtheera|hege maadali)\b',
+    r'\b(gotthaagide|gotthu|gotthilla|gottaythu)\b',
+
+    # Unique Kannada phrases
+    r'\b(hege iddira|hege idheera|yenu aagide|yenu aaythu)\b',
+    r'\b(tumba kashta|tumba novu|hotte novu)\b',
+    r'\b(doctorge hogbeku|hospitalge hogbeku|maddu thagolli)\b',
+    r'\b(novu idhe|novu thumba|novu kashtaa|novu aagthide)\b',
 ]
 
-# Hindi romanization (Hinglish) - MASSIVELY EXPANDED
 HINDI_PATTERNS = [
-    # Common pronouns and question words
-    r'\b(mujhe|mujhko|main|mai|mera|mere|mujh|mujse|mujhse)\b',
-    r'\b(kya|kyon|kyun|kaise|kab|kaha|kahaan|kidhar|kyaa)\b',
-    r'\b(aapka|aapko|aapke|humara|humare|tumhara|tumhe)\b',
-    r'\b(kaun|kiski|kiska|kiske|sabh|sabko|sab)\b',
-    
-    # Common verbs - MASSIVELY EXPANDED
-    r'\b(hai|hain|hoon|ho|tha|thi|the|honge|hoga)\b',
-    r'\b(nahi|nahin|naa|mat|bilkul|nhi|ni)\b',
-    r'\b(chahiye|chaahiye|chahte|chahti|chaah|chahta)\b',
-    r'\b(karo|karna|karne|karke|kiya|kiye|karu|karunga)\b',
-    r'\b(aana|aane|aaya|aaye|aao|aaiye|aati|aata)\b',
-    r'\b(hoga|hogi|hoge|honge|hogaya|hojaega|hojayega)\b',
-    r'\b(khana|khao|khaya|khaana|piyo|piya|pina)\b',
-    
-    # Common adjectives and adverbs
-    r'\b(achha|accha|achchhi|bahut|bohot|zyada|kam|jyada)\b',
-    r'\b(bada|badi|bade|chota|choti|chote|naya|purana)\b',
-    r'\b(yeh|ye|voh|vo|woh|wo|iska|uska|isse)\b',
-    
-    # Family and social terms
-    r'\b(bhai|didi|bhaiya|dada|dadi|nana|nani|maa)\b',
-    r'\b(maa|papa|baba|ammi|abbu|pitaji|mataji)\b',
-    
-    # Medical/health terms - COMPREHENSIVE
-    r'\b(dard|takleef|sir|sar|seer|peeth|gala|pet)\b',
-    r'\b(bukhar|haath|pair|pet|payt|seene|sine|sar)\b',
-    r'\b(sujan|khujli|jalan|ghav|zakham|chot|lagi)\b',
-    r'\b(doctorko|hospitalme|doctorsaab|vaidya|dawai)\b',
-    r'\b(dawa|dawaai|bimari|rog|swasthya|sehat)\b',
-    
-    # Common words - MASSIVELY EXPANDED
-    r'\b(batao|pata|malum|maloom|jaanta|jaante|janta)\b',
-    r'\b(thoda|thodi|zara|bilkul|ekdum|puri|poora)\b',
-    r'\b(kitna|kitni|kahan|kahaan|kab|kabhi|jab)\b',
-    r'\b(dekho|dekhna|dekhe|dekha|dekhi|dikhta|dikha)\b',
-    r'\b(samajh|samjha|samjho|milega|mila|mile|mil)\b',
-    r'\b(chalega|chalegi|chalo|chale|chalna|jayega)\b',
-    
-    # Time expressions
-    r'\b(aaj|kal|parso|subah|shaam|raat|dophar)\b',
-    r'\b(savere|subah|dopahar|saam|raat|raatri)\b',
-    
-    # Common particles
-    r'\b(haan|han|naa|na|ji|bhi|toh|to|kyunki)\b',
+    # Pronouns & question words
+    r'\b(mujhe|mujhko|mera|mere|mujhse|meri|hamara|hamare)\b',
+    r'\b(kya|kyon|kyun|kaise|kab|kaha|kahaan|kidhar|kyunki)\b',
+    r'\b(aapka|aapko|aapke|humara|humare|tumhara|tumhe|tumko)\b',
+    r'\b(kaun|kiski|kiska|kiske|sabko|sabhi|sab)\b',
+    r'\b(karna|karke|kiya|kiye|karunga|karna|karo|kare)\b',
+    r'\b(main|mein|hum|tum|aap|vo|woh|yeh|ye)\b',
+    r'\b(kya|kyaa|kyun|kyon|kaise|kaisa|kaisi)\b',
+    r'\b(iska|uska|inka|unka|apna|apni|apne)\b',
+
+    # Core verbs
+    r'\b(hain|hoon|honge|hoga|hogi|hoge|huaa|hui)\b',
+    r'\b(nahi|nahin|mat|bilkul|nhi|nai|naa)\b',
+    r'\b(chahiye|chaahiye|chahte|chahti|chahta)\b',
+    r'\b(aana|aane|aaya|aaye|aao|aaiye|aati|aata|aayi)\b',
+    r'\b(khana|khao|khaya|khaana|piyo|piya|pina|khaiye)\b',
+    r'\b(jaana|jaao|gaya|gayi|jaaiye|jayenge|jaate)\b',
+    r'\b(dekhna|dekho|dekha|dikha|dikhta|dekhiye|dekhte)\b',
+    r'\b(sunna|suno|suna|sunte|suniye|sunaai|sunayi)\b',
+    r'\b(bolna|bolo|bola|bolte|boliye|bolunga|bolenge)\b',
+    r'\b(karna|karo|kiya|karte|kariye|karunga|karenge)\b',
+    r'\b(lena|lo|liya|lete|lijiye|lunga|lenge)\b',
+    r'\b(dena|do|diya|dete|dijiye|dunga|denge)\b',
+    r'\b(uthna|utho|utha|uthte|uthiye|uthunga|uthenge)\b',
+    r'\b(baithna|baitho|baitha|baithte|baithiye)\b',
+    r'\b(sona|so|soya|soye|soiye|sounga|soenge)\b',
+    r'\b(padhna|padho|padha|padhte|padhiye|padhlunga)\b',
+    r'\b(likhna|likho|likha|likhte|likhiye|likhunga)\b',
+    r'\b(samajhna|samjho|samjha|samjhe|samjhiye)\b',
+    r'\b(rehna|raho|raha|rahi|rahiye|rahunga|rahenge)\b',
+
+    # Medical / body
+    r'\b(dard|takleef|seer|peeth|gala|bukhar|sujan|dhadkan)\b',
+    r'\b(khujli|jalan|ghav|zakham|chot|lagi|dawai|dawaai|tablet)\b',
+    r'\b(doctorko|hospitalme|doctorsaab|vaidya|dawakhana|clinic)\b',
+    r'\b(bimari|rog|swasthya|sehat|tabiyat|body|andar)\b',
+    r'\b(pet|sar|aankhein|kaan|naak|muh|haath|pair|seena|kamar)\b',
+    r'\b(sir dard|pet dard|seena dard|kamar dard|paon dard)\b',
+    r'\b(bukhar|jwara|tapman|garmi|thandi|kaapna)\b',
+    r'\b(khansi|khaans|naak beh|naak band|zukam|sardi)\b',
+    r'\b(ulti|vomit|matli|chakkar|behoshi|gir jaana)\b',
+    r'\b(khoon|khoon nikalna|peshab|peshab mein|latrine)\b',
+    r'\b(aankhon mein|aankhon se|aankhein dukh|dhundhla)\b',
+    r'\b(kaanon mein|kaanon se|sunaai nahi|bahra)\b',
+    r'\b(thakaan|kamzori|aanv|susti|neend|neend nahi)\b',
+    r'\b(tension|stress|chinta|ghabrahat|darr|darna)\b',
+    r'\b(pressure|sugar|madhumeh|thyroid|cancer|tumor)\b',
+    r'\b(heart|dil|dil ki dhadkan|dil dard|dil mein)\b',
+    r'\b(saas|saas lena|saas phoolna|saas ki takleef)\b',
+    r'\b(dawa|dawai|goli|capsule|syrup|injection|ilaaj)\b',
+
+    # Adjectives / intensifiers
+    r'\b(achha|accha|achchhi|bahut|bohot|zyada|jyada|thoda|bilkul)\b',
+    r'\b(bada|badi|bade|chota|choti|chote|naya|purana|purani)\b',
+    r'\b(theek|theekh|sahi|galat|mushkil|aasaan)\b',
+    r'\b(bahut zyada|bahut takleef|bahut dard|bahut bura)\b',
+    r'\b(thoda sa|thodi si|zyada nahi|kam hai|kaafi hai)\b',
+    r'\b(seedha|seedhi|ulta|achanak|jaldi|dhire)\b',
+    r'\b(purana|naya|pehle se|abhi se|kal se|aaj se)\b',
+
+    # Family
+    r'\b(bhai|didi|bhaiya|dada|dadi|nana|nani|chacha|chachi)\b',
+    r'\b(maa|papa|baba|ammi|abbu|pitaji|mataji|beta|beti)\b',
+    r'\b(naana|naani|dada|daadi|taya|tayi|mama|maami)\b',
+    r'\b(pati|patni|biwi|shohar|baccha|bachchey|pariwar)\b',
+
+    # Time
+    r'\b(aaj|subah|shaam|raat|dophar|savere|dopahar|kal|parson)\b',
+    r'\b(abhi|pehle|baad|jab|tab|phir|agle|pichle)\b',
+    r'\b(do din se|teen din se|ek hafte se|mahine se)\b',
+    r'\b(subah se|raat se|kuch ghante se|thodi der se)\b',
+    r'\b(kabse|kitne din se|kab se hai|kab hua)\b',
+
+    # Discourse particles
+    r'\b(batao|pata|malum|maloom|jaanta|jaante|janta|samjha)\b',
+    r'\b(thoda|thodi|zara|ekdum|puri|poora|sirf|bas)\b',
+    r'\b(haan|han|ji|bhi|toh|kyunki|lekin|aur|ya|par)\b',
+    r'\b(samajh|samjha|samjho|milega|mila|mile|samjhe)\b',
+    r'\b(achha ji|theek hai|haan ji|nahin ji|shukriya)\b',
+    r'\b(please|zaroor|bilkul|zaruri|important|problem)\b',
+
+    # Questions / responses
+    r'\b(kya hua|kya ho raha|kya problem|kya takleef)\b',
+    r'\b(theek nahi|theek ho|theek hai|sahi nahi|sahi hai)\b',
+    r'\b(dard ho raha|takleef ho rahi|bura lag raha)\b',
+    r'\b(doctor ke paas|hospital jana|dawai lena|ilaaj)\b',
+    r'\b(kya khaaun|kya peeun|kya karun|kya na karun)\b',
+    r'\b(kitna lena|kab lena|kaise lena|kitni baar)\b',
 ]
 
 LANGUAGE_CODE_MAP = {
@@ -2268,172 +2483,116 @@ LANGUAGE_CODE_MAP = {
     'ml': 'Malayalam',
 }
 
+
 def detect_romanized_language(text: str) -> Optional[str]:
-    """
-    ✅ FIXED: Detect romanized Indian languages with MUCH better accuracy
-    
-    Returns: Language name if detected, None otherwise
-    """
     if not text or len(text.strip()) < 3:
         return None
-        
-    text_lower = text.lower()
-    
-    # Count matches for each language
-    scores = {
-        'Malayalam': sum(1 for pattern in MALAYALAM_PATTERNS if re.search(pattern, text_lower, re.IGNORECASE)),
-        'Tamil': sum(1 for pattern in TAMIL_PATTERNS if re.search(pattern, text_lower, re.IGNORECASE)),
-        'Telugu': sum(1 for pattern in TELUGU_PATTERNS if re.search(pattern, text_lower, re.IGNORECASE)),
-        'Kannada': sum(1 for pattern in KANNADA_PATTERNS if re.search(pattern, text_lower, re.IGNORECASE)),
-        'Hindi': sum(1 for pattern in HINDI_PATTERNS if re.search(pattern, text_lower, re.IGNORECASE)),
+
+    text_lower = text.lower().strip()
+
+    # Skip if text is clearly English only (no Indian language markers)
+    # But still check — some mixed sentences need detection
+    pattern_map = {
+        'Malayalam': MALAYALAM_PATTERNS,
+        'Tamil':     TAMIL_PATTERNS,
+        'Telugu':    TELUGU_PATTERNS,
+        'Kannada':   KANNADA_PATTERNS,
+        'Hindi':     HINDI_PATTERNS,
     }
-    
+
+    scores = {}
+    for lang, patterns in pattern_map.items():
+        score = 0
+        for p in patterns:
+            match = re.search(p, text_lower, re.IGNORECASE)
+            if match:
+                # Weight by match length — longer matches are more specific
+                score += 1 + (len(match.group(0)) // 4)
+        scores[lang] = score
+
+    logger.debug(f'[detect_romanized_language] scores={scores} text="{text[:80]}"')
+
     max_score = max(scores.values())
-    
-    # ✅ CRITICAL FIX: Lower threshold from 2 to 1
-    # Even a SINGLE romanized word means we should treat it as that language
+
     if max_score >= 1:
-        detected_lang = max(scores.items(), key=lambda x: x[1])[0]
-        logger.info(f"[detect_romanized_language] ✅ Detected: {detected_lang} (score: {max_score})")
-        logger.info(f"[detect_romanized_language] All scores: {scores}")
-        logger.info(f"[detect_romanized_language] Text sample: {text[:100]}")
-        return detected_lang
-    
-    logger.info(f"[detect_romanized_language] No romanized language detected (max score: {max_score})")
+        detected = max(scores, key=lambda k: scores[k])
+        logger.info(
+            f'[detect_romanized_language] ✅ {detected} '
+            f'(score={max_score}) for: "{text[:60]}"'
+        )
+        return detected
+
     return None
 
 
 def detect_language(text: str) -> str:
     """
-    Enhanced language detection with better romanization support
-    
-    Returns: Language name (e.g., 'English', 'Hindi', 'Malayalam', etc.)
+    Detect language from text.
+    Priority:
+      1. Romanized Indian language detection (Manglish / Tanglish / etc.)
+      2. Native script via langdetect
+      3. Default → English
     """
     try:
-        text = text.strip()
-        
+        text = (text or '').strip()
         if not text or len(text) < 3:
             return 'English'
-        
-        logger.info(f"[detect_language] Analyzing: {text[:100]}")
-        
-        # ✅ STEP 1: Check romanized languages FIRST (highest priority)
-        romanized_lang = detect_romanized_language(text)
-        if romanized_lang:
-            logger.info(f"[detect_language] ✅ ROMANIZED: {romanized_lang}")
-            return romanized_lang
-        
-        # ✅ STEP 2: Try native script detection
+
+        # Step 1: Check romanized first
+        romanized = detect_romanized_language(text)
+        if romanized:
+            logger.info(f'[detect_language] ✅ ROMANIZED → {romanized}')
+            return romanized
+
+        # Step 2: Native script via langdetect
         try:
-            from langdetect import detect as langdetect_detect
-            lang_code = langdetect_detect(text)
-            language = LANGUAGE_CODE_MAP.get(lang_code, 'English')
-            
-            # If detected as English but has non-ASCII, might be romanized
-            if language == 'English':
-                ascii_ratio = sum(1 for c in text if c.isascii()) / len(text)
-                logger.info(f"[detect_language] ASCII ratio: {ascii_ratio:.2f}")
-                
-                # If mostly ASCII, it's probably English
-                if ascii_ratio > 0.9:
-                    logger.info(f"[detect_language] ✅ NATIVE: English (high ASCII)")
-                    return 'English'
-                else:
-                    # Might be mixed - check romanized again with lower threshold
-                    logger.info(f"[detect_language] ℹ️ Low ASCII - might be mixed")
-                    return 'English'  # Default to English for mixed
-            
-            logger.info(f"[detect_language] ✅ NATIVE: {language} (code: {lang_code})")
-            return language
-            
-        except Exception as e:
-            logger.warning(f"[detect_language] langdetect failed: {e}")
-            
-            # Fallback: check ASCII ratio
-            if text:
-                ascii_ratio = sum(1 for c in text if c.isascii()) / len(text)
-                if ascii_ratio > 0.8:
-                    logger.info(f"[detect_language] ✅ FALLBACK: English (ASCII ratio: {ascii_ratio:.2f})")
-                    return 'English'
-        
-        # ✅ STEP 3: Default to English
-        logger.info(f"[detect_language] ✅ DEFAULT: English")
+            from langdetect import detect as _detect
+            code = _detect(text)
+            lang = LANGUAGE_CODE_MAP.get(code, 'English')
+            logger.info(f'[detect_language] ✅ NATIVE → {lang} (code={code})')
+            return lang
+        except Exception as exc:
+            logger.warning(f'[detect_language] langdetect failed: {exc}')
+
         return 'English'
-        
-    except Exception as e:
-        logger.error(f"[detect_language] Error: {e}")
+
+    except Exception as exc:
+        logger.error(f'[detect_language] error: {exc}')
         return 'English'
 
 
+def get_response_language(
+    user_message: str,
+    user_selected_language: Optional[str] = None,
+) -> str:
 
-def is_mixed_language(text):
-    """
-    Check if text is mixed language (like Manglish, Tanglish)
-    
-    Returns:
-        True if mixed, False otherwise
-    """
-    try:
-        # Count English characters
-        english_chars = sum(1 for c in text if c.isascii() and c.isalpha())
-        
-        # Count non-English characters
-        non_english_chars = sum(1 for c in text if not c.isascii() and c.isalpha())
-        
-        total_chars = english_chars + non_english_chars
-        
-        if total_chars == 0:
-            return False
-        
-        # If both English and non-English present, it's mixed
-        english_ratio = english_chars / total_chars
-        
-        # Mixed if 20-80% English (adjust threshold as needed)
-        is_mixed = 0.2 < english_ratio < 0.8
-        
-        if is_mixed:
-            logger.info(f"[is_mixed_language] Detected mixed language (English ratio: {english_ratio:.2f})")
-        
-        return is_mixed
-        
-    except Exception as e:
-        logger.error(f"[is_mixed_language] Error: {e}")
-        return False
+    # 1. Check native scripts FIRST (highest priority)
+    native_script_ranges = [
+        ('\u0d00', '\u0d7f', 'Malayalam'),
+        ('\u0b80', '\u0bff', 'Tamil'),
+        ('\u0c00', '\u0c7f', 'Telugu'),
+        ('\u0c80', '\u0cff', 'Kannada'),
+        ('\u0900', '\u097f', 'Hindi'),
+    ]
+    for start, end, lang_name in native_script_ranges:
+        if any(start <= char <= end for char in user_message):
+            logger.info(f'[get_response_language] Native script detected: {lang_name}')
+            return lang_name
 
-
-def get_response_language(user_message: str, user_selected_language: Optional[str] = None) -> str:
-    """
-    ✅ FIXED: Determine response language with improved detection
-    
-    Args:
-        user_message: User's input text
-        user_selected_language: Language selected in dropdown (optional)
-    
-    Returns: Language to use for response
-    """
-    # ✅ PRIORITY 1: If user explicitly selected a non-English language, use it
+    # 2. Explicit non-English selection
     if user_selected_language and user_selected_language != 'English':
-        logger.info(f"[get_response_language] Using user selection: {user_selected_language}")
+        logger.info(f'[get_response_language] User selected: {user_selected_language}')
         return user_selected_language
-    
-    # ✅ PRIORITY 2: Auto-detect romanized language
-    detected_language = detect_romanized_language(user_message)
-    
-    if detected_language:
-        logger.info(f"[get_response_language] ✅ Auto-detected romanized: {detected_language}")
-        return detected_language
-    
-    # ✅ PRIORITY 3: Try native script detection
+    # 3. Native script
     try:
-        native_lang = detect_language(user_message)
-        if native_lang and native_lang != 'English':
-            logger.info(f"[get_response_language] Auto-detected native: {native_lang}")
-            return native_lang
-    except:
+        native = detect_language(user_message)
+        if native and native != 'English':
+            logger.info(f'[get_response_language] Auto-detected native: {native}')
+            return native
+    except Exception:
         pass
-    
-    # ✅ DEFAULT: English
-    logger.info(f"[get_response_language] ✅ DEFAULT: English")
+
+    # 4. Default
     return 'English'
 
 
@@ -3104,3 +3263,17 @@ __all__ = [
     'get_ocr_statistics',
     'log_ocr_processing',
 ]
+
+# def detect_voice_language(text: str) -> str:
+#     return detect_language(text)
+
+# def map_language_to_voice_code(language: str) -> str:
+#     mapping = {
+#         'English': 'en-US',
+#         'Hindi': 'hi-IN',
+#         'Kannada': 'kn-IN',
+#         'Tamil': 'ta-IN',
+#         'Telugu': 'te-IN',
+#         'Malayalam': 'ml-IN',
+#     }
+#     return mapping.get(language, 'en-US')
