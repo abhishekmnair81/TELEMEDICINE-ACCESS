@@ -13,6 +13,9 @@ from datetime import timedelta, datetime
 from django.shortcuts import get_object_or_404
 import logging
 import random
+
+import tempfile
+
 import base64
 from PIL import Image
 from decimal import Decimal
@@ -1057,7 +1060,32 @@ def chat_stream(request):
         )
         
         detected_language = get_response_language(msg, user_selected_language)
-        language = detected_language
+
+        # Priority: native script > user selected > romanized > English
+        native_script_ranges = [
+            ('\u0d00', '\u0d7f', 'Malayalam'),
+            ('\u0b80', '\u0bff', 'Tamil'),
+            ('\u0c00', '\u0c7f', 'Telugu'),
+            ('\u0c80', '\u0cff', 'Kannada'),
+            ('\u0900', '\u097f', 'Hindi'),
+        ]
+        native_detected = None
+        for start, end, lang_name in native_script_ranges:
+            if any(start <= char <= end for char in msg):
+                native_detected = lang_name
+                break
+
+        if native_detected:
+            language = native_detected
+            logger.info(f"[chat_stream] Native script: {language}")
+        elif user_selected_language and user_selected_language != 'English':
+            language = user_selected_language
+            logger.info(f"[chat_stream] User selected: {language}")
+        else:
+            language = detected_language
+            logger.info(f"[chat_stream] Auto detected: {language}")
+
+
         
         logger.info("="*60)
         logger.info("[chat_stream] LANGUAGE & EMERGENCY CHECK")
@@ -1138,14 +1166,10 @@ def chat_stream(request):
                     yield f"data: {json.dumps({'chunk': chunk})}\n\n"
 
                 show_hospitals = show_hospitals_from_user
-                
-                ai_suggests_doctor = check_ai_response_for_hospital_trigger(full_response)
-                if ai_suggests_doctor and emergency_level == 'critical':
+
+                if not show_hospitals and emergency_level == 'critical':
                     show_hospitals = True
-                    logger.info("[chat_stream] 🏥 AI suggested doctor visit + CRITICAL = enabling hospital finder")
-                elif ai_suggests_doctor and emergency_level != 'critical':
-                    show_hospitals = False
-                    logger.info("[chat_stream] ℹ️ AI suggested doctor but NOT critical - NO hospitals")
+                    logger.info("[chat_stream] Critical emergency in response - enabling hospital finder")
 
                 assistant_message = ChatHistory.objects.create(
                     conversation=conversation,
@@ -1167,7 +1191,7 @@ def chat_stream(request):
                     'conversation_id': str(conversation.id),
                     'show_hospitals': show_hospitals, 
                     'emergency_level': emergency_level,
-                    'detected_language': language 
+                    'detected_language': language ,
                 }
                 
                 logger.info(f"[chat_stream] 📤 Sending completion data:")
@@ -5297,7 +5321,11 @@ def chat_stream(request):
         
         user_selected_language = data.get('language', 'English')
         detected_language = get_response_language(msg, user_selected_language)
-        language = detected_language
+
+        if user_selected_language and user_selected_language != 'English':
+            language = user_selected_language
+        else:
+            language = detected_language
 
         conversation_id = data.get('conversation_id')
 
@@ -7813,3 +7841,128 @@ class PharmacistsViewSet(viewsets.ViewSet):
             'message': 'Profile picture updated successfully',
             'profile_picture_url': serializer.data.get('profile_picture_url'),
         })
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def voice_to_text(request):
+    try:
+        audio_file = request.FILES.get('audio')
+        language = request.data.get('language', 'English')
+        selected_language = request.data.get('selected_language', language)
+
+        print(f"[VOICE] Language param: {language}")
+        print(f"[VOICE] Selected language: {selected_language}")
+
+        if selected_language and selected_language != 'English':
+            language = selected_language
+
+        if not audio_file:
+            return Response({'error': 'No audio file'}, status=400)
+
+        groq_api_key = os.getenv('GROQ_API_KEY')
+        if not groq_api_key:
+            return Response({'error': 'GROQ_API_KEY not configured'}, status=500)
+
+        try:
+            from groq import Groq
+        except ImportError:
+            return Response({'error': 'groq package not installed'}, status=500)
+
+        client = Groq(api_key=groq_api_key)
+
+        lang_code_map = {
+            'English': 'en', 'Hindi': 'hi', 'Kannada': 'kn',
+            'Tamil': 'ta', 'Telugu': 'te', 'Malayalam': 'ml'
+        }
+        lang_code = lang_code_map.get(language, 'en')
+
+        audio_bytes = audio_file.read()
+        file_size = len(audio_bytes)
+        logger.info(f"[voice_to_text] Received audio: {audio_file.name}, "
+                    f"size={file_size}, content_type={audio_file.content_type}")
+
+        if file_size < 1000:
+            return Response({
+                'success': False,
+                'error': 'Audio too short'
+            }, status=400)
+
+        # Determine extension from content type or filename
+        content_type = audio_file.content_type or ''
+        filename = audio_file.name or 'voice.webm'
+
+        if 'ogg' in content_type or filename.endswith('.ogg'):
+            ext = 'ogg'
+        elif 'mp4' in content_type or filename.endswith('.mp4'):
+            ext = 'mp4'
+        else:
+            ext = 'webm'
+
+        # Save to temp file
+        with tempfile.NamedTemporaryFile(
+            suffix=f'.{ext}', delete=False
+        ) as tmp:
+            tmp.write(audio_bytes)
+            tmp_path = tmp.name
+
+        try:
+            logger.info(f"[voice_to_text] Sending to Groq Whisper: {tmp_path}")
+            with open(tmp_path, 'rb') as f:
+                transcription = client.audio.transcriptions.create(
+                    model="whisper-large-v3",
+                    file=(f'audio.{ext}', f, f'audio/{ext}'),
+                    language=lang_code,
+                    response_format="text"
+                )
+
+            text = transcription if isinstance(transcription, str) else transcription.text
+            text = (text or '').strip()
+
+            logger.info(f"[voice_to_text] Transcribed: '{text}'")
+
+            # Filter out Whisper hallucinations (dots, empty, thank you, etc.)
+            hallucinations = {'.', '..', '...', 'thank you', 'thanks',
+                              'you', 'bye', 'okay', 'ok', ''}
+            if text.lower() in hallucinations or len(text) < 2:
+                return Response({
+                    'success': False,
+                    'error': 'Could not understand speech. Please speak clearly.'
+                }, status=200)
+
+            from .helpers import get_response_language
+            detected_lang = get_response_language(text, language)
+
+            print(f"[VOICE] Detected language: {detected_lang}")
+
+            from .helpers import get_response_language, detect_romanized_language
+
+            romanized_lang = detect_romanized_language(text)
+
+            if romanized_lang:
+                final_lang = romanized_lang
+                print(f"[VOICE] Romanized detected: {final_lang}")
+            elif language and language != 'English':
+                final_lang = language
+                print(f"[VOICE] Using user selected language: {final_lang}")
+            else:
+                final_lang = get_response_language(text, language)
+                print(f"[VOICE] Auto detected: {final_lang}")
+
+            print(f"[VOICE] Final language: {final_lang} | Text: '{text}'")
+
+            return Response({
+                'success': True,
+                'text': text,
+                'language': final_lang
+            })
+
+        finally:
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
+
+    except Exception as e:
+        logger.error(f"[voice_to_text] Error: {e}", exc_info=True)
+        return Response({'error': str(e)}, status=500)
