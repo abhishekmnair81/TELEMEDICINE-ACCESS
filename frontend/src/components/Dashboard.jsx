@@ -274,19 +274,32 @@ const Dashboard = () => {
     }
   }, [])
 
-  // Geocoding helper
+  // Geocoding helper — uses Nominatim to get full detailed address for given coords
   const reverseGeocode = async (lat, lng) => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+        { headers: { 'Accept-Language': 'en' } }
+      )
       if (res.ok) {
         const data = await res.json()
-        let formatted = data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`
-        // Clean up trailing ", India"
-        formatted = formatted.replace(/, India$/, '').trim()
+        const addr = data.address || {}
+        // Build address from granular components for maximum detail
+        const parts = [
+          addr.house_number,
+          addr.road || addr.pedestrian || addr.footway || addr.path,
+          addr.neighbourhood || addr.suburb || addr.quarter,
+          addr.city_block || addr.city_district,
+          addr.city || addr.town || addr.village || addr.hamlet,
+          addr.county || addr.state_district,
+          addr.state,
+          addr.postcode,
+        ].filter(Boolean)
+        const formatted = parts.length > 0 ? parts.join(', ') : (data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`)
         setTempAddress(formatted)
       }
     } catch (error) {
-      setTempAddress(`${lat.toFixed(4)}, ${lng.toFixed(4)}`)
+      setTempAddress(`${lat.toFixed(5)}, ${lng.toFixed(5)}`)
     }
   }
 
@@ -319,7 +332,7 @@ const Dashboard = () => {
     setMapSearchQuery('')
     
     if (leafletMapInstance.current && window.L) {
-      leafletMapInstance.current.setView([lat, lon], 17)
+      leafletMapInstance.current.setView([lat, lon], 19)
       if (markerInstance.current) {
         markerInstance.current.setLatLng([lat, lon])
       }
@@ -336,7 +349,7 @@ const Dashboard = () => {
           const { lat, lon } = ipData
           
           if (leafletMapInstance.current && window.L) {
-            leafletMapInstance.current.setView([lat, lon], 17)
+            leafletMapInstance.current.setView([lat, lon], 19)
             if (markerInstance.current) {
               markerInstance.current.setLatLng([lat, lon])
             }
@@ -354,57 +367,49 @@ const Dashboard = () => {
     showToast("Unable to retrieve location. Please select on the map or search manually.", "error")
   }
 
-  // Detect Current Location using Geolocation API
+  // Detect Current Location — progressive watchPosition for max accuracy
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
       fallbackToIP()
       return
     }
-
     setIsLocating(true)
-    navigator.geolocation.getCurrentPosition(
+    let bestAccuracy = Infinity
+    let watchId = null
+    const stopTimer = setTimeout(() => {
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId)
+      setIsLocating(false)
+    }, 20000)
+
+    watchId = navigator.geolocation.watchPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords
-
-        if (leafletMapInstance.current && window.L) {
-          leafletMapInstance.current.setView([latitude, longitude], 17)
-          if (markerInstance.current) {
-            markerInstance.current.setLatLng([latitude, longitude])
-          }
-        }
-
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`)
-          if (res.ok) {
-            const data = await res.json()
-            let formatted = data.display_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-            formatted = formatted.replace(/, India$/, '').trim()
-            setTempAddress(formatted)
-            
-            const postcode = data.address?.postcode
-            if (postcode) {
-              showToast(`📍 Location auto-detected: ${postcode}`, 'success')
-            } else {
-              showToast(`📍 Location auto-detected`, 'success')
+        const { latitude, longitude, accuracy } = position.coords
+        if (accuracy < bestAccuracy) {
+          bestAccuracy = accuracy
+          if (leafletMapInstance.current && window.L) {
+            leafletMapInstance.current.setView([latitude, longitude], 19)
+            if (markerInstance.current) {
+              markerInstance.current.setLatLng([latitude, longitude])
             }
-          } else {
-            const coordinates = `${latitude.toFixed(4)}° N, ${longitude.toFixed(4)}° E`
-            setTempAddress(coordinates)
-            showToast(`📍 Location auto-detected: ${coordinates}`, 'success')
           }
-        } catch (error) {
-          const coordinates = `${latitude.toFixed(4)}° N, ${longitude.toFixed(4)}° E`
-          setTempAddress(coordinates)
-          showToast(`📍 Location auto-detected: ${coordinates}`, 'success')
-        } finally {
-          setIsLocating(false)
+          await reverseGeocode(latitude, longitude)
+          if (accuracy <= 30) {
+            clearTimeout(stopTimer)
+            navigator.geolocation.clearWatch(watchId)
+            watchId = null
+            setIsLocating(false)
+            showToast(`📍 Location pinpointed (±${Math.round(accuracy)}m)`, 'success')
+          }
         }
       },
       async (error) => {
-        console.warn("Geolocation API failed, falling back to IP Geolocation:", error)
+        clearTimeout(stopTimer)
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId)
+        watchId = null
+        console.warn('Geolocation API failed, falling back to IP Geolocation:', error)
         await fallbackToIP()
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     )
   }
 
@@ -438,33 +443,32 @@ const Dashboard = () => {
 
       leafletMapInstance.current = map
 
-      // --- Google Maps Street Layer ---
-      const voyagerLayer = L.tileLayer(
-        'https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+      // --- OpenStreetMap (reliable, no API key, works at all zoom levels) ---
+      const streetLayer = L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
-          attribution: '&copy; Google Maps',
-          subdomains: '0123',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 22,
-          detectRetina: true
+          maxNativeZoom: 19,
+          subdomains: ['a', 'b', 'c'],
+          detectRetina: true,
+          crossOrigin: true
         }
       ).addTo(map)
 
-      // --- Google Maps Hybrid Layer (Satellite with labels) ---
+      // --- ESRI World Imagery (Satellite — reliable, high zoom, no key required) ---
       const satelliteLayer = L.tileLayer(
-        'https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         {
-          attribution: '&copy; Google Maps',
-          subdomains: '0123',
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, GeoEye, Earthstar Geographics',
           maxZoom: 22,
+          maxNativeZoom: 20,
           detectRetina: true
         }
       )
 
-      // --- Zoom control — bottom right like Google Maps ---
-      L.control.zoom({ position: 'bottomright' }).addTo(map)
-
-      // --- Layer toggle button (Street / Satellite) ---
       let isSatellite = false
+      // --- Layer toggle control (Street / Satellite) ---
       const layerToggle = L.control({ position: 'topright' })
       layerToggle.onAdd = () => {
         const btn = L.DomUtil.create('button', 'map-layer-toggle-btn')
@@ -474,10 +478,10 @@ const Dashboard = () => {
           L.DomEvent.stopPropagation(e)
           if (isSatellite) {
             map.removeLayer(satelliteLayer)
-            map.addLayer(voyagerLayer)
+            map.addLayer(streetLayer)
             btn.innerHTML = '🛰 Satellite'
           } else {
-            map.removeLayer(voyagerLayer)
+            map.removeLayer(streetLayer)
             map.addLayer(satelliteLayer)
             btn.innerHTML = '🗺 Street'
           }
@@ -486,6 +490,9 @@ const Dashboard = () => {
         return btn
       }
       layerToggle.addTo(map)
+
+      // --- Zoom control — bottom right ---
+      L.control.zoom({ position: 'bottomright' }).addTo(map)
 
       // --- Google Maps-style drop-pin (red teardrop) ---
       const dropPinIcon = L.divIcon({
@@ -520,53 +527,60 @@ const Dashboard = () => {
         await reverseGeocode(e.latlng.lat, e.latlng.lng)
       })
 
-      // --- If we already have GPS coords, jump to them ---
+      // --- Auto-locate on modal open: watchPosition for progressive GPS accuracy ---
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
+        let bestAccuracy = Infinity
+        let myLocCircle = null
+        let myLocDot = null
+        let geoWatchId = null
+
+        geoWatchId = navigator.geolocation.watchPosition(
           async (pos) => {
-            const { latitude, longitude } = pos.coords
-            map.setView([latitude, longitude], 17)
-            marker.setLatLng([latitude, longitude])
+            const { latitude, longitude, accuracy } = pos.coords
+            if (accuracy < bestAccuracy) {
+              bestAccuracy = accuracy
+              map.setView([latitude, longitude], accuracy < 100 ? 19 : 17)
+              marker.setLatLng([latitude, longitude])
 
-            // Blue "My Location" accuracy circle
-            L.circle([latitude, longitude], {
-              radius: pos.coords.accuracy,
-              color: '#4285F4',
-              fillColor: '#4285F4',
-              fillOpacity: 0.12,
-              weight: 1.5
-            }).addTo(map)
+              if (myLocCircle) map.removeLayer(myLocCircle)
+              if (myLocDot) map.removeLayer(myLocDot)
 
-            // Blue dot for my location (like Google Maps)
-            L.circleMarker([latitude, longitude], {
-              radius: 8,
-              color: 'white',
-              fillColor: '#4285F4',
-              fillOpacity: 1,
-              weight: 2.5
-            }).addTo(map)
+              myLocCircle = L.circle([latitude, longitude], {
+                radius: accuracy,
+                color: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.1, weight: 1.5
+              }).addTo(map)
 
-            await reverseGeocode(latitude, longitude)
+              myLocDot = L.circleMarker([latitude, longitude], {
+                radius: 8, color: 'white', fillColor: '#4285F4', fillOpacity: 1, weight: 2.5
+              }).addTo(map)
+
+              await reverseGeocode(latitude, longitude)
+
+              if (accuracy <= 30 && geoWatchId !== null) {
+                navigator.geolocation.clearWatch(geoWatchId)
+                geoWatchId = null
+              }
+            }
           },
           async () => {
-            // Geolocation failed on load, try IP geolocate to default the map center to user's area
+            // GPS failed on load — use IP geolocation for a rough map center
             try {
               const res = await fetch('https://ip-api.com/json/')
               if (res.ok) {
                 const ipData = await res.json()
                 if (ipData && ipData.status === 'success') {
-                  const { lat, lon } = ipData
-                  map.setView([lat, lon], 17)
-                  marker.setLatLng([lat, lon])
-                  await reverseGeocode(lat, lon)
+                  map.setView([ipData.lat, ipData.lon], 14)
+                  marker.setLatLng([ipData.lat, ipData.lon])
+                  await reverseGeocode(ipData.lat, ipData.lon)
                 }
               }
-            } catch (err) {
-              console.error("IP fallback on load failed:", err)
-            }
+            } catch (err) { console.error('IP fallback error:', err) }
           },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+          { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
         )
+        map.on('remove', () => {
+          if (geoWatchId !== null) navigator.geolocation.clearWatch(geoWatchId)
+        })
       }
     }, 350)
 
