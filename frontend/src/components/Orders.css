@@ -1,0 +1,63 @@
+/* ===== MY ORDERS - ANIMATION HELPER CSS ===== */
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-in {
+  animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.order-card-item {
+  animation: cardEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Stagger delay classes */
+.order-card-item:nth-child(1) { animation-delay: 0.05s; }
+.order-card-item:nth-child(2) { animation-delay: 0.1s; }
+.order-card-item:nth-child(3) { animation-delay: 0.15s; }
+.order-card-item:nth-child(4) { animation-delay: 0.2s; }
+.order-card-item:nth-child(5) { animation-delay: 0.25s; }
+.order-card-item:nth-child(n+6) { animation-delay: 0.3s; }
+
+/* Custom scrollbar for modal */
+.nms-stores-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.nms-stores-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.nms-stores-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.nms-stores-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Hide default scrollbars for horizontal scroll tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

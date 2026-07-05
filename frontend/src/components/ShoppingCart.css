@@ -1,0 +1,32 @@
+/* ===== SHOPPING CART CUSTOM ANIMATIONS & SCROLLBARS ===== */
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-in {
+  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom scrollbars */
+.nms-stores-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.nms-stores-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.nms-stores-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.nms-stores-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

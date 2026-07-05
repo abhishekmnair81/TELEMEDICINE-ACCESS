@@ -1,0 +1,41 @@
+/* Footer Premium Styles & Keyframes */
+.footer-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-shadow: 0 3000px 0 3000px #020617;
+  clip-path: inset(0px -3000px -3000px -3000px);
+}
+
+.social-icon-link {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.social-icon-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.social-icon-link svg {
+  transition: transform 0.2s ease;
+}
+
+.social-icon-link:hover svg {
+  transform: scale(1.1);
+}
+
+/* Custom glow effect for the emergency card */
+.emergency-bar .bg-red-950\/20 {
+  box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.03);
+}
+
+.emergency-bar .bg-slate-900\/90:hover {
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.08);
+}

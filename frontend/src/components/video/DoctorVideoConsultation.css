@@ -1,0 +1,414 @@
+.dvc-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.dvc-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.dvc-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 9999px;
+}
+.dvc-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.3);
+}
+/* backwards-compat alias shared across queue & chat */
+.custom-scrollbar::-webkit-scrollbar        { width: 4px; height: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track  { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb  { background: rgba(255,255,255,.15); border-radius: 9999px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.3); }
+
+/* ── Mirror local video ── */
+.mirror-feed { transform: scaleX(-1); }
+
+/* ── Doctor root layout ── */
+.dvc-root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  color: #f8fafc;
+}
+
+/* ── Queue / lobby panel ── */
+.dvc-queue-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.dvc-queue-card:hover {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  border-color: #cbd5e1;
+}
+
+/* ── Patient priority badge ── */
+.dvc-priority-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.dvc-priority-badge--high   { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+.dvc-priority-badge--normal { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.dvc-priority-badge--low    { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+/* ── Active call layout ── */
+.dvc-call-grid {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+/* ── Video column ── */
+.dvc-video-col {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  background: #0f172a;
+}
+
+/* ── Remote patient video ── */
+.dvc-remote-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Local doctor PIP ── */
+.dvc-pip {
+  position: absolute;
+  bottom: 6rem;
+  right: 1rem;
+  width: 144px;
+  height: 96px;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  background: #1e293b;
+  z-index: 20;
+  transition: border-color 0.2s;
+}
+.dvc-pip:hover { border-color: #4ade80; }
+@media (min-width: 640px) {
+  .dvc-pip { width: 192px; height: 128px; }
+}
+
+/* ── Control pill ── */
+.dvc-controls {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(15,23,42,0.92);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  z-index: 30;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  backdrop-filter: blur(16px);
+  max-width: 96vw;
+}
+
+/* ── Control buttons ── */
+.dvc-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  color: #f8fafc;
+  transition: background 0.15s, transform 0.1s;
+}
+.dvc-btn:hover            { background: rgba(255,255,255,0.16); }
+.dvc-btn:active           { transform: scale(0.93); }
+.dvc-btn--green           { background: #16a34a !important; border-color: transparent !important; }
+.dvc-btn--danger          { background: #dc2626 !important; border-color: transparent !important; }
+.dvc-btn:disabled         { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Prescription button – teal accent ── */
+.dvc-rx-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background: #16a34a;
+  color: #f8fafc;
+  border: 1px solid rgba(74,222,128,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  position: relative;
+}
+.dvc-rx-btn:hover  { background: #15803d; }
+.dvc-rx-btn:active { transform: scale(0.93); }
+.dvc-rx-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Leave button ── */
+.dvc-leave-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  background: #dc2626;
+  color: white;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s;
+}
+.dvc-leave-btn:hover { background: #b91c1c; }
+
+/* ── Chat sidebar ── */
+.dvc-chat-sidebar {
+  width: 20rem;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #0f172a;
+  border-left: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── Chat messages ── */
+.dvc-msg {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  max-width: 85%;
+  line-height: 1.5;
+  animation: dvc-msg-in 0.18s cubic-bezier(0.16,1,0.3,1) both;
+}
+.dvc-msg--self {
+  background: rgba(22,163,74,0.25);
+  border: 1px solid rgba(74,222,128,0.2);
+  color: #f0fdf4;
+  margin-left: auto;
+}
+.dvc-msg--remote {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #cbd5e1;
+}
+.dvc-msg--system {
+  background: transparent;
+  color: #64748b;
+  font-style: italic;
+  font-size: 0.7rem;
+  text-align: center;
+  margin: 0 auto;
+  border: none;
+}
+@keyframes dvc-msg-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Patient avatar (no video) ── */
+.dvc-avatar {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #f8fafc;
+  text-transform: uppercase;
+}
+
+/* ── Doctor avatar (PIP off) ── */
+.dvc-avatar--sm {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 0.875rem;
+}
+
+/* ── Name label ── */
+.dvc-name-label {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  padding: 0.25rem 0.6rem;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+/* ── PIP "You" label ── */
+.dvc-pip-label {
+  position: absolute;
+  bottom: 0.4rem;
+  left: 0.4rem;
+  padding: 0.15rem 0.4rem;
+  background: rgba(0,0,0,0.55);
+  border-radius: 0.35rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+/* ── Status badge ── */
+.dvc-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  background: rgba(22,163,74,0.12);
+  border: 1px solid rgba(74,222,128,0.25);
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4ade80;
+}
+.dvc-status-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: #4ade80;
+  animation: dvc-dot-pulse 2s infinite;
+}
+@keyframes dvc-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ── E2E encrypted badge ── */
+.dvc-e2e-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  background: rgba(22,163,74,0.15);
+  border: 1px solid rgba(74,222,128,0.25);
+  border-radius: 9999px;
+  font-size: 0.55rem;
+  font-weight: 900;
+  color: #4ade80;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Divider ── */
+.dvc-divider {
+  width: 1px;
+  height: 1.5rem;
+  background: rgba(255,255,255,0.15);
+  margin: 0 0.25rem;
+}
+
+/* ── Prescription modal overlay ── */
+.dvc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.65);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.dvc-modal-panel {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  width: 100%;
+  max-width: 42rem;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+}
+
+/* ── Prescription form field ── */
+.dvc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.dvc-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #64748b;
+}
+.dvc-input {
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1e293b;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dvc-input:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22,163,74,0.12);
+}
+.dvc-input:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ── Camera error / retrying overlays ── */
+.dvc-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+  z-index: 40;
+}
+.dvc-overlay--error   { background: rgba(15,23,42,0.97); }
+.dvc-overlay--retry   { background: rgba(15,23,42,0.90); }
+
+/* ── Queue stats row ── */
+.dvc-stat-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.6rem 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.9rem;
+}
+.dvc-stat-num   { font-size: 1.25rem; font-weight: 900; color: #0f172a; }
+.dvc-stat-label { font-size: 0.6rem;  font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #64748b; }

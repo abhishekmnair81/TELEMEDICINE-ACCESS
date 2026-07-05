@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/icons/pill-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#00b38e" />
+    <meta name="description" content="Rural HealthCare - Medicine Reminders. Works offline with smart AI-powered medication tracking." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="MediRemind" />
+    
+    <!-- Apple touch icons -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/icons/pill-152.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="%PUBLIC_URL%/icons/pill-192.png" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Rural HealthCare</title>
+
+    <!-- Suppress Google Translate banner and widgets that appear on top of page -->
+    <style>
+      * {
+        font-family: 'Inter', sans-serif;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      code, pre, kbd, samp, .monospace-font {
+        font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace !important;
+      }
+      .goog-te-banner-frame,
+      .goog-te-banner-frame.skiptranslate,
+      .goog-te-banner,
+      .goog-te-balloon-frame,
+      .goog-te-balloon,
+      .goog-te-gadget,
+      .goog-te-gadget-icon,
+      .goog-te-gadget-simple,
+      .goog-tooltip,
+      .goog-tooltip:hover,
+      .goog-text-highlight,
+      #goog-gt-tt,
+      #goog-gt-tt.skiptranslate,
+      .skiptranslate:not(#gte-hidden),
+      iframe.skiptranslate {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+      }
+      body {
+        top: 0 !important;
+        position: static !important;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- Hidden Google Translate mount point — driven by LanguageSelector component -->
+    <div id="gte-hidden" style="display:none;visibility:hidden;"></div>
+    <div id="root"></div>
+  </body>
+</html>

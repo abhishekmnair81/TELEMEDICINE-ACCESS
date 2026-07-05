@@ -1,0 +1,92 @@
+/* AddMedicineWithAI.css - Premium Styles and Animations */
+
+/* Custom Smooth Scrollbar for the Form Container */
+.ami-form-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.ami-form-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ami-form-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.ami-form-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Pulsating shadow glow for AI mode active elements */
+@keyframes ai-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 15px 4px rgba(16, 185, 129, 0.2);
+  }
+}
+
+.animate-ai-glow {
+  animation: ai-pulse-glow 2.5s infinite ease-in-out;
+}
+
+/* Shimmer loading background animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-bg {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Glowing scanning light line */
+@keyframes scan-line {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
+}
+
+.scan-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0) 0%, rgba(16, 185, 129, 1) 50%, rgba(16, 185, 129, 0) 100%);
+  box-shadow: 0 0 8px 2px rgba(16, 185, 129, 0.6);
+  animation: scan-line 3s infinite linear;
+}
+
+/* Custom checkbox animations */
+.checkbox-anim {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.checkbox-anim:active {
+  transform: scale(0.9);
+}
+
+/* Float Animation */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float-y {
+  animation: float-y 3s infinite ease-in-out;
+}

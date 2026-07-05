@@ -1,0 +1,373 @@
+/* generatePrescriptionPDF.css */
+/* Advanced stylesheet for Rural HealthCare digital prescription PDFs using standard project colors and fonts */
+
+.pdf-page-wrapper {
+  @apply relative bg-white text-gray-800;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  width: 794px;
+  min-height: 1123px;
+}
+
+.pdf-watermark {
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none whitespace-nowrap text-center uppercase z-0;
+  font-size: 78px;
+  font-weight: 800;
+  color: rgba(22, 163, 74, 0.03);
+  transform: translate(-50%, -50%) rotate(-30deg);
+}
+
+.pdf-header {
+  @apply relative text-white px-10 pb-6 pt-10 overflow-hidden;
+  background-color: #111827; /* Solid Dark from Dashboard.css */
+}
+
+.pdf-header::before {
+  content: '';
+  @apply absolute top-0 left-0 right-0 h-1.5;
+  background-color: #16a34a; /* Solid brand green from Dashboard.css */
+}
+
+.pdf-header-grid {
+  @apply grid items-center relative z-10;
+  grid-template-columns: 1.2fr 1fr;
+}
+
+.pdf-clinic-brand {
+  @apply flex items-center;
+}
+
+.pdf-brand-logo-box {
+  @apply flex items-center justify-center shrink-0 w-14 h-14 rounded-2xl shadow-lg mr-3;
+  background-color: #16a34a;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.pdf-brand-logo-svg {
+  @apply w-7 h-7 fill-none stroke-white;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pdf-clinic-details {
+  @apply flex flex-col justify-center;
+}
+
+.pdf-clinic-name {
+  @apply text-2xl font-extrabold text-white leading-none tracking-wide mb-1;
+}
+
+.pdf-clinic-sub {
+  @apply text-[10px] font-semibold tracking-wider uppercase text-green-100;
+  opacity: 0.95;
+}
+
+.pdf-doctor-info {
+  @apply flex flex-col items-end text-right justify-self-end;
+}
+
+.pdf-doctor-name {
+  @apply text-xl font-bold text-white mb-1.5;
+  line-height: 1.2;
+}
+
+.pdf-doctor-reg {
+  @apply text-xs font-normal text-green-100 mb-2;
+  opacity: 0.9;
+}
+
+.pdf-doctor-spec {
+  @apply inline-block text-[9.5px] font-extrabold tracking-wider uppercase text-white px-2.5 py-1 rounded-full;
+  background-color: #16a34a;
+  line-height: 1;
+}
+
+.pdf-header-bottom {
+  @apply flex justify-between items-center mt-6 pt-4 border-t relative z-10;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.pdf-rx-badge {
+  @apply flex items-center;
+}
+
+.pdf-rx-symbol {
+  @apply flex items-center justify-center w-11 h-11 text-xl font-extrabold text-white rounded-lg border mr-3;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  line-height: 1;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.pdf-rx-meta {
+  @apply flex flex-col;
+}
+
+.pdf-rx-label {
+  @apply text-[9px] uppercase tracking-wider font-semibold text-green-100 mb-0.5;
+  opacity: 0.85;
+}
+
+.pdf-rx-num {
+  @apply text-base font-extrabold text-white;
+  line-height: 1;
+}
+
+.pdf-header-meta {
+  @apply text-right text-xs leading-relaxed;
+}
+
+.pdf-header-meta div {
+  @apply font-light;
+}
+
+.pdf-header-meta strong {
+  @apply font-semibold;
+}
+
+/* Patient Details Section */
+.pdf-patient-card {
+  @apply flex justify-between items-center rounded-2xl border px-6 py-4 mx-10 my-5;
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.pdf-patient-left {
+  @apply flex flex-col;
+}
+
+.pdf-patient-label {
+  @apply text-[10px] uppercase font-bold tracking-wider text-green-600 mb-1;
+}
+
+.pdf-patient-name {
+  @apply text-lg font-extrabold text-gray-800 tracking-tight mb-1;
+}
+
+.pdf-patient-meta {
+  @apply flex items-center text-xs text-gray-500;
+}
+
+.pdf-patient-meta span {
+  @apply mr-3;
+}
+
+.pdf-patient-right {
+  @apply flex flex-col items-end text-right;
+}
+
+.pdf-patient-pill {
+  @apply flex items-center text-[10px] font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full border border-green-200 mb-1.5;
+}
+
+.pdf-patient-type {
+  @apply text-[11px] text-gray-400 font-medium;
+}
+
+/* Clinical Diagnosis Section */
+.pdf-diagnosis-box {
+  @apply rounded-xl p-5 mx-10 mb-4 border border-dashed;
+  background-color: #fffbeb;
+  border-color: #fde68a;
+}
+
+.pdf-diagnosis-title {
+  @apply text-xs font-bold uppercase tracking-wider text-amber-800 mb-2 flex items-center;
+}
+
+.pdf-diagnosis-title span {
+  @apply mr-1.5;
+}
+
+.pdf-diagnosis-text {
+  @apply text-gray-700 font-normal leading-relaxed text-sm;
+}
+
+/* Sections General */
+.pdf-section {
+  @apply mx-10 mb-4;
+}
+
+.pdf-section-header {
+  @apply text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 pb-1 border-b flex items-center;
+  border-color: #e5e7eb;
+}
+
+.pdf-section-header::before {
+  content: '';
+  @apply inline-block w-2.5 h-2.5 rounded-full mr-2;
+  background-color: #16a34a;
+}
+
+/* Vitals Cards Grid - Compatibility layout without flex gap */
+.pdf-vitals-grid {
+  @apply flex flex-wrap;
+  margin: 0 -6px;
+}
+
+.pdf-vital-card {
+  @apply flex flex-col rounded-xl p-3 border text-center transition-all duration-200;
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+  width: calc(20% - 12px);
+  margin: 6px;
+}
+
+.pdf-vital-header {
+  @apply flex items-center justify-center mb-1;
+}
+
+.pdf-vital-icon {
+  @apply text-sm mr-1.5;
+}
+
+.pdf-vital-label {
+  @apply text-[10px] font-semibold text-gray-500 uppercase tracking-wider;
+}
+
+.pdf-vital-value {
+  @apply text-sm font-extrabold text-gray-800;
+}
+
+/* Medications Table */
+.pdf-med-table {
+  @apply w-full border-collapse rounded-xl overflow-hidden border;
+  border-color: #e5e7eb;
+}
+
+.pdf-med-table th {
+  @apply text-xs font-bold uppercase tracking-wider text-white py-3 px-4 text-left;
+  background-color: #16a34a;
+}
+
+.pdf-med-table td {
+  @apply py-3 px-4 border-b text-gray-700 text-sm align-middle;
+  border-color: #e5e7eb;
+}
+
+.pdf-med-row-even {
+  @apply bg-white;
+}
+
+.pdf-med-row-odd {
+  @apply bg-gray-50;
+}
+
+.pdf-med-num {
+  @apply font-bold text-gray-400 text-center;
+}
+
+.pdf-med-title {
+  @apply font-bold text-gray-800;
+}
+
+.pdf-med-dosage {
+  @apply text-xs text-green-600 font-semibold mt-0.5;
+}
+
+.pdf-med-center {
+  @apply text-center font-medium;
+}
+
+.pdf-med-instructions {
+  @apply italic text-gray-500 text-xs;
+}
+
+/* Info Box Cards Grid (Notes & Lab Tests) - Compatibility layout without flex gap */
+.pdf-info-grid {
+  @apply flex;
+  margin: 0 -8px;
+}
+
+.pdf-info-box {
+  @apply rounded-xl p-4 border;
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+  width: calc(50% - 16px);
+  margin: 8px;
+}
+
+.pdf-info-box-title {
+  @apply text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center;
+}
+
+.pdf-info-box-title span {
+  @apply mr-1.5;
+}
+
+.pdf-info-box-text {
+  @apply text-gray-700 leading-relaxed text-sm;
+}
+
+/* Follow-up card */
+.pdf-followup-card {
+  @apply flex items-center rounded-xl p-4 border;
+  background-color: #dcfce7;
+  border-color: #16a34a;
+  border-left-width: 4px;
+}
+
+.pdf-followup-icon {
+  @apply text-xl mr-3;
+}
+
+.pdf-followup-details {
+  @apply flex flex-col;
+}
+
+.pdf-followup-label {
+  @apply text-[10px] uppercase font-bold tracking-wider text-green-700;
+}
+
+.pdf-followup-date {
+  @apply text-base font-extrabold text-green-900;
+}
+
+/* Footer Section */
+.pdf-footer {
+  @apply px-10 pb-6 pt-5 mt-auto;
+}
+
+.pdf-footer-top {
+  @apply flex justify-between items-end border-t pt-5 mb-5;
+  border-color: #e5e7eb;
+}
+
+.pdf-signature-area {
+  @apply flex flex-col text-left w-[200px];
+}
+
+.pdf-signature-line {
+  @apply w-full h-[1.5px] bg-gray-300 mb-2;
+}
+
+.pdf-signature-title {
+  @apply text-sm font-extrabold text-gray-800 leading-none;
+}
+
+.pdf-signature-meta {
+  @apply text-xs text-gray-500 mt-1;
+}
+
+.pdf-seal-stamp {
+  @apply w-[84px] h-[84px] rounded-full border-2 border-dashed flex items-center justify-center text-center text-[9px] uppercase tracking-wider font-extrabold text-gray-400 select-none;
+  border-color: #e5e7eb;
+  line-height: 1.2;
+}
+
+.pdf-barcode-area {
+  @apply flex flex-col items-center;
+}
+
+.pdf-barcode-area img {
+  @apply mb-2;
+}
+
+.pdf-disclaimer {
+  @apply rounded-lg p-3 text-[9.5px] text-gray-400 leading-normal border border-gray-100;
+  background-color: #f9fafb;
+}
+
+.pdf-disclaimer strong {
+  @apply text-gray-500 font-bold;
+}

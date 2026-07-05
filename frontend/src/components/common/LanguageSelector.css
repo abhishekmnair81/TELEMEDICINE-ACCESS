@@ -1,0 +1,53 @@
+/* ==========================================================================
+   GLOBAL — Hide Google Translate banner & iframe (our custom UI replaces it)
+   ========================================================================== */
+
+iframe[class*="goog"],
+iframe[id*="goog"],
+iframe[src*="translate.google.com"],
+iframe[src*="translate_a"],
+div[class*="goog-te"],
+div[id*="goog-te"],
+div[class*="goog-gt"],
+div[id*="goog-gt"],
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner,
+.goog-te-balloon-frame,
+.goog-te-balloon,
+.goog-te-gadget,
+.goog-te-gadget-icon,
+.goog-te-gadget-simple,
+.goog-tooltip,
+.goog-tooltip:hover,
+.goog-text-highlight,
+#goog-gt-tt,
+#goog-gt-tt.skiptranslate,
+.skiptranslate:not(#gte-hidden),
+iframe.skiptranslate {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  pointer-events: none !important;
+}
+
+body {
+  top: 0 !important;
+  position: static !important;
+}
+
+/* Custom scrollbar utility for language selector list */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
