@@ -319,17 +319,45 @@ const Dashboard = () => {
     setMapSearchQuery('')
     
     if (leafletMapInstance.current && window.L) {
-      leafletMapInstance.current.setView([lat, lon], 19)
+      leafletMapInstance.current.setView([lat, lon], 17)
       if (markerInstance.current) {
         markerInstance.current.setLatLng([lat, lon])
       }
     }
   }
 
+  const fallbackToIP = async () => {
+    setIsLocating(true)
+    try {
+      const res = await fetch('https://ip-api.com/json/')
+      if (res.ok) {
+        const ipData = await res.json()
+        if (ipData && ipData.status === 'success') {
+          const { lat, lon } = ipData
+          
+          if (leafletMapInstance.current && window.L) {
+            leafletMapInstance.current.setView([lat, lon], 17)
+            if (markerInstance.current) {
+              markerInstance.current.setLatLng([lat, lon])
+            }
+          }
+          await reverseGeocode(lat, lon)
+          showToast("📍 Location detected via network (approximate)", "success")
+          return
+        }
+      }
+    } catch (err) {
+      console.error("IP fallback failed:", err)
+    } finally {
+      setIsLocating(false)
+    }
+    showToast("Unable to retrieve location. Please select on the map or search manually.", "error")
+  }
+
   // Detect Current Location using Geolocation API
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
-      showToast("Geolocation is not supported by your browser", "error")
+      fallbackToIP()
       return
     }
 
@@ -339,7 +367,7 @@ const Dashboard = () => {
         const { latitude, longitude } = position.coords
 
         if (leafletMapInstance.current && window.L) {
-          leafletMapInstance.current.setView([latitude, longitude], 19)
+          leafletMapInstance.current.setView([latitude, longitude], 17)
           if (markerInstance.current) {
             markerInstance.current.setLatLng([latitude, longitude])
           }
@@ -372,9 +400,9 @@ const Dashboard = () => {
           setIsLocating(false)
         }
       },
-      (error) => {
-        setIsLocating(false)
-        showToast("Unable to retrieve location. Please select on the map or search manually.", "error")
+      async (error) => {
+        console.warn("Geolocation API failed, falling back to IP Geolocation:", error)
+        await fallbackToIP()
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     )
@@ -410,25 +438,25 @@ const Dashboard = () => {
 
       leafletMapInstance.current = map
 
-      // --- CartoDB Voyager: closest free tile to Google Maps ---
+      // --- Google Maps Street Layer ---
       const voyagerLayer = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        'https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
         {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          subdomains: 'abcd',
+          attribution: '&copy; Google Maps',
+          subdomains: '0123',
           maxZoom: 22,
-          maxNativeZoom: 20,
           detectRetina: true
         }
       ).addTo(map)
 
-      // --- Satellite layer (toggleable) ---
+      // --- Google Maps Hybrid Layer (Satellite with labels) ---
       const satelliteLayer = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        'https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
         {
-          attribution: 'Tiles &copy; Esri',
+          attribution: '&copy; Google Maps',
+          subdomains: '0123',
           maxZoom: 22,
-          maxNativeZoom: 19
+          detectRetina: true
         }
       )
 
@@ -497,7 +525,7 @@ const Dashboard = () => {
         navigator.geolocation.getCurrentPosition(
           async (pos) => {
             const { latitude, longitude } = pos.coords
-            map.setView([latitude, longitude], 19)
+            map.setView([latitude, longitude], 17)
             marker.setLatLng([latitude, longitude])
 
             // Blue "My Location" accuracy circle
@@ -520,7 +548,23 @@ const Dashboard = () => {
 
             await reverseGeocode(latitude, longitude)
           },
-          () => {},
+          async () => {
+            // Geolocation failed on load, try IP geolocate to default the map center to user's area
+            try {
+              const res = await fetch('https://ip-api.com/json/')
+              if (res.ok) {
+                const ipData = await res.json()
+                if (ipData && ipData.status === 'success') {
+                  const { lat, lon } = ipData
+                  map.setView([lat, lon], 17)
+                  marker.setLatLng([lat, lon])
+                  await reverseGeocode(lat, lon)
+                }
+              }
+            } catch (err) {
+              console.error("IP fallback on load failed:", err)
+            }
+          },
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         )
       }
