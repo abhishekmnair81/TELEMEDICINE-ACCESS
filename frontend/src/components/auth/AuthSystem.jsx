@@ -99,7 +99,7 @@ const AuthSystem = () => {
       const response = await fetch(`${API_BASE_URL}/auth/send-otp-login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone_number: phoneNumber }),
+        body: JSON.stringify({ phone_number: phoneNumber, user_type: userType }),
       })
 
       const data = await response.json()
@@ -150,6 +150,7 @@ const AuthSystem = () => {
         body: JSON.stringify({
           phone_number: tempPhone,
           otp: otpValue,
+          user_type: userType,
         }),
       })
 

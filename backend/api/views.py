@@ -223,6 +223,7 @@ def send_otp_email_sync(phone_number, email, otp, purpose='login'):
 def send_otp_for_login(request):
     try:
         phone_number = request.data.get('phone_number')
+        requested_user_type = request.data.get('user_type')
         
         if not phone_number or len(phone_number) != 10:
             return Response(
@@ -240,6 +241,18 @@ def send_otp_for_login(request):
                     'requires_registration': True
                 },
                 status=status.HTTP_404_NOT_FOUND
+            )
+
+        if requested_user_type and user.user_type != requested_user_type:
+            type_names = {
+                'patient': 'Patient',
+                'doctor': 'Doctor',
+                'pharmacist': 'Pharmacist'
+            }
+            actual_role = type_names.get(user.user_type, user.user_type.title())
+            return Response(
+                {'error': f'This account is registered as a {actual_role}. Please use the {actual_role} Portal to log in.'},
+                status=status.HTTP_403_FORBIDDEN
             )
         email_to_use = None
         
@@ -332,6 +345,7 @@ def verify_otp_and_login(request):
     try:
         phone_number = request.data.get('phone_number')
         otp = request.data.get('otp')
+        requested_user_type = request.data.get('user_type')
         
         if not phone_number or not otp:
             return Response(
@@ -363,6 +377,18 @@ def verify_otp_and_login(request):
             return Response(
                 {'error': 'User not found'},
                 status=status.HTTP_404_NOT_FOUND
+            )
+            
+        if requested_user_type and user.user_type != requested_user_type:
+            type_names = {
+                'patient': 'Patient',
+                'doctor': 'Doctor',
+                'pharmacist': 'Pharmacist'
+            }
+            actual_role = type_names.get(user.user_type, user.user_type.title())
+            return Response(
+                {'error': f'This account is registered as a {actual_role}. Please use the {actual_role} Portal to log in.'},
+                status=status.HTTP_403_FORBIDDEN
             )
         
         # OTP is successfully used, delete immediately to invalidate it
@@ -437,19 +463,12 @@ def send_otp_for_registration(request):
             purpose='registration'
         ).delete()
         
-        otp_record = OTPVerification.objects.create(
+        OTPVerification.objects.create(
             phone_number=phone_number,
             otp=otp,
             purpose='registration',
             expires_at=expires_at
         )
-
-        # Schedule auto-deletion in Celery in 10 minutes to resolve storage issues
-        try:
-            from .tasks import delete_otp_record
-            delete_otp_record.apply_async((str(otp_record.id),), countdown=600)
-        except Exception as e:
-            logger.warning(f"Could not schedule auto-delete Celery task: {e}")
         
         logger.info(f"📱 REGISTRATION OTP for {phone_number}: {otp}")
         print(f"📱 REGISTRATION OTP for {phone_number}: {otp}")
