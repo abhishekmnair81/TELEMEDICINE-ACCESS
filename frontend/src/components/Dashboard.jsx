@@ -367,38 +367,49 @@ const Dashboard = () => {
     showToast("Unable to retrieve location. Please select on the map or search manually.", "error")
   }
 
-  // Detect Current Location — progressive watchPosition for max accuracy
+  // Detect Current Location — progressive watchPosition, only moves pin when GPS is accurate
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
       fallbackToIP()
       return
     }
     setIsLocating(true)
+    showToast('🔍 Scanning for GPS signal...', 'success')
     let bestAccuracy = Infinity
     let watchId = null
     const stopTimer = setTimeout(() => {
       if (watchId !== null) navigator.geolocation.clearWatch(watchId)
       setIsLocating(false)
+      if (bestAccuracy > 500) {
+        showToast('⚠️ GPS signal weak. Drag the pin to your exact location.', 'error')
+      }
     }, 20000)
 
     watchId = navigator.geolocation.watchPosition(
       async (position) => {
         const { latitude, longitude, accuracy } = position.coords
-        if (accuracy < bestAccuracy) {
-          bestAccuracy = accuracy
+        // Skip readings worse than what we already have
+        if (accuracy >= bestAccuracy) return
+        bestAccuracy = accuracy
+
+        // Update the map view and RED pin ONLY when accuracy is good (under 200m)
+        // This prevents wrong-location jumps from coarse Wi-Fi/IP positioning
+        if (accuracy <= 200) {
+          const zoom = accuracy <= 20 ? 19 : accuracy <= 80 ? 18 : accuracy <= 200 ? 16 : 14
           if (leafletMapInstance.current && window.L) {
-            leafletMapInstance.current.setView([latitude, longitude], 19)
+            leafletMapInstance.current.setView([latitude, longitude], zoom)
             if (markerInstance.current) {
               markerInstance.current.setLatLng([latitude, longitude])
             }
           }
           await reverseGeocode(latitude, longitude)
-          if (accuracy <= 30) {
+
+          if (accuracy <= 50) {
             clearTimeout(stopTimer)
             navigator.geolocation.clearWatch(watchId)
             watchId = null
             setIsLocating(false)
-            showToast(`📍 Location pinpointed (±${Math.round(accuracy)}m)`, 'success')
+            showToast(`📍 Live location found (±${Math.round(accuracy)}m)`, 'success')
           }
         }
       },
@@ -406,8 +417,14 @@ const Dashboard = () => {
         clearTimeout(stopTimer)
         if (watchId !== null) navigator.geolocation.clearWatch(watchId)
         watchId = null
-        console.warn('Geolocation API failed, falling back to IP Geolocation:', error)
-        await fallbackToIP()
+        console.warn('Geolocation API failed:', error)
+        // If GPS is blocked (PERMISSION_DENIED = 1), tell user to allow it
+        if (error.code === 1) {
+          showToast('🚫 Location permission denied. Please allow location access in browser settings.', 'error')
+          setIsLocating(false)
+        } else {
+          await fallbackToIP()
+        }
       },
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     )
@@ -527,7 +544,9 @@ const Dashboard = () => {
         await reverseGeocode(e.latlng.lat, e.latlng.lng)
       })
 
-      // --- Auto-locate on modal open: watchPosition for progressive GPS accuracy ---
+      // --- Auto-locate on modal open ---
+      // Blue dot = your device's approximate location (from GPS/WiFi)
+      // Red pin  = your delivery address (only moves when GPS is accurate)
       if (navigator.geolocation) {
         let bestAccuracy = Infinity
         let myLocCircle = null
@@ -537,23 +556,31 @@ const Dashboard = () => {
         geoWatchId = navigator.geolocation.watchPosition(
           async (pos) => {
             const { latitude, longitude, accuracy } = pos.coords
-            if (accuracy < bestAccuracy) {
-              bestAccuracy = accuracy
-              map.setView([latitude, longitude], accuracy < 100 ? 19 : 17)
+            if (accuracy >= bestAccuracy) return
+            bestAccuracy = accuracy
+
+            // Always update the blue "you are here" indicator dot
+            if (myLocCircle) map.removeLayer(myLocCircle)
+            if (myLocDot) map.removeLayer(myLocDot)
+
+            myLocCircle = L.circle([latitude, longitude], {
+              radius: Math.min(accuracy, 5000), // cap circle at 5km
+              color: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.08, weight: 1.5,
+              interactive: false
+            }).addTo(map)
+
+            myLocDot = L.circleMarker([latitude, longitude], {
+              radius: 8, color: 'white', fillColor: '#4285F4', fillOpacity: 1, weight: 2.5,
+              interactive: false
+            }).addTo(map)
+
+            // Only move the red delivery pin and center the map when GPS accuracy is under 200m.
+            // Without this threshold, a coarse Wi-Fi fix (accuracy=3000m) would jump the map
+            // to a completely wrong area (e.g. southern tip of India instead of Palakkad).
+            if (accuracy <= 200) {
+              const zoom = accuracy <= 20 ? 19 : accuracy <= 80 ? 18 : accuracy <= 200 ? 16 : 14
+              map.setView([latitude, longitude], zoom)
               marker.setLatLng([latitude, longitude])
-
-              if (myLocCircle) map.removeLayer(myLocCircle)
-              if (myLocDot) map.removeLayer(myLocDot)
-
-              myLocCircle = L.circle([latitude, longitude], {
-                radius: accuracy,
-                color: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.1, weight: 1.5
-              }).addTo(map)
-
-              myLocDot = L.circleMarker([latitude, longitude], {
-                radius: 8, color: 'white', fillColor: '#4285F4', fillOpacity: 1, weight: 2.5
-              }).addTo(map)
-
               await reverseGeocode(latitude, longitude)
 
               if (accuracy <= 30 && geoWatchId !== null) {
@@ -562,19 +589,9 @@ const Dashboard = () => {
               }
             }
           },
-          async () => {
-            // GPS failed on load — use IP geolocation for a rough map center
-            try {
-              const res = await fetch('https://ip-api.com/json/')
-              if (res.ok) {
-                const ipData = await res.json()
-                if (ipData && ipData.status === 'success') {
-                  map.setView([ipData.lat, ipData.lon], 14)
-                  marker.setLatLng([ipData.lat, ipData.lon])
-                  await reverseGeocode(ipData.lat, ipData.lon)
-                }
-              }
-            } catch (err) { console.error('IP fallback error:', err) }
+          () => {
+            // GPS denied/failed — leave map at default, user can search manually
+            console.warn('GPS unavailable on map init — user can search manually')
           },
           { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
         )
