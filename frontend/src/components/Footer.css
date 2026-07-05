@@ -1,6 +1,6 @@
 /* Footer Premium Styles & Keyframes */
 .footer-container {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   box-shadow: 0 3000px 0 3000px #020617;
   clip-path: inset(0px -3000px -3000px -3000px);
 }

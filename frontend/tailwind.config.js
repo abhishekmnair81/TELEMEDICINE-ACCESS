@@ -20,7 +20,7 @@ module.exports = {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['DM Sans', 'sans-serif'],
       },
       screens: {
         'xs': '480px',      // Small mobile devices
