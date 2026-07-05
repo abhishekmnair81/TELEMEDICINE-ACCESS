@@ -1,28 +1,11 @@
-/**
- * e2eEncryption.js
- * ------------------------------------------------------------------
- * Client-side End-to-End encryption for in-call chat messages.
- * Uses AES-GCM (256-bit) via the Web Crypto API (available in all
- * modern browsers).
- *
- * The shared secret is derived from the room_id using PBKDF2 so
- * both participants (doctor + patient) automatically have the same
- * key without any additional key-exchange step.
- *
- * WebRTC audio/video is already DTLS-SRTP encrypted by the browser –
- * this module handles the TEXT chat channel only.
- * ------------------------------------------------------------------
- */
-
 const ALGORITHM  = 'AES-GCM'
-const KEY_LENGTH = 256  // bits
+const KEY_LENGTH = 256  
 const SALT       = new TextEncoder().encode('rural-health-e2e-salt-v1')
 const ITERATIONS = 100_000
 
 let cachedKey = null
 let cachedRoomId = null
 
-// ─── Key derivation ───────────────────────────────────────────────
 
 /**
  * Derive a deterministic AES-GCM key from the room ID.
@@ -58,8 +41,6 @@ export async function deriveRoomKey(roomId) {
   cachedRoomId = roomId
   return cachedKey
 }
-
-// ─── Encrypt ─────────────────────────────────────────────────────
 
 /**
  * Encrypt a plaintext string with the room key.

@@ -280,19 +280,9 @@ const Dashboard = () => {
       const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
       if (res.ok) {
         const data = await res.json()
-        const address = data.address
-        const road = address.road || address.pedestrian || ''
-        const suburb = address.suburb || address.neighbourhood || ''
-        const city = address.city || address.town || address.village || address.district || ''
-        const postcode = address.postcode || ''
-        
-        let formatted = [road, suburb, city].filter(Boolean).join(', ')
-        if (postcode) {
-          formatted += ` - ${postcode}`
-        }
-        if (!formatted) {
-          formatted = data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`
-        }
+        let formatted = data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+        // Clean up trailing ", India"
+        formatted = formatted.replace(/, India$/, '').trim()
         setTempAddress(formatted)
       }
     } catch (error) {
@@ -322,12 +312,14 @@ const Dashboard = () => {
     const lon = parseFloat(result.lon)
     const name = result.display_name
     
-    setTempAddress(name)
+    // Clean up trailing ", India"
+    const cleanedName = name.replace(/, India$/, '').trim()
+    setTempAddress(cleanedName)
     setMapSearchResults([])
     setMapSearchQuery('')
     
     if (leafletMapInstance.current && window.L) {
-      leafletMapInstance.current.setView([lat, lon], 16)
+      leafletMapInstance.current.setView([lat, lon], 19)
       if (markerInstance.current) {
         markerInstance.current.setLatLng([lat, lon])
       }
@@ -347,7 +339,7 @@ const Dashboard = () => {
         const { latitude, longitude } = position.coords
 
         if (leafletMapInstance.current && window.L) {
-          leafletMapInstance.current.setView([latitude, longitude], 16)
+          leafletMapInstance.current.setView([latitude, longitude], 19)
           if (markerInstance.current) {
             markerInstance.current.setLatLng([latitude, longitude])
           }
@@ -357,21 +349,16 @@ const Dashboard = () => {
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`)
           if (res.ok) {
             const data = await res.json()
-            const address = data.address
-            const road = address.road || address.pedestrian || ''
-            const suburb = address.suburb || address.neighbourhood || ''
-            const city = address.city || address.town || address.village || address.suburb || "Thrissur"
-            const postcode = address.postcode || "678631"
-            
-            let formatted = [road, suburb, city].filter(Boolean).join(', ')
-            if (postcode) {
-              formatted += ` - ${postcode}`
-            }
-            if (!formatted) {
-              formatted = data.display_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-            }
+            let formatted = data.display_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+            formatted = formatted.replace(/, India$/, '').trim()
             setTempAddress(formatted)
-            showToast(`📍 Location auto-detected: ${postcode}`, 'success')
+            
+            const postcode = data.address?.postcode
+            if (postcode) {
+              showToast(`📍 Location auto-detected: ${postcode}`, 'success')
+            } else {
+              showToast(`📍 Location auto-detected`, 'success')
+            }
           } else {
             const coordinates = `${latitude.toFixed(4)}° N, ${longitude.toFixed(4)}° E`
             setTempAddress(coordinates)
@@ -389,7 +376,7 @@ const Dashboard = () => {
         setIsLocating(false)
         showToast("Unable to retrieve location. Please select on the map or search manually.", "error")
       },
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     )
   }
 
@@ -534,7 +521,7 @@ const Dashboard = () => {
             await reverseGeocode(latitude, longitude)
           },
           () => {},
-          { enableHighAccuracy: true, timeout: 6000 }
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         )
       }
     }, 350)
