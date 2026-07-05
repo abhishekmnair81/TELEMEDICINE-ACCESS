@@ -1800,6 +1800,31 @@ const Dashboard = () => {
         </div>
       </section>
 
+      <section className="py-12 md:py-16 bg-gradient-to-r from-green-900 to-green-950 text-white" ref={sectionRefs.stats}>
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 text-center">
+            {stats.map((stat, index) => {
+              const StatBox = () => {
+                const numericValue = parseFloat(stat.number.replace(/[^0-9.]/g, ''));
+                const suffix = stat.number.includes('+') ? '+' : stat.number.includes('%') ? '%' : '';
+                const [count, ref] = useCountAnimation(numericValue, 2000);
+
+                return (
+                  <div ref={ref} className="flex flex-col items-center gap-2">
+                    <div className="text-3xl text-green-400 mb-2 opacity-90">{stat.icon}</div>
+                    <div className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                      {stat.number === '24/7' ? '24/7' : `${count}${suffix}`}
+                    </div>
+                    <div className="text-xs font-bold text-green-200/70 uppercase tracking-widest">{stat.label}</div>
+                  </div>
+                );
+              };
+              return <StatBox key={index} />;
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* Our Healthcare Services Section */}
       <section className="py-16 bg-gray-50/40 border-y border-gray-100" id="features">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -2435,33 +2460,6 @@ const Dashboard = () => {
           </div>
         </div>
       </section>
-
-      <section className="py-12 md:py-16 bg-gradient-to-r from-green-900 to-green-950 text-white" ref={sectionRefs.stats}>
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 text-center">
-            {stats.map((stat, index) => {
-              const StatBox = () => {
-                const numericValue = parseFloat(stat.number.replace(/[^0-9.]/g, ''));
-                const suffix = stat.number.includes('+') ? '+' : stat.number.includes('%') ? '%' : '';
-                const [count, ref] = useCountAnimation(numericValue, 2000);
-
-                return (
-                  <div ref={ref} className="flex flex-col items-center gap-2">
-                    <div className="text-3xl text-green-400 mb-2 opacity-90">{stat.icon}</div>
-                    <div className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-                      {stat.number === '24/7' ? '24/7' : `${count}${suffix}`}
-                    </div>
-                    <div className="text-xs font-bold text-green-200/70 uppercase tracking-widest">{stat.label}</div>
-                  </div>
-                );
-              };
-              return <StatBox key={index} />;
-            })}
-          </div>
-        </div>
-      </section>
-
-
 
       <Footer />
       {toast && (
