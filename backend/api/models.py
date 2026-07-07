@@ -2291,4 +2291,77 @@ class VoiceRecording(models.Model):
 
     def __str__(self):
         user_str = self.user.username if self.user else self.user_id_anonymous or 'anonymous'
-        return f"Voice [{self.detected_language}] by {user_str} at {self.created_at:%Y-%m-%d %H:%M}"
+        return f"Voice [{self.detected_language}] by {user_str} at {self.created_at:%Y-%m-%d %H:%M}"
+
+
+# ============================================================================
+# LAB TEST BOOKING MODEL
+# ============================================================================
+
+class LabTestBooking(models.Model):
+    COLLECTION_CHOICES = [
+        ('home', 'Home Collection'),
+        ('walk_in', 'Walk-in to Lab'),
+    ]
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='lab_test_bookings'
+    )
+    patient_name = models.CharField(max_length=200)
+    patient_phone = models.CharField(max_length=20)
+    patient_email = models.EmailField(blank=True, default='')
+    patient_age = models.IntegerField(null=True, blank=True)
+    patient_gender = models.CharField(max_length=15, blank=True, default='')
+    
+    tests = models.JSONField(default=list)
+    
+    booking_date = models.DateField()
+    booking_time_slot = models.CharField(max_length=50)
+    collection_type = models.CharField(max_length=20, choices=COLLECTION_CHOICES, default='home')
+    
+    address = models.TextField(blank=True, default='')
+    pincode = models.CharField(max_length=10, blank=True, default='')
+    
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Lab Test Booking for {self.patient_name} on {self.booking_date}"
+
+
+class LabTest(models.Model):
+    name = models.CharField(max_length=200)
+    category = models.CharField(max_length=100)
+    price = models.IntegerField()
+    description = models.TextField(blank=True, default='')
+    preparation = models.TextField(blank=True, default='')
+    parameters = models.IntegerField(default=1)
+    theme_color = models.CharField(max_length=50, default='teal')
+    is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.category}) - ₹{self.price}"

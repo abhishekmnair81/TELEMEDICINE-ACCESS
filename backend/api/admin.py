@@ -16,8 +16,9 @@ from .models import (
     DoctorConsultationNote, FamilyHealthNetwork, EmergencyContact,
     OTPVerification, CartItem, SavedForLater, Coupon, CouponUsage,
     MedicineImage,ChatHistory, Conversation,
-    OCRProcessingLog, ExtractedMedicalData,
+    OCRProcessingLog, ExtractedMedicalData, LabTestBooking, LabTest,
 )
+
 
 
 # ============================================================================
@@ -486,3 +487,19 @@ admin.site.register(ConsultationFollowUp)
 admin.site.site_header = "Medical Shop Management System"
 admin.site.site_title = "Medical Shop Admin"
 admin.site.index_title = "Welcome to Medical Shop Management"
+
+
+@admin.register(LabTestBooking)
+class LabTestBookingAdmin(admin.ModelAdmin):
+    list_display = ['patient_name', 'patient_phone', 'booking_date', 'booking_time_slot', 'collection_type', 'total_price', 'status', 'created_at']
+    list_filter = ['status', 'collection_type', 'booking_date', 'created_at']
+    search_fields = ['patient_name', 'patient_phone', 'patient_email', 'id']
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(LabTest)
+class LabTestAdmin(admin.ModelAdmin):
+    list_display = ['name', 'category', 'price', 'parameters', 'theme_color', 'is_active']
+    list_filter = ['category', 'theme_color', 'is_active']
+    search_fields = ['name', 'category', 'description']
+

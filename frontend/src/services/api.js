@@ -1867,6 +1867,47 @@ export const pharmacistsAPI = {
 };
 
 
+export const labTestsAPI = {
+  createBooking: async (bookingData) => {
+    return apiRequest('/lab-test-bookings/', {
+      method: 'POST',
+      body: JSON.stringify(bookingData),
+    });
+  },
+  getBookings: async (params = {}) => {
+    const queryParams = new URLSearchParams(params).toString();
+    return apiRequest(`/lab-test-bookings/${queryParams ? `?${queryParams}` : ''}`);
+  },
+  getBookingById: async (bookingId) => {
+    return apiRequest(`/lab-test-bookings/${bookingId}/`);
+  },
+  cancelBooking: async (bookingId) => {
+    return apiRequest(`/lab-test-bookings/${bookingId}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'cancelled' }),
+    });
+  },
+  getAvailableTests: async () => {
+    return apiRequest('/lab-tests/');
+  },
+  createTest: async (testData) => {
+    return apiRequest('/lab-tests/', {
+      method: 'POST',
+      body: JSON.stringify(testData),
+    });
+  },
+  updateTest: async (testId, testData) => {
+    return apiRequest(`/lab-tests/${testId}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(testData),
+    });
+  },
+  deleteTest: async (testId) => {
+    return apiRequest(`/lab-tests/${testId}/`, {
+      method: 'DELETE',
+    });
+  },
+};
 
 
 export default {
@@ -1889,8 +1930,6 @@ export default {
   voiceAPI,
   doctorRatingsAPI,
   cartAPI,
-  notificationsAPI,
-  voiceAPI,
-  doctorRatingsAPI,
   healthReportAPI,
+  labTestsAPI,
 };

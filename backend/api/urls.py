@@ -31,6 +31,7 @@ from .views import (
     patient_my_prescriptions,
     patient_prescription_detail, voice_to_text,
     run_email_reminders_now,
+    LabTestBookingViewSet, LabTestViewSet,
 )
 
 router = DefaultRouter()
@@ -53,6 +54,9 @@ router.register(r'health-reports', HealthReportViewSet, basename='health-reports
 router.register(r'doctor-ratings', DoctorRatingViewSet, basename='doctor-ratings')
 router.register(r'cart', views.CartViewSet, basename='cart')
 router.register(r'patient/prescriptions', views.PatientPrescriptionViewSet, basename='patient-prescriptions')
+router.register(r'lab-test-bookings', LabTestBookingViewSet, basename='lab-test-bookings')
+router.register(r'lab-tests', LabTestViewSet, basename='lab-tests')
+
 
 
 urlpatterns = [

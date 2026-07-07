@@ -16,6 +16,8 @@ import PatientDashboard from './components/PatientDashboard';
 import PatientProfile from './components/PatientProfile';
 import DoctorDetailPage from './components/DoctorDetailPage';
 import AllDoctors from './components/AllDoctors';
+import LabTests from './components/LabTests';
+
 import PharmacistDashboard from './components/PharmacistDashboard';
 import PharmacistHomepage from './components/PharmacistHomepage';
 import PharmacyProductDetail from './components/PharmacyProductDetail';
@@ -161,6 +163,8 @@ function App() {
           <Route path="/pharmacy/search" element={<PharmacySearch />} />
           <Route path="/cart" element={<ShoppingCart />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/lab-tests" element={<LabTests />} />
+
         </Routes>
       </div>
     </Router>

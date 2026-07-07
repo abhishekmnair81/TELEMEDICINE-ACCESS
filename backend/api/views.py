@@ -79,6 +79,8 @@ from .models import (
     HealthReport, MedicationReminder, MedicationLog, DoctorRating, OTPVerification, 
     Conversation, HealthReportData,
     MedicalProduct, InventoryBatch, Supplier, CartItem, SavedForLater, Coupon, CouponUsage, Medicine,CustomUser, PharmacistProfile,
+    LabTestBooking,
+    LabTest,
 )
 
 
@@ -126,7 +128,7 @@ from .serializers import (
     ChatHistorySerializer,
     HealthReportDataSerializer,CartItemSerializer, CartSummarySerializer, AddToCartSerializer,
     UpdateCartItemSerializer, ApplyCouponSerializer, SavedForLaterSerializer,
-    CouponSerializer
+    CouponSerializer, LabTestBookingSerializer, LabTestSerializer
 )
 from .helpers import (
     get_chatbot, 
@@ -8521,3 +8523,52 @@ Be concise. Do not add any conversational text before or after the JSON."""
     except Exception as e:
         logger.error(f"[process_copilot_audio] Critical error: {e}", exc_info=True)
         return Response({'success': False, 'error': str(e)}, status=500)
+
+
+class LabTestBookingViewSet(viewsets.ModelViewSet):
+    serializer_class = LabTestBookingSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        queryset = LabTestBooking.objects.all()
+        patient_id = self.request.query_params.get('patient_id')
+        phone = self.request.query_params.get('phone')
+        
+        if patient_id:
+            queryset = queryset.filter(patient_id=patient_id)
+        elif phone:
+            queryset = queryset.filter(patient_phone=phone)
+        elif self.request.user.is_authenticated and self.request.user.user_type == 'patient':
+            queryset = queryset.filter(patient=self.request.user)
+            
+        return queryset
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(patient=self.request.user)
+        else:
+            serializer.save()
+
+
+class LabTestViewSet(viewsets.ModelViewSet):
+    queryset = LabTest.objects.all()
+    serializer_class = LabTestSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        queryset = LabTest.objects.all()
+        if not (self.request.user.is_authenticated and (self.request.user.is_staff or self.request.user.is_superuser or getattr(self.request.user, 'user_type', '') == 'admin')):
+            queryset = queryset.filter(is_active=True)
+        return queryset
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        if self.action not in ['list', 'retrieve']:
+            if not (request.user.is_staff or request.user.is_superuser or getattr(request.user, 'user_type', '') == 'admin'):
+                self.permission_denied(request, message="Only administrators can manage lab test catalog items.")
+
+

@@ -37,6 +37,8 @@ from .models import (
     DoctorRating,
     Conversation,
     HealthReportData,
+    LabTestBooking,
+    LabTest,
 )
 
 MEDICINE_CATEGORIES = [
@@ -1517,3 +1519,28 @@ class PharmacistUserSerializer(serializers.ModelSerializer):
             pp.save()
 
         return instance
+
+
+class LabTestBookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LabTestBooking
+        fields = [
+            'id', 'patient', 'patient_name', 'patient_phone', 'patient_email',
+            'patient_age', 'patient_gender', 'tests', 'booking_date',
+            'booking_time_slot', 'collection_type', 'address', 'pincode',
+            'total_price', 'status', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class LabTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LabTest
+        fields = [
+            'id', 'name', 'category', 'price', 'description', 
+            'preparation', 'parameters', 'theme_color', 'is_active',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+

@@ -29,7 +29,9 @@ import {
   FaStar,
   FaStarHalfAlt,
   FaRegStar,
+  FaFlask,
 } from "react-icons/fa"
+
 import { doctorRatingsAPI } from "../services/api"
 import {
   authAPI,
@@ -494,7 +496,15 @@ const PatientDashboard = () => {
       color: "#f59e0b",
       badge: stats.medicationReminders || null,
     },
+    {
+      icon: <FaFlask size={24} />,
+      title: "Lab Test Booking",
+      description: "Book tests & packages from home",
+      path: "/lab-tests",
+      color: "#0d9488",
+    },
   ]
+
 
   if (isCheckingAuth) {
     return <LoadingScreen message="Verifying authentication..." />
