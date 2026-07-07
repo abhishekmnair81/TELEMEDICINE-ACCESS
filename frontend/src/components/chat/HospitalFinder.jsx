@@ -1,4 +1,4 @@
-// HospitalFinder.jsx - Complete Implementation
+
 import { useState, useEffect } from 'react'
 import { FaMapMarkerAlt, FaPhone, FaTimes, FaExclamationTriangle, FaCheck } from 'react-icons/fa'
 import './HospitalFinder.css'
@@ -41,18 +41,18 @@ const HospitalFinder = ({ emergencyLevel, onClose }) => {
 
   const openGoogleMaps = () => {
     if (location) {
-      // Open Google Maps with search for nearby hospitals
+
       const url = `https://www.google.com/maps/search/hospitals/@${location.lat},${location.lng},15z`
       window.open(url, '_blank')
     } else {
-      // Fallback: general hospital search
+
       const url = 'https://www.google.com/maps/search/hospitals'
       window.open(url, '_blank')
     }
   }
 
   const callEmergency = () => {
-    // For mobile devices, this will trigger the phone dialer
+
     window.location.href = 'tel:108'
   }
 
@@ -63,7 +63,7 @@ const HospitalFinder = ({ emergencyLevel, onClose }) => {
           <FaTimes />
         </button>
 
-        {/* Emergency Alert */}
+        {}
         {emergencyLevel === 'critical' && (
           <div className="emergency-alert critical">
             <FaExclamationTriangle size={24} />
@@ -84,26 +84,26 @@ const HospitalFinder = ({ emergencyLevel, onClose }) => {
           </div>
         )}
 
-        {/* Hospital Finder Content */}
+        {}
         <div className="hospital-finder-content">
           <h2>
             <FaMapMarkerAlt /> Find Nearby Hospitals
           </h2>
 
-          {/* Emergency Call Button (Critical) */}
+          {}
           {emergencyLevel === 'critical' && (
-            <button 
-              className="emergency-call-btn" 
+            <button
+              className="emergency-call-btn"
               onClick={callEmergency}
             >
               <FaPhone /> Call Emergency (108)
             </button>
           )}
 
-          {/* Get Location & Show Hospitals Button */}
+          {}
           {!location ? (
-            <button 
-              className="get-location-btn" 
+            <button
+              className="get-location-btn"
               onClick={getLocation}
               disabled={loading}
             >
@@ -112,8 +112,8 @@ const HospitalFinder = ({ emergencyLevel, onClose }) => {
           ) : (
             <div className="location-success">
               <p><FaCheck style={{ marginRight: '6px', color: '#28a745' }} /> Location obtained</p>
-              <button 
-                className="show-hospitals-btn" 
+              <button
+                className="show-hospitals-btn"
                 onClick={openGoogleMaps}
               >
                 Show Nearby Hospitals on Map
@@ -121,15 +121,15 @@ const HospitalFinder = ({ emergencyLevel, onClose }) => {
             </div>
           )}
 
-          {/* Error Message */}
+          {}
           {error && (
             <div className="error-message">
               <p>{error}</p>
               <p className="error-help">
                 You can manually search for hospitals on Google Maps.
               </p>
-              <button 
-                className="manual-search-btn" 
+              <button
+                className="manual-search-btn"
                 onClick={openGoogleMaps}
               >
                 Open Google Maps
@@ -137,7 +137,7 @@ const HospitalFinder = ({ emergencyLevel, onClose }) => {
             </div>
           )}
 
-          {/* Emergency Numbers */}
+          {}
           <div className="emergency-numbers">
             <h3>Emergency Contact Numbers</h3>
             <ul>
@@ -152,10 +152,10 @@ const HospitalFinder = ({ emergencyLevel, onClose }) => {
             </ul>
           </div>
 
-          {/* Disclaimer */}
+          {}
           <div className="disclaimer">
             <p>
-              <strong>Important:</strong> For critical emergencies, always call emergency services first 
+              <strong>Important:</strong> For critical emergencies, always call emergency services first
               before searching for hospitals. Your safety is the top priority.
             </p>
           </div>

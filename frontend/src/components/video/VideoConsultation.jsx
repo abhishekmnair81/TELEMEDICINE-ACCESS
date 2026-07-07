@@ -29,9 +29,9 @@ import { deriveRoomKey, encryptMessage, decryptMessage, isE2ESupported } from ".
 import Footer from "../Footer"
 import "./VideoConsultation.css"
 
-// ─────────────────────────────────────────────────────────────
-// PrescriptionDownloadButton – standalone component
-// ─────────────────────────────────────────────────────────────
+
+
+
 const PrescriptionDownloadButton = ({
   prescription,
   size = 'md',
@@ -41,7 +41,7 @@ const PrescriptionDownloadButton = ({
   style = {},
   className = '',
 }) => {
-  const [status, setStatus] = useState('idle') // 'idle' | 'loading' | 'success' | 'error'
+  const [status, setStatus] = useState('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
   const handleDownload = async () => {
@@ -157,8 +157,8 @@ const VideoConsultation = () => {
   const peerConnectionRef = useRef(null)
   const websocketRef = useRef(null)
   const localStreamRef = useRef(null)
-  const e2eKeyRef = useRef(null)          // AES-GCM CryptoKey
-  const remoteUserIdRef = useRef(null)    // tracks the other participant's ID
+  const e2eKeyRef = useRef(null)
+  const remoteUserIdRef = useRef(null)
 
   const [localStream, setLocalStream] = useState(null)
   const [remoteStream, setRemoteStream] = useState(null)
@@ -177,13 +177,13 @@ const VideoConsultation = () => {
   ])
   const [chatInput, setChatInput] = useState("")
 
-  // Prescription states
+
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false)
   const [receivedPrescriptions, setReceivedPrescriptions] = useState([])
   const [selectedPrescription, setSelectedPrescription] = useState(null)
   const [loadingPrescriptions, setLoadingPrescriptions] = useState(false)
 
-  // Teams Call states & helpers
+
   const [showChat, setShowChat] = useState(true)
   const [isRemoteVideoOn, setIsRemoteVideoOn] = useState(true)
   const [isRemoteMicOn, setIsRemoteMicOn] = useState(true)
@@ -210,17 +210,17 @@ const VideoConsultation = () => {
       await loadAppointments(user)
       await loadPrescriptions(user.id)
 
-      // Restore active call on page refresh
+
       const savedAppointment = sessionStorage.getItem("active_appointment")
       const savedRoom = sessionStorage.getItem("active_room")
       if (savedAppointment && savedRoom) {
         try {
           const appointment = JSON.parse(savedAppointment)
           const room = JSON.parse(savedRoom)
-          
+
           setSelectedAppointment(appointment)
           setCurrentRoom(room)
-          
+
           addChatMessage("System", "Reconnecting to active conversation...")
           await startLocalVideo(user)
           initializeWebSocket(room.room_id, user.id)
@@ -262,7 +262,7 @@ const VideoConsultation = () => {
     }
   }, [chatMessages])
 
-  // Real-Time AI Symptom Co-Pilot Loop (Patient side)
+
   useEffect(() => {
     let intervalId = null
     let mediaRecorder = null
@@ -270,7 +270,7 @@ const VideoConsultation = () => {
 
     if (isConnected && localStreamRef.current && isMicOn) {
       console.log("[Co-pilot] Starting background audio recording loop...")
-      
+
       const startRecording = () => {
         try {
           if (!localStreamRef.current || !isMicOn) return;
@@ -280,9 +280,9 @@ const VideoConsultation = () => {
             return
           }
 
-          // Create a separate MediaStream with just the patient's audio track
+
           localStreamToRecord = new MediaStream([audioTracks[0]])
-          
+
           let options = {}
           if (typeof MediaRecorder.isTypeSupported === 'function') {
             if (MediaRecorder.isTypeSupported('audio/webm')) {
@@ -293,7 +293,7 @@ const VideoConsultation = () => {
               options = { mimeType: 'audio/mp4' }
             }
           }
-          
+
           mediaRecorder = new MediaRecorder(localStreamToRecord, options)
 
           const chunks = []
@@ -306,8 +306,8 @@ const VideoConsultation = () => {
           mediaRecorder.onstop = async () => {
             if (chunks.length === 0) return
             const blob = new Blob(chunks, { type: options.mimeType || 'audio/webm' })
-            
-            // Only send if the blob size is reasonable (e.g. not silent or tiny)
+
+
             if (blob.size > 2000) {
               const formData = new FormData()
               formData.append('audio', blob, `copilot.${options.mimeType ? options.mimeType.split('/')[1] : 'webm'}`)
@@ -330,8 +330,8 @@ const VideoConsultation = () => {
           }
 
           mediaRecorder.start()
-          
-          // Stop recording after 8 seconds (triggers onstop)
+
+
           setTimeout(() => {
             if (mediaRecorder && mediaRecorder.state === 'recording') {
               mediaRecorder.stop()
@@ -343,10 +343,10 @@ const VideoConsultation = () => {
         }
       }
 
-      // Run every 9 seconds (giving 1s gap)
+
       intervalId = setInterval(startRecording, 9000)
-      
-      // Run once immediately
+
+
       startRecording()
     }
 
@@ -475,7 +475,7 @@ const VideoConsultation = () => {
   }
 
   const initializeWebSocket = async (roomId, userId) => {
-    // Derive E2E key for this room
+
     if (isE2ESupported()) {
       try {
         e2eKeyRef.current = await deriveRoomKey(roomId)
@@ -495,8 +495,8 @@ const VideoConsultation = () => {
       console.log("[WebSocket] ✅ Connected")
       setIsConnected(true)
       addChatMessage("System", "🔒 Connected – waiting for doctor to join...")
-      // Patient does NOT create an offer on connect.
-      // The offer is created once the doctor's user_connected event arrives.
+
+
     }
 
     websocketRef.current.onmessage = async (event) => {
@@ -525,14 +525,14 @@ const VideoConsultation = () => {
 
     switch (data.type) {
       case "user_connected":
-        // Ignore our own connect echo
+
         if (data.user_id === currentUser?.id) break
         addChatMessage("System", `${data.user_name || 'Doctor'} joined the room 🔒`)
         setIsRemoteVideoOn(true)
         setIsRemoteMicOn(true)
-        // Store the doctor's ID for ICE routing
+
         remoteUserIdRef.current = data.user_id
-        // Patient creates the offer now that the doctor is in the room
+
         if (localStreamRef.current) {
           await createOffer(data.user_id)
         }
@@ -578,7 +578,7 @@ const VideoConsultation = () => {
       case "chat_message": {
         if (data.sender_id !== currentUser?.id) {
           let displayText = data.content
-          // Attempt E2E decryption
+
           if (data.iv && e2eKeyRef.current) {
             try {
               displayText = await decryptMessage(data.content, data.iv, e2eKeyRef.current)
@@ -916,7 +916,7 @@ const VideoConsultation = () => {
     let content = message
     let iv = null
 
-    // E2E encrypt if key is available
+
     if (e2eKeyRef.current) {
       try {
         const encrypted = await encryptMessage(message, e2eKeyRef.current)
@@ -935,7 +935,7 @@ const VideoConsultation = () => {
       iv,
       message_type: "text",
     }))
-    addChatMessage("You", message)  // show plaintext locally
+    addChatMessage("You", message)
     setChatInput("")
   }
 
@@ -977,7 +977,7 @@ const VideoConsultation = () => {
       } text-slate-850 flex flex-col justify-between`}>
 
 
-      {/* Header bar */}
+      {}
       <header className={`border-b sticky top-0 z-50 transition-colors flex-shrink-0 ${currentRoom ? 'bg-slate-900/95 border-white/10 backdrop-blur-md' : 'bg-white/80 border-slate-200/80 backdrop-blur-md'}`}>
         <div className="max-w-full px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/')}>
@@ -1006,11 +1006,11 @@ const VideoConsultation = () => {
         </div>
       </header>
 
-      {/* Main Container */}
+      {}
       <main className={`flex-1 w-full flex flex-col min-h-0 ${currentRoom ? 'p-0 overflow-hidden h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)]' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
 
         {!currentRoom ? (
-          /* Patient Lobby State */
+
           <div className="space-y-8 flex-1">
             <div>
               <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -1083,10 +1083,10 @@ const VideoConsultation = () => {
             )}
           </div>
         ) : (
-          /* Active Call State */
+
           <div className="flex h-full max-h-full min-h-0 overflow-hidden bg-slate-900">
 
-            {/* Video area – fills remaining space */}
+            {}
             <div className="flex-1 relative overflow-hidden" style={{ minWidth: 0 }}>
 
               <div className="absolute inset-0 bg-slate-900 flex items-center justify-center overflow-hidden">
@@ -1103,7 +1103,7 @@ const VideoConsultation = () => {
                 ) : (
                   <div className="relative w-full h-full bg-slate-900 flex items-center justify-center">
 
-                    {/* Remote video – main tile */}
+                    {}
                     <div className="w-full h-full relative bg-slate-900 flex items-center justify-center">
                       {remoteStream && isRemoteVideoOn ? (
                         <video
@@ -1142,7 +1142,7 @@ const VideoConsultation = () => {
                       )}
                     </div>
 
-                    {/* Local PIP Video (Patient floating overlay) – always bottom-right */}
+                    {}
                     <div className="absolute bottom-24 right-4 w-36 h-24 sm:w-48 sm:h-32 rounded-2xl overflow-hidden border-2 border-white/40 shadow-2xl z-20 group hover:border-green-400 transition-colors bg-slate-800">
                       {localStream && isVideoOn ? (
                         <video
@@ -1168,7 +1168,7 @@ const VideoConsultation = () => {
                 )}
               </div>
 
-              {/* Floating Teams Control Pill */}
+              {}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/90 border border-white/10 rounded-full px-3 py-2 sm:px-6 sm:py-3 flex items-center gap-2 sm:gap-3 z-30 shadow-2xl backdrop-blur-md max-w-[96vw]">
                 <button
                   onClick={toggleMic}
@@ -1231,11 +1231,11 @@ const VideoConsultation = () => {
 
             </div>
 
-            {/* Chat Sidebar – simple flex child, always in flow */}
+            {}
             {currentRoom && showChat && (
               <div className="w-80 flex-shrink-0 border-l border-white/10 bg-slate-900 flex flex-col overflow-hidden">
 
-                {/* Info block */}
+                {}
                 <div className="p-4 border-b border-white/10 flex-shrink-0">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-[10px] font-black text-green-400 uppercase tracking-widest">Active Consultation</h3>
@@ -1247,7 +1247,7 @@ const VideoConsultation = () => {
                   </div>
                 </div>
 
-                {/* Messages screen */}
+                {}
                 <div className="flex-1 flex flex-col overflow-hidden p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-[10px] font-black text-green-400 uppercase tracking-widest">Consultation Chat</h3>
@@ -1278,7 +1278,7 @@ const VideoConsultation = () => {
                     ))}
                   </div>
 
-                  {/* Input form */}
+                  {}
                   <div className="mt-3 flex gap-2">
                     <input
                       type="text"
@@ -1309,10 +1309,10 @@ const VideoConsultation = () => {
       </main>
 
 
-      {/* Footer (lobby state only) */}
+      {}
       {!currentRoom && <Footer />}
 
-      {/* ── RECEIVED PRESCRIPTION SUMMARY MODAL ── */}
+      {}
       {showPrescriptionModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={() => setShowPrescriptionModal(false)}>
           <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] text-slate-800" onClick={(e) => e.stopPropagation()}>
@@ -1367,15 +1367,15 @@ const VideoConsultation = () => {
         </div>
       )}
 
-      {/* ── VIEW DETAILED PRESCRIPTION MODAL ── */}
+      {}
       {selectedPrescription && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={() => setSelectedPrescription(null)}>
           <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-slate-800" onClick={(e) => e.stopPropagation()}>
 
-            {/* Document wrapper */}
+            {}
             <div className="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6">
 
-              {/* Clinic Header */}
+              {}
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start border-b-2 border-green-600 pb-4 gap-4">
                 <div>
                   <h1 className="text-2xl font-black text-green-800 tracking-tight">{selectedPrescription.hospital_name || 'RURAL HEALTH CLINIC'}</h1>
@@ -1388,7 +1388,7 @@ const VideoConsultation = () => {
                 </div>
               </div>
 
-              {/* Consultation Details */}
+              {}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 border border-slate-100 rounded-2xl p-5 text-xs font-semibold text-slate-600">
                 <div className="space-y-1">
                   <h4 className="text-[10px] font-black text-green-600 uppercase tracking-widest mb-2">Patient Demographics</h4>
@@ -1407,13 +1407,13 @@ const VideoConsultation = () => {
                 </div>
               </div>
 
-              {/* Clinical findings */}
+              {}
               <div className="space-y-2">
                 <h4 className="text-[10px] font-black text-green-600 uppercase tracking-widest border-b border-slate-100 pb-1">Diagnosis</h4>
                 <p className="text-xs font-semibold text-slate-800 bg-green-50/30 border border-green-500/10 rounded-xl p-3.5 leading-relaxed">{selectedPrescription.diagnosis}</p>
               </div>
 
-              {/* Medications details table */}
+              {}
               <div className="space-y-3">
                 <h4 className="text-[10px] font-black text-green-600 uppercase tracking-widest border-b border-slate-100 pb-1">℞ Prescribed Medicines</h4>
                 {selectedPrescription.medications?.length > 0 ? (
@@ -1448,7 +1448,7 @@ const VideoConsultation = () => {
                 )}
               </div>
 
-              {/* Remarks info */}
+              {}
               {selectedPrescription.notes && (
                 <div className="space-y-2">
                   <h4 className="text-[10px] font-black text-green-600 uppercase tracking-widest border-b border-slate-100 pb-1">Remarks & Diet Advice</h4>
@@ -1456,7 +1456,7 @@ const VideoConsultation = () => {
                 </div>
               )}
 
-              {/* Follow-up info */}
+              {}
               {selectedPrescription.follow_up_date && (
                 <div className="p-3 bg-green-50/40 border border-green-500/10 rounded-xl flex justify-between items-center text-xs font-semibold">
                   <span className="text-green-700">Recommended Follow-up Consultation:</span>
@@ -1466,7 +1466,7 @@ const VideoConsultation = () => {
 
             </div>
 
-            {/* Modal footer / Actions panel */}
+            {}
             <div className="px-8 py-4 border-t border-slate-100 bg-slate-50 flex flex-wrap justify-between items-center gap-3">
               <button
                 onClick={printPrescription}

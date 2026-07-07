@@ -51,7 +51,7 @@ const PharmacistDashboard = () => {
   }, [darkMode])
 
 
-  // Dynamic stats from API
+
   const [stats, setStats] = useState({
     pendingOrders: 0,
     totalOrders: 0,
@@ -63,13 +63,13 @@ const PharmacistDashboard = () => {
     totalMedicines: 0,
   })
 
-  // Real data from API
+
   const [orders, setOrders] = useState([])
   const [inventory, setInventory] = useState([])
   const [prescriptions, setPrescriptions] = useState([])
   const [analytics, setAnalytics] = useState(null)
 
-  // ─── Auth Check ────────────────────────────────────────────────────────────
+
   useEffect(() => {
     const checkAuth = () => {
       console.log("[PharmacistDashboard] Checking authentication...")
@@ -100,14 +100,14 @@ const PharmacistDashboard = () => {
     checkAuth()
   }, [navigate])
 
-  // ─── Load Data when user is ready ──────────────────────────────────────────
+
   useEffect(() => {
     if (user && !isCheckingAuth) {
       loadDashboardData(user.id)
     }
   }, [user, isCheckingAuth])
 
-  // ─── Auto-refresh every 30s ─────────────────────────────────────────────────
+
   useEffect(() => {
     if (!user || isCheckingAuth) return
     const interval = setInterval(() => {
@@ -117,7 +117,7 @@ const PharmacistDashboard = () => {
     return () => clearInterval(interval)
   }, [user, isCheckingAuth])
 
-  // ─── Main Data Loader ───────────────────────────────────────────────────────
+
   const loadDashboardData = async (pharmacistId) => {
     try {
       setLoading(true)
@@ -125,7 +125,7 @@ const PharmacistDashboard = () => {
       console.log("LOADING PHARMACIST DASHBOARD DATA:", pharmacistId)
       console.log("=".repeat(60))
 
-      // ── 1. Dashboard overview (inventory + revenue + order stats) ──────────
+
       console.log("\n📊 Fetching pharmacy dashboard...")
       let dashboardData = null
       try {
@@ -138,7 +138,7 @@ const PharmacistDashboard = () => {
         console.error("❌ Dashboard fetch error:", err)
       }
 
-      // ── 2. Medicines / Inventory ───────────────────────────────────────────
+
       console.log("\n💊 Fetching inventory...")
       let medicines = []
       try {
@@ -149,7 +149,7 @@ const PharmacistDashboard = () => {
         console.error("❌ Inventory fetch error:", err)
       }
 
-      // ── 3. Orders ─────────────────────────────────────────────────────────
+
       console.log("\n🛒 Fetching orders...")
       let allOrders = []
       try {
@@ -160,7 +160,7 @@ const PharmacistDashboard = () => {
         console.error("❌ Orders fetch error:", err)
       }
 
-      // ── 4. Prescriptions ──────────────────────────────────────────────────
+
       console.log("\n📋 Fetching prescriptions...")
       let allPrescriptions = []
       try {
@@ -173,7 +173,7 @@ const PharmacistDashboard = () => {
         console.error("❌ Prescriptions fetch error:", err)
       }
 
-      // ── 5. Analytics ──────────────────────────────────────────────────────
+
       console.log("\n📈 Fetching analytics...")
       let analyticsData = null
       try {
@@ -184,7 +184,7 @@ const PharmacistDashboard = () => {
         console.error("❌ Analytics fetch error:", err)
       }
 
-      // ── 6. Compute Stats ──────────────────────────────────────────────────
+
       const lowStock = medicines.filter(
         (m) => m.stock_quantity > 0 && m.stock_quantity <= 50
       )
@@ -221,7 +221,7 @@ const PharmacistDashboard = () => {
         totalMedicines: dashboardData?.inventory?.total_medicines ?? medicines.length,
       })
 
-      // Sort and slice for display
+
       setOrders(
         [...allOrders]
           .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -252,7 +252,7 @@ const PharmacistDashboard = () => {
     navigate("/auth?type=pharmacist&view=login")
   }
 
-  // ─── Helpers ───────────────────────────────────────────────────────────────
+
   const getStatusColor = (status) => {
     const map = {
       pending: "bg-amber-50 text-amber-700 dark:bg-amber-950/20 border-amber-250",
@@ -307,7 +307,7 @@ const PharmacistDashboard = () => {
     return "in_stock"
   }
 
-  // ─── Filtered views ────────────────────────────────────────────────────────
+
   const filteredOrders = orders.filter((o) => {
     if (!searchQuery) return true
     const q = searchQuery.toLowerCase()
@@ -338,7 +338,7 @@ const PharmacistDashboard = () => {
     )
   })
 
-  // ─── Order action handler ─────────────────────────────────────────────────
+
   const handleOrderAction = async (orderId, newStatus) => {
     try {
       console.log(`[PharmacistDashboard] Updating order ${orderId} → ${newStatus}`)
@@ -352,7 +352,7 @@ const PharmacistDashboard = () => {
     }
   }
 
-  // ─── Quick Actions ─────────────────────────────────────────────────────────
+
   const quickActions = [
     {
       icon: <FaShoppingCart className="text-xl" />,
@@ -403,7 +403,7 @@ const PharmacistDashboard = () => {
     },
   ]
 
-  // ─── Loading / Auth Guard ──────────────────────────────────────────────────
+
   if (isCheckingAuth) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
@@ -424,7 +424,7 @@ const PharmacistDashboard = () => {
 
   return (
     <div className="min-h-screen font-sans bg-slate-50/50 text-slate-800 transition-colors duration-300">
-      {/* Top Banner Info bar */}
+      { }
       <div className="bg-green-600 text-white py-2.5 text-xs font-bold shadow-sm">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center flex-wrap gap-2">
           <div className="flex items-center gap-4">
@@ -437,7 +437,7 @@ const PharmacistDashboard = () => {
         </div>
       </div>
 
-      {/* Header */}
+      { }
       <header className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/80 sticky top-0 z-40 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => navigate('/pharmacy-home')}>
@@ -455,8 +455,8 @@ const PharmacistDashboard = () => {
 
           <div className="flex items-center gap-3.5">
             <Link to="/pharmacy-home" className="text-xs font-black uppercase tracking-wider text-slate-500 hover:text-green-600 transition-colors">Home</Link>
-            
-            <button 
+
+            <button
               onClick={() => setActiveTab("orders")}
               className="text-xs font-black uppercase tracking-wider text-slate-500 hover:text-green-600 transition-colors bg-transparent border-none cursor-pointer relative"
             >
@@ -468,7 +468,7 @@ const PharmacistDashboard = () => {
               )}
             </button>
 
-            <button 
+            <button
               onClick={() => setActiveTab("inventory")}
               className="text-xs font-black uppercase tracking-wider text-slate-500 hover:text-green-600 transition-colors bg-transparent border-none cursor-pointer relative"
             >
@@ -482,14 +482,14 @@ const PharmacistDashboard = () => {
 
             <LanguageSelector />
 
-            <button 
+            <button
               onClick={() => setDarkMode(!darkMode)}
               className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-500 dark:text-slate-400 flex items-center justify-center text-sm border-none cursor-pointer transition-transform duration-300 hover:rotate-12"
             >
               {darkMode ? <FaSun className="text-amber-500" /> : <FaMoon />}
             </button>
 
-            <div 
+            <div
               className="relative"
               onMouseEnter={() => setShowProfileDropdown(true)}
               onMouseLeave={() => setShowProfileDropdown(false)}
@@ -497,7 +497,7 @@ const PharmacistDashboard = () => {
               <div className="w-10 h-10 rounded-full bg-green-600 text-white font-black flex items-center justify-center cursor-pointer shadow-sm hover:scale-105 transition-all select-none">
                 {user.first_name.charAt(0)}
               </div>
-              
+
               {showProfileDropdown && (
                 <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-850 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden z-50 animate-modal-in">
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 flex items-center gap-3">
@@ -511,7 +511,7 @@ const PharmacistDashboard = () => {
                   </div>
                   <div className="h-px bg-slate-100 dark:bg-slate-700" />
                   <div className="p-2 space-y-0.5">
-                    <button 
+                    <button
                       onClick={() => navigate('/pharmacist-profile')}
                       className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-bold text-slate-650 dark:text-slate-350 hover:text-green-600 dark:hover:text-green-400 flex items-center gap-2 border-none bg-transparent cursor-pointer transition-colors"
                     >
@@ -520,8 +520,8 @@ const PharmacistDashboard = () => {
                   </div>
                   <div className="h-px bg-slate-100 dark:bg-slate-700" />
                   <div className="p-2">
-                    <button 
-                      className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100/70 text-rose-605 rounded-lg text-xs font-black flex items-center gap-2 border-none cursor-pointer transition-colors" 
+                    <button
+                      className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100/70 text-rose-605 rounded-lg text-xs font-black flex items-center gap-2 border-none cursor-pointer transition-colors"
                       onClick={handleLogout}
                     >
                       <FaSignOutAlt /> Logout
@@ -534,9 +534,9 @@ const PharmacistDashboard = () => {
         </div>
       </header>
 
-      {/* Main Wrapper */}
+      { }
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Welcome Banner */}
+        { }
         <div className="bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-3xl p-8 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md shadow-green-600/5 relative overflow-hidden">
           <div className="space-y-2 z-10">
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight">Welcome back, {user.first_name}!</h2>
@@ -552,7 +552,7 @@ const PharmacistDashboard = () => {
           <div className="absolute -right-16 -top-16 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
         </div>
 
-        {/* Stats Grid */}
+        { }
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
           {[
             {
@@ -595,8 +595,8 @@ const PharmacistDashboard = () => {
               border: "border-slate-100 dark:border-slate-800",
             },
           ].map((card, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className={`bg-white dark:bg-slate-900 border-2 ${card.border} rounded-2xl p-6 flex items-center gap-4 relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md shadow-sm`}
             >
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${card.bg}`}>
@@ -615,7 +615,7 @@ const PharmacistDashboard = () => {
           ))}
         </div>
 
-        {/* Quick Actions */}
+        { }
         <div className="mb-10">
           <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">Quick Operations</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -623,9 +623,8 @@ const PharmacistDashboard = () => {
               <div
                 key={idx}
                 onClick={action.onClick}
-                className={`bg-white dark:bg-slate-900 border-2 rounded-2xl p-5 flex items-center gap-4 cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all relative ${
-                  action.urgent ? "border-amber-400" : "border-slate-100 dark:border-slate-800/80"
-                }`}
+                className={`bg-white dark:bg-slate-900 border-2 rounded-2xl p-5 flex items-center gap-4 cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all relative ${action.urgent ? "border-amber-400" : "border-slate-100 dark:border-slate-800/80"
+                  }`}
               >
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${action.color}`}>
                   {action.icon}
@@ -644,7 +643,7 @@ const PharmacistDashboard = () => {
           </div>
         </div>
 
-        {/* Tabs System */}
+        { }
         <div className="flex border-b border-slate-200 dark:border-slate-800 mb-8 overflow-x-auto pharmacist-scrollbar">
           {[
             { id: "overview", label: "Overview", icon: <FaClipboardList /> },
@@ -673,11 +672,10 @@ const PharmacistDashboard = () => {
                 setActiveTab(tab.id)
                 setSearchQuery("")
               }}
-              className={`flex items-center gap-2 px-5 py-4 border-b-2 font-black text-xs uppercase tracking-wider bg-transparent border-none cursor-pointer transition-colors ${
-                activeTab === tab.id
+              className={`flex items-center gap-2 px-5 py-4 border-b-2 font-black text-xs uppercase tracking-wider bg-transparent border-none cursor-pointer transition-colors ${activeTab === tab.id
                   ? "border-green-600 text-green-600 dark:text-green-400"
                   : "border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350"
-              }`}
+                }`}
             >
               {tab.icon}
               <span>{tab.label}</span>
@@ -690,11 +688,11 @@ const PharmacistDashboard = () => {
           ))}
         </div>
 
-        {/* ── Overview Tab ──────────────────────────────────────────────────── */}
+        { }
         {activeTab === "overview" && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Revenue Card */}
+              { }
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
                 <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                   <FaMoneyBillWave className="text-green-600" /> Revenue Summary
@@ -714,12 +712,12 @@ const PharmacistDashboard = () => {
                 </div>
               </div>
 
-              {/* Stock Alerts */}
+              { }
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
                 <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                   <FaExclamationTriangle className="text-rose-500" /> Stock Alerts
                 </h4>
-                
+
                 {stats.lowStockItems === 0 && stats.outOfStockItems === 0 ? (
                   <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 rounded-2xl border border-emerald-100 dark:border-emerald-900/50">
                     <FaCheckCircle className="text-lg flex-shrink-0" />
@@ -752,7 +750,7 @@ const PharmacistDashboard = () => {
                 )}
               </div>
 
-              {/* Order Pipeline */}
+              { }
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
                 <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                   <FaShoppingCart className="text-indigo-500" /> Order Summary
@@ -773,7 +771,7 @@ const PharmacistDashboard = () => {
               </div>
             </div>
 
-            {/* Recent Orders Preview */}
+            { }
             {orders.length > 0 && (
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm p-6 space-y-4">
                 <div className="flex justify-between items-center pb-2">
@@ -787,7 +785,7 @@ const PharmacistDashboard = () => {
                     View All
                   </button>
                 </div>
-                
+
                 <div className="overflow-x-auto pharmacist-scrollbar">
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -832,14 +830,14 @@ const PharmacistDashboard = () => {
           </div>
         )}
 
-        {/* ── Orders Tab ────────────────────────────────────────────────────── */}
+        { }
         {activeTab === "orders" && (
           <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="text-sm font-black text-slate-800 dark:text-slate-205 uppercase tracking-wider flex items-center gap-1.5">
                 <FaShoppingCart className="text-green-600" /> Orders ({filteredOrders.length})
               </h3>
-              
+
               <div className="flex flex-wrap items-center gap-3">
                 <div className="relative flex items-center max-w-xs w-full">
                   <FaSearch className="absolute left-3.5 text-slate-400 text-sm" />
@@ -851,7 +849,7 @@ const PharmacistDashboard = () => {
                     className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:border-green-600 focus:ring-4 focus:ring-green-500/10 transition-all font-semibold placeholder:text-slate-400 dark:text-white"
                   />
                 </div>
-                
+
                 <button
                   onClick={() => loadDashboardData(user.id)}
                   disabled={loading}
@@ -968,14 +966,14 @@ const PharmacistDashboard = () => {
           </div>
         )}
 
-        {/* ── Inventory Tab ─────────────────────────────────────────────────── */}
+        { }
         {activeTab === "inventory" && (
           <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="text-sm font-black text-slate-800 dark:text-slate-205 uppercase tracking-wider flex items-center gap-1.5">
                 <FaBoxOpen className="text-green-600" /> Inventory ({filteredInventory.length})
               </h3>
-              
+
               <div className="flex flex-wrap items-center gap-3">
                 <div className="relative flex items-center max-w-xs w-full">
                   <FaSearch className="absolute left-3.5 text-slate-400 text-sm" />
@@ -987,7 +985,7 @@ const PharmacistDashboard = () => {
                     className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:border-green-600 focus:ring-4 focus:ring-green-500/10 transition-all font-semibold placeholder:text-slate-400 dark:text-white"
                   />
                 </div>
-                
+
                 <button
                   onClick={() => navigate("/pharmacy-home")}
                   className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm transition-all border-none cursor-pointer flex items-center gap-1.5"
@@ -1020,11 +1018,10 @@ const PharmacistDashboard = () => {
                     {filteredInventory.map((item) => {
                       const stockStatus = getStockStatus(item)
                       return (
-                        <tr 
-                          key={item.id} 
-                          className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors ${
-                            stockStatus === "out_of_stock" ? "bg-rose-50/20 dark:bg-rose-950/5" : ""
-                          }`}
+                        <tr
+                          key={item.id}
+                          className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors ${stockStatus === "out_of_stock" ? "bg-rose-50/20 dark:bg-rose-950/5" : ""
+                            }`}
                         >
                           <td className="py-4 px-4">
                             <div className="font-black text-slate-850 dark:text-slate-200">{item.name}</div>
@@ -1103,14 +1100,14 @@ const PharmacistDashboard = () => {
           </div>
         )}
 
-        {/* ── Prescriptions Tab ─────────────────────────────────────────────── */}
+        { }
         {activeTab === "prescriptions" && (
           <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="text-sm font-black text-slate-800 dark:text-slate-205 uppercase tracking-wider flex items-center gap-1.5">
                 <FaPrescriptionBottle className="text-green-600" /> Prescriptions ({filteredPrescriptions.length})
               </h3>
-              
+
               <div className="flex flex-wrap items-center gap-3">
                 <div className="relative flex items-center max-w-xs w-full">
                   <FaSearch className="absolute left-3.5 text-slate-400 text-sm" />
@@ -1122,7 +1119,7 @@ const PharmacistDashboard = () => {
                     className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:border-green-600 focus:ring-4 focus:ring-green-500/10 transition-all font-semibold placeholder:text-slate-400 dark:text-white"
                   />
                 </div>
-                
+
                 <button
                   onClick={() => loadDashboardData(user.id)}
                   disabled={loading}
@@ -1141,8 +1138,8 @@ const PharmacistDashboard = () => {
             ) : filteredPrescriptions.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
                 {filteredPrescriptions.map((prescription) => (
-                  <div 
-                    key={prescription.id} 
+                  <div
+                    key={prescription.id}
                     className="bg-slate-50/50 dark:bg-slate-950/20 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 flex flex-col justify-between gap-4 hover:border-green-500 transition-all"
                   >
                     <div>
@@ -1152,7 +1149,7 @@ const PharmacistDashboard = () => {
                           {getStatusLabel(prescription.status)}
                         </span>
                       </div>
-                      
+
                       <div className="space-y-1.5 text-xs text-slate-650 dark:text-slate-350">
                         <p><strong className="text-slate-400">Patient:</strong> {prescription.patient_name || "—"}</p>
                         <p><strong className="text-slate-400">Phone:</strong> {prescription.patient_phone || "—"}</p>
@@ -1160,7 +1157,7 @@ const PharmacistDashboard = () => {
                         {prescription.diagnosis && (
                           <p><strong className="text-slate-400">Diagnosis:</strong> {prescription.diagnosis}</p>
                         )}
-                        
+
                         {Array.isArray(prescription.medications) && prescription.medications.length > 0 && (
                           <div className="pt-2">
                             <strong className="text-slate-400 block mb-1">Medications:</strong>
@@ -1182,7 +1179,7 @@ const PharmacistDashboard = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex justify-between items-center border-t border-slate-100 dark:border-slate-800/80 pt-3">
                       <span className="text-[10px] font-bold text-slate-400">{formatDateTime(prescription.created_at)}</span>
                       <div className="flex gap-2">
@@ -1213,16 +1210,16 @@ const PharmacistDashboard = () => {
           </div>
         )}
 
-        {/* ── Analytics Tab ─────────────────────────────────────────────────── */}
+        { }
         {activeTab === "analytics" && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Revenue card */}
+              { }
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
                 <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                   <FaChartLine className="text-green-600" /> Revenue Summary
                 </h4>
-                
+
                 <div className="space-y-3">
                   {[
                     { label: "Today", value: formatCurrency(stats.todayRevenue) },
@@ -1237,12 +1234,12 @@ const PharmacistDashboard = () => {
                 </div>
               </div>
 
-              {/* Stock health card */}
+              { }
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
                 <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                   <FaBoxOpen className="text-blue-600" /> Inventory Health
                 </h4>
-                
+
                 <div className="space-y-3">
                   {[
                     { label: "Total Products", value: stats.totalMedicines, cls: "text-slate-700 dark:text-slate-300" },
@@ -1257,12 +1254,12 @@ const PharmacistDashboard = () => {
                 </div>
               </div>
 
-              {/* Pipeline summary card */}
+              { }
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
                 <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                   <FaShoppingCart className="text-indigo-600" /> Order Pipeline
                 </h4>
-                
+
                 <div className="space-y-2">
                   {[
                     { label: "Pending", status: "pending" },
@@ -1282,13 +1279,13 @@ const PharmacistDashboard = () => {
               </div>
             </div>
 
-            {/* Category breakdown table */}
+            { }
             {inventory.length > 0 && (
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm p-6 space-y-4">
                 <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                   <FaBoxOpen className="text-green-600" /> Inventory by Category
                 </h3>
-                
+
                 <div className="overflow-x-auto pharmacist-scrollbar">
                   <table className="w-full text-left border-collapse">
                     <thead>

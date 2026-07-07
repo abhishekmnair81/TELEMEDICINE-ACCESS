@@ -1,5 +1,5 @@
 const ALGORITHM  = 'AES-GCM'
-const KEY_LENGTH = 256  
+const KEY_LENGTH = 256
 const SALT       = new TextEncoder().encode('rural-health-e2e-salt-v1')
 const ITERATIONS = 100_000
 
@@ -7,14 +7,9 @@ let cachedKey = null
 let cachedRoomId = null
 
 
-/**
- * Derive a deterministic AES-GCM key from the room ID.
- * Both parties derive the same key because they share the same room_id.
- * @param {string} roomId
- * @returns {Promise<CryptoKey>}
- */
+
 export async function deriveRoomKey(roomId) {
-  // Return cached key if room hasn't changed
+
   if (cachedKey && cachedRoomId === roomId) return cachedKey
 
   const rawKeyMaterial = await crypto.subtle.importKey(
@@ -42,15 +37,9 @@ export async function deriveRoomKey(roomId) {
   return cachedKey
 }
 
-/**
- * Encrypt a plaintext string with the room key.
- * @param {string} plaintext
- * @param {CryptoKey} key
- * @returns {Promise<{ ciphertext: string, iv: string }>}
- *   Both values are Base64-encoded for safe transmission over WebSocket JSON.
- */
+
 export async function encryptMessage(plaintext, key) {
-  const iv = crypto.getRandomValues(new Uint8Array(12))  // 96-bit IV for AES-GCM
+  const iv = crypto.getRandomValues(new Uint8Array(12))
 
   const encoded = new TextEncoder().encode(plaintext)
   const encrypted = await crypto.subtle.encrypt(
@@ -65,15 +54,9 @@ export async function encryptMessage(plaintext, key) {
   }
 }
 
-// ─── Decrypt ─────────────────────────────────────────────────────
 
-/**
- * Decrypt a ciphertext string with the room key.
- * @param {string} ciphertext  Base64-encoded ciphertext
- * @param {string} ivBase64    Base64-encoded 12-byte IV
- * @param {CryptoKey} key
- * @returns {Promise<string>}  Plaintext
- */
+
+
 export async function decryptMessage(ciphertext, ivBase64, key) {
   const iv          = base64ToBuffer(ivBase64)
   const cipherBuf   = base64ToBuffer(ciphertext)
@@ -87,7 +70,7 @@ export async function decryptMessage(ciphertext, ivBase64, key) {
   return new TextDecoder().decode(decrypted)
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────
+
 
 function bufferToBase64(buffer) {
   return btoa(String.fromCharCode(...new Uint8Array(buffer)))
@@ -102,10 +85,7 @@ function base64ToBuffer(base64) {
   return bytes.buffer
 }
 
-/**
- * Check if the browser supports Web Crypto API (it should in all modern browsers).
- * @returns {boolean}
- */
+
 export function isE2ESupported() {
   return !!(
     typeof window !== 'undefined' &&

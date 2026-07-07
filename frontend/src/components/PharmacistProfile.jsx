@@ -41,7 +41,7 @@ const PharmacistProfile = () => {
   const [showImageViewer, setShowImageViewer] = useState(false)
   const [photoUrlInput, setPhotoUrlInput] = useState('')
 
-  // ─── Auth Check ────────────────────────────────────────────────────────────
+
   useEffect(() => {
     const userData = authAPI.getCurrentUser()
     if (!userData) {
@@ -60,7 +60,7 @@ const PharmacistProfile = () => {
     if (user) loadPharmacistProfile()
   }, [user])
 
-  // ─── Load profile ──────────────────────────────────────────────────────────
+
   const loadPharmacistProfile = async () => {
     setProfileLoading(true)
     setProfileError("")
@@ -144,7 +144,7 @@ const PharmacistProfile = () => {
     const url = photoUrlInput.trim()
     if (!url) { setProfileError('Please enter a valid image URL'); return }
     if (!/^https?:\/\//i.test(url)) { setProfileError('URL must start with http:// or https://'); return }
-    // Update local profile picture display
+
     setPharmacistProfile(prev => prev ? { ...prev, profile_picture_url: url } : prev)
     setProfileEditData(prev => ({ ...prev, profile_picture_url: url }))
     setShowPhotoModal(false)
@@ -192,7 +192,7 @@ const PharmacistProfile = () => {
     <div className={`min-h-screen font-sans transition-colors duration-300 ${
       darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50/50 text-slate-800'
     }`}>
-      {/* Top Banner Info bar */}
+      {}
       <div className="bg-green-600 text-white py-2.5 text-xs font-bold shadow-sm">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center flex-wrap gap-2">
           <div className="flex items-center gap-4">
@@ -205,7 +205,7 @@ const PharmacistProfile = () => {
         </div>
       </div>
 
-      {/* Header */}
+      {}
       <header className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/80 sticky top-0 z-40 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => navigate('/pharmacy-home')}>
@@ -223,21 +223,21 @@ const PharmacistProfile = () => {
 
           <div className="flex items-center gap-3.5">
             <Link to="/pharmacy-home" className="text-xs font-black uppercase tracking-wider text-slate-500 hover:text-green-600 transition-colors">Home</Link>
-            <button 
+            <button
               onClick={() => navigate('/pharmacist-dashboard')}
               className="text-xs font-black uppercase tracking-wider text-slate-500 hover:text-green-600 transition-colors bg-transparent border-none cursor-pointer"
             >
               Dashboard
             </button>
 
-            <button 
+            <button
               onClick={() => setDarkMode(!darkMode)}
               className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-500 dark:text-slate-400 flex items-center justify-center text-sm border-none cursor-pointer transition-transform duration-300 hover:rotate-12"
             >
               {darkMode ? <FaSun className="text-amber-500" /> : <FaMoon />}
             </button>
 
-            <div 
+            <div
               className="relative"
               onMouseEnter={() => setShowProfileDropdown(true)}
               onMouseLeave={() => setShowProfileDropdown(false)}
@@ -245,7 +245,7 @@ const PharmacistProfile = () => {
               <div className="w-10 h-10 rounded-full bg-green-600 text-white font-black flex items-center justify-center cursor-pointer shadow-sm hover:scale-105 transition-all select-none">
                 {user.first_name.charAt(0)}
               </div>
-              
+
               {showProfileDropdown && (
                 <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-850 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden z-50 animate-modal-in">
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 flex items-center gap-3">
@@ -259,8 +259,8 @@ const PharmacistProfile = () => {
                   </div>
                   <div className="h-px bg-slate-100 dark:bg-slate-700" />
                   <div className="p-2">
-                    <button 
-                      className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100/70 text-rose-605 rounded-lg text-xs font-black flex items-center gap-2 border-none cursor-pointer transition-colors" 
+                    <button
+                      className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100/70 text-rose-605 rounded-lg text-xs font-black flex items-center gap-2 border-none cursor-pointer transition-colors"
                       onClick={handleLogout}
                     >
                       <FaSignOutAlt /> Logout
@@ -273,9 +273,9 @@ const PharmacistProfile = () => {
         </div>
       </header>
 
-      {/* Main Container */}
+      {}
       <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* Navigation Bar */}
+        {}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
             <button
@@ -293,8 +293,8 @@ const PharmacistProfile = () => {
 
           <div className="flex gap-2">
             {!profileEditing ? (
-              <button 
-                onClick={startProfileEditing} 
+              <button
+                onClick={startProfileEditing}
                 disabled={profileLoading}
                 className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm transition-all border-none cursor-pointer flex items-center gap-1.5"
               >
@@ -302,15 +302,15 @@ const PharmacistProfile = () => {
               </button>
             ) : (
               <>
-                <button 
-                  onClick={cancelProfileEditing} 
+                <button
+                  onClick={cancelProfileEditing}
                   disabled={profileSaving}
                   className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-black uppercase tracking-wider transition-all border-none cursor-pointer"
                 >
                   Cancel
                 </button>
-                <button 
-                  onClick={saveProfile} 
+                <button
+                  onClick={saveProfile}
                   disabled={profileSaving}
                   className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm transition-all border-none cursor-pointer"
                 >
@@ -321,7 +321,7 @@ const PharmacistProfile = () => {
           </div>
         </div>
 
-        {/* Success / Error Alerts */}
+        {}
         {profileSuccess && (
           <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 rounded-2xl mb-6 flex items-center gap-2.5 border border-emerald-100 dark:border-emerald-900/50 text-xs font-bold shadow-sm">
             <FaCheckCircle className="text-sm" /> <span>{profileSuccess}</span>
@@ -340,9 +340,9 @@ const PharmacistProfile = () => {
           </div>
         ) : (
           <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl overflow-hidden shadow-sm transition-colors">
-            {/* Photo Hero Banner */}
+            {}
             <div className="relative py-10 bg-gradient-to-b from-green-50/50 to-transparent dark:from-green-950/10 dark:to-transparent flex flex-col items-center gap-4 border-b border-slate-100 dark:border-slate-800/60">
-              <div 
+              <div
                 className={`relative group ${profileEditing ? "cursor-pointer" : (profilePicUrl ? "cursor-zoom-in" : "cursor-default")}`}
                 onClick={handlePhotoClick}
                 title={profileEditing ? "Change profile photo" : (profilePicUrl ? "Click to zoom" : "")}
@@ -359,14 +359,14 @@ const PharmacistProfile = () => {
                   </div>
                 )}
 
-                {/* Edit Camera Overlay */}
+                {}
                 {profileEditing && (
                   <div className="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-md">
                     <FaCamera className="text-xs" />
                   </div>
                 )}
 
-                {/* View Overlay Icon */}
+                {}
                 {!profileEditing && profilePicUrl && (
                   <div className="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-slate-800/90 text-white flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-md opacity-0 group-hover:opacity-100 transition-opacity text-xs">
                     👁
@@ -382,7 +382,7 @@ const PharmacistProfile = () => {
                   🏥 {p.pharmacy_name || "Pharmacy Name Not Set"}
                 </p>
                 <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{displayEmail}</p>
-                
+
                 {p.rating && parseFloat(p.rating) > 0 && (
                   <div className="flex items-center justify-center gap-2 mt-2">
                     <span className="text-amber-500 text-sm tracking-wide">{renderStars(p.rating)}</span>
@@ -402,12 +402,12 @@ const PharmacistProfile = () => {
             </div>
 
             <div className="p-8 space-y-8">
-              {/* Personal Information */}
+              {}
               <div>
                 <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-1.5">
                   <FaUser className="text-[10px] text-green-600" /> Personal Information
                 </h3>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   {[
                     { label: "First Name",    field: "first_name" },
@@ -427,21 +427,21 @@ const PharmacistProfile = () => {
                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">{label}</label>
                         {profileEditing ? (
                           type === "select" ? (
-                            <select 
-                              name={field} 
-                              value={profileEditData[field] || ""} 
-                              onChange={handleProfileChange} 
+                            <select
+                              name={field}
+                              value={profileEditData[field] || ""}
+                              onChange={handleProfileChange}
                               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-green-600 focus:ring-4 focus:ring-green-500/10 transition-all font-semibold placeholder:text-slate-400 dark:text-white"
                             >
                               <option value="">Select…</option>
                               {options.map((o) => <option key={o.v} value={o.v}>{o.l}</option>)}
                             </select>
                           ) : (
-                            <input 
-                              type={type} 
-                              name={field} 
-                              value={profileEditData[field] || ""} 
-                              onChange={handleProfileChange} 
+                            <input
+                              type={type}
+                              name={field}
+                              value={profileEditData[field] || ""}
+                              onChange={handleProfileChange}
                               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-green-600 focus:ring-4 focus:ring-green-500/10 transition-all font-semibold placeholder:text-slate-400 dark:text-white"
                             />
                           )
@@ -460,11 +460,11 @@ const PharmacistProfile = () => {
                 <div className="mt-6 flex flex-col">
                   <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Street Address</label>
                   {profileEditing ? (
-                    <textarea 
-                      name="address" 
-                      value={profileEditData.address || ""} 
-                      onChange={handleProfileChange} 
-                      rows={2} 
+                    <textarea
+                      name="address"
+                      value={profileEditData.address || ""}
+                      onChange={handleProfileChange}
+                      rows={2}
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-green-600 focus:ring-4 focus:ring-green-500/10 transition-all font-semibold placeholder:text-slate-400 dark:text-white resize-none"
                     />
                   ) : (
@@ -479,12 +479,12 @@ const PharmacistProfile = () => {
 
               <div className="h-px bg-slate-100 dark:bg-slate-800/80" />
 
-              {/* Pharmacy Information */}
+              {}
               <div>
                 <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-1.5">
                   <FaPills className="text-[10px] text-green-600" /> Pharmacy Information
                 </h3>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {[
                     { label: "Pharmacy Name",    field: "pharmacy_name" },
@@ -495,11 +495,11 @@ const PharmacistProfile = () => {
                     <div key={field} className="flex flex-col">
                       <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">{label}</label>
                       {profileEditing ? (
-                        <input 
-                          type={type} 
-                          name={field} 
-                          value={profileEditData[field] || ""} 
-                          onChange={handleProfileChange} 
+                        <input
+                          type={type}
+                          name={field}
+                          value={profileEditData[field] || ""}
+                          onChange={handleProfileChange}
                           className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-green-600 focus:ring-4 focus:ring-green-500/10 transition-all font-semibold placeholder:text-slate-400 dark:text-white"
                         />
                       ) : (
@@ -516,11 +516,11 @@ const PharmacistProfile = () => {
                 <div className="mt-6 flex flex-col">
                   <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Pharmacy Address</label>
                   {profileEditing ? (
-                    <textarea 
-                      name="pharmacy_address" 
-                      value={profileEditData.pharmacy_address || ""} 
-                      onChange={handleProfileChange} 
-                      rows={3} 
+                    <textarea
+                      name="pharmacy_address"
+                      value={profileEditData.pharmacy_address || ""}
+                      onChange={handleProfileChange}
+                      rows={3}
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-green-600 focus:ring-4 focus:ring-green-500/10 transition-all font-semibold placeholder:text-slate-400 dark:text-white resize-none"
                     />
                   ) : (
@@ -535,12 +535,12 @@ const PharmacistProfile = () => {
 
               <div className="h-px bg-slate-100 dark:bg-slate-800/80" />
 
-              {/* Delivery Settings */}
+              {}
               <div>
                 <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-1.5">
                   <FaTruck className="text-[10px] text-green-600" /> Delivery Settings
                 </h3>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="flex flex-col">
                     <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Delivery Available</label>
@@ -560,8 +560,8 @@ const PharmacistProfile = () => {
                     ) : (
                       <div className="py-2.5">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                          p.delivery_available 
-                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20' 
+                          p.delivery_available
+                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20'
                             : 'bg-rose-50 text-rose-700 dark:bg-rose-950/20'
                         }`}>
                           {p.delivery_available ? "✓ Available" : "✗ Not Available"}
@@ -597,25 +597,25 @@ const PharmacistProfile = () => {
         )}
       </main>
 
-      {/* ImageViewer Modal */}
+      {}
       {showImageViewer && profilePicUrl && (
-        <div 
+        <div
           onClick={() => setShowImageViewer(false)}
           className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[1100] flex items-center justify-center p-4 animate-fade-in"
         >
-          <div 
+          <div
             onClick={(e) => e.stopPropagation()}
             className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-2xl relative max-w-sm w-full flex flex-col items-center gap-4 animate-modal-in"
           >
-            <button 
+            <button
               onClick={() => setShowImageViewer(false)}
               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-slate-700 text-slate-500 hover:text-rose-605 flex items-center justify-center border-none cursor-pointer transition-colors"
             >
               <FaTimes />
             </button>
-            <img 
-              src={profilePicUrl} 
-              alt="Profile" 
+            <img
+              src={profilePicUrl}
+              alt="Profile"
               className="w-64 h-64 rounded-2xl object-contain bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800"
             />
             <div className="text-center space-y-0.5">
@@ -628,9 +628,9 @@ const PharmacistProfile = () => {
         </div>
       )}
 
-      {/* Photo URL Input Modal */}
+      {}
       {showPhotoModal && (
-        <div 
+        <div
           onClick={(e) => e.target === e.currentTarget && closePhotoModal()}
           className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-fade-in"
         >
@@ -639,8 +639,8 @@ const PharmacistProfile = () => {
               <h3 className="text-sm font-black text-slate-850 dark:text-slate-205 uppercase tracking-wider">Set Profile Picture URL</h3>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 font-semibold leading-relaxed">Paste a direct image URL (from Cloudinary, Google, GitHub, or any public host).</p>
             </div>
-            
-            <input 
+
+            <input
               type="url"
               value={photoUrlInput}
               onChange={e => setPhotoUrlInput(e.target.value)}
@@ -660,13 +660,13 @@ const PharmacistProfile = () => {
             )}
 
             <div className="flex justify-end gap-2.5">
-              <button 
+              <button
                 onClick={closePhotoModal}
                 className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-black uppercase tracking-wider transition-all border-none cursor-pointer"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handlePhotoUrlSave}
                 disabled={!photoUrlInput.trim()}
                 className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm transition-all border-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"

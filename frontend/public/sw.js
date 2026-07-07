@@ -1,5 +1,5 @@
-// sw.js - Service Worker for Medicine Reminder PWA
-// Place this file in: public/sw.js
+
+
 
 const CACHE_NAME = 'mediremind-v1';
 const OFFLINE_URLS = [
@@ -11,9 +11,9 @@ const OFFLINE_URLS = [
   '/manifest.json',
 ];
 
-// ============================================================
-// INSTALL - Cache critical assets
-// ============================================================
+
+
+
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing Service Worker...');
   event.waitUntil(
@@ -30,9 +30,9 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// ============================================================
-// ACTIVATE - Clean old caches
-// ============================================================
+
+
+
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activating Service Worker...');
   event.waitUntil(
@@ -50,14 +50,14 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// ============================================================
-// FETCH - Network first, fallback to cache
-// ============================================================
+
+
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Don't cache API calls or non-GET requests
+
   if (request.method !== 'GET' || url.pathname.startsWith('/api/')) {
     return;
   }
@@ -65,7 +65,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(request)
       .then((response) => {
-        // Cache successful responses
+
         if (response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -75,10 +75,10 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        // Offline fallback
+
         return caches.match(request).then((cached) => {
           if (cached) return cached;
-          // Fallback to root for navigation requests
+
           if (request.mode === 'navigate') {
             return caches.match('/');
           }
@@ -88,9 +88,9 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// ============================================================
-// BACKGROUND SYNC - Sync offline logs when online
-// ============================================================
+
+
+
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-medication-logs') {
     console.log('[SW] Background sync: syncing medication logs...');
@@ -104,7 +104,7 @@ self.addEventListener('sync', (event) => {
 
 async function syncMedicationLogs() {
   try {
-    // Open IndexedDB
+
     const db = await openDB();
     const pendingLogs = await getPendingLogs(db);
 
@@ -136,7 +136,7 @@ async function syncMedicationLogs() {
       }
     }
 
-    // Notify all clients that sync is complete
+
     const clients = await self.clients.matchAll();
     clients.forEach((client) => {
       client.postMessage({ type: 'SYNC_COMPLETE', count: pendingLogs.length });
@@ -171,9 +171,9 @@ async function syncMissedReminders() {
   }
 }
 
-// ============================================================
-// PUSH NOTIFICATIONS - Handle incoming push events
-// ============================================================
+
+
+
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   const options = {
@@ -201,9 +201,9 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// ============================================================
-// NOTIFICATION CLICK - Handle action buttons
-// ============================================================
+
+
+
 self.addEventListener('notificationclick', (event) => {
   const { action, notification } = event;
   const { reminderId, medicationName, url } = notification.data || {};
@@ -237,7 +237,7 @@ self.addEventListener('notificationclick', (event) => {
       handleMedicationAction(reminderId, 'skipped')
     );
   } else {
-    // Default: open app
+
     event.waitUntil(
       self.clients.matchAll({ type: 'window' }).then((clients) => {
         const existingClient = clients.find((c) => c.url.includes('/medicines'));
@@ -248,9 +248,9 @@ self.addEventListener('notificationclick', (event) => {
   }
 });
 
-// ============================================================
-// MESSAGE HANDLER - Receive commands from React app
-// ============================================================
+
+
+
 self.addEventListener('message', (event) => {
   const { type, payload } = event.data || {};
 
@@ -272,10 +272,10 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// ============================================================
-// SCHEDULED NOTIFICATION (alarm-style via setTimeout)
-// SW can't do this reliably; instead we use periodic sync
-// ============================================================
+
+
+
+
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'check-medication-reminders') {
     event.waitUntil(checkAndFireReminders());
@@ -294,12 +294,12 @@ async function checkAndFireReminders() {
       if (!reminder.is_active) continue;
       if (!reminder.time_slots || !reminder.time_slots.includes(currentTime)) continue;
 
-      // Check if already taken today
+
       const todayKey = `${reminder.id}_${now.toISOString().split('T')[0]}_${currentTime}`;
       const alreadyFired = await getAlreadyFired(db, todayKey);
       if (alreadyFired) continue;
 
-      // Fire notification
+
       await self.registration.showNotification(`💊 ${reminder.medication_name}`, {
         body: `${reminder.dosage} • ${reminder.notes || 'Time to take your medication'}`,
         icon: '/icons/pill-192.png',
@@ -326,9 +326,9 @@ async function checkAndFireReminders() {
   }
 }
 
-// ============================================================
-// INDEXEDDB HELPERS (inside SW)
-// ============================================================
+
+
+
 function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('MediReminderDB', 2);
@@ -408,7 +408,7 @@ function getMissedReminders(db) {
 }
 
 function clearMissedReminders(db) {
-  return new Promise((resolve) => resolve()); // handled by markLogSynced
+  return new Promise((resolve) => resolve());
 }
 
 function getAllActiveReminders(db) {
@@ -469,7 +469,7 @@ async function handleMedicationAction(reminderId, status) {
       source: 'notification',
     };
 
-    // Save to IndexedDB
+
     await new Promise((resolve, reject) => {
       const tx = db.transaction('logs', 'readwrite');
       const store = tx.objectStore('logs');
@@ -478,7 +478,7 @@ async function handleMedicationAction(reminderId, status) {
       request.onerror = () => reject(request.error);
     });
 
-    // Try to sync immediately
+
     const token = await getStoredToken();
     if (token) {
       await fetch('/api/medication-reminders/sync-logs/', {
@@ -489,7 +489,7 @@ async function handleMedicationAction(reminderId, status) {
         },
         body: JSON.stringify(log),
       }).catch(() => {
-        // Will be synced later via background sync
+
         console.log('[SW] Will retry sync later');
       });
     }
@@ -499,7 +499,7 @@ async function handleMedicationAction(reminderId, status) {
 }
 
 async function scheduleSnooze(reminderId, medicationName, minutes) {
-  // Store snooze intent - actual scheduling happens when app is open
+
   const db = await openDB();
   const tx = db.transaction('settings', 'readwrite');
   const store = tx.objectStore('settings');
@@ -512,7 +512,7 @@ async function scheduleSnooze(reminderId, medicationName, minutes) {
     },
   });
 
-  // Show a confirmation notification
+
   await self.registration.showNotification('⏰ Snoozed', {
     body: `${medicationName} reminder in ${minutes} minutes`,
     icon: '/icons/pill-192.png',
@@ -521,12 +521,12 @@ async function scheduleSnooze(reminderId, medicationName, minutes) {
 }
 
 function cancelReminder(reminderId) {
-  // No-op in SW context, handled by app
+
   console.log('[SW] Cancel reminder:', reminderId);
 }
 
 function scheduleLocalReminder(payload) {
-  // No-op in SW context - reminders are fired by the app scheduler
-  // or via periodic sync. This is just a hook for future use.
+
+
   console.log('[SW] Schedule reminder (no-op):', payload);
 }

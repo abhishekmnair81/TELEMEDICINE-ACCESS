@@ -396,7 +396,7 @@ const ConversationSidebar = ({
   if (isCollapsed) {
     return (
       <>
-        {/* Mobile menu trigger button wrapper (optional since header hamburger handles it) */}
+        {}
         <div className="fixed lg:relative inset-y-0 left-0 z-50 w-14 bg-slate-50 border-r border-slate-200/60 flex flex-col justify-between py-4 h-screen -translate-x-full lg:translate-x-0 transition-all duration-300 ease-in-out">
           <div className="flex flex-col gap-3 items-center w-full">
             <div className="w-full flex justify-center py-0.5">
@@ -500,7 +500,7 @@ const ConversationSidebar = ({
 
   return (
     <>
-      {/* Backdrop overlay for mobile/tablet when sidebar is expanded */}
+      {}
       {!isCollapsed && (
         <div
           className="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-sm lg:hidden transition-opacity duration-300"
@@ -749,7 +749,7 @@ const ConversationSidebar = ({
                 </button>
               </div>
 
-              {/* Profile Menu Dropdown */}
+              {}
               {showProfileMenu && (
                 <div className="absolute bottom-[100%] left-0 right-0 mb-2 bg-white border border-slate-200/80 rounded-xl shadow-lg z-50 overflow-hidden py-1 animate-[dropdownFadeIn_0.15s_ease-out]">
                   <button

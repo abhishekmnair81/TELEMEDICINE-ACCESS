@@ -130,7 +130,7 @@ export default function NearestMedicalStores() {
 
   return (
     <>
-      {/* Floating Action Button */}
+      {}
       <button
         className={`fixed bottom-7 right-7 w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white flex items-center justify-center z-[998] shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 active:scale-95 group focus:outline-none ${
           pulseAnim ? 'scale-110' : ''
@@ -151,11 +151,11 @@ export default function NearestMedicalStores() {
         )}
       </button>
 
-      {/* Main Side Dialog Panel */}
+      {}
       {isOpen && (
         <div className="fixed bottom-24 right-7 w-96 max-h-[75vh] bg-white rounded-3xl shadow-2xl border border-slate-100/80 flex flex-col overflow-hidden z-[999] animate-panel-in max-sm:bottom-20 max-sm:right-4 max-sm:left-4 max-sm:w-auto">
-          
-          {/* Header Panel */}
+
+          {}
           <div className="bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-900 text-white p-5 flex items-start justify-between gap-4 border-b border-emerald-800/30">
             <div className="flex items-center gap-3">
               <div className={`w-3.5 h-3.5 rounded-full flex-shrink-0 border-3 border-white/30 transition-all ${
@@ -189,7 +189,7 @@ export default function NearestMedicalStores() {
             </div>
           </div>
 
-          {/* Subtitle status bar */}
+          {}
           <div className={`flex items-center gap-2 px-5 py-2.5 text-[11px] font-extrabold ${
             trackingActive
               ? 'bg-emerald-500/10 text-emerald-800 border-b border-emerald-500/10'
@@ -209,10 +209,10 @@ export default function NearestMedicalStores() {
             )}
           </div>
 
-          {/* Scrollable list container */}
+          {}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 nms-stores-scrollbar bg-slate-50/50">
-            
-            {/* Permission Denied state */}
+
+            {}
             {permissionState === 'denied' && (
               <div className="flex flex-col items-center text-center p-6 space-y-3 text-slate-500">
                 <FaExclamationCircle className="text-3xl text-rose-500" />
@@ -227,7 +227,7 @@ export default function NearestMedicalStores() {
               </div>
             )}
 
-            {/* General Location Error */}
+            {}
             {locationError && permissionState !== 'denied' && (
               <div className="flex flex-col items-center text-center p-6 space-y-3 text-slate-500">
                 <FaExclamationCircle className="text-3xl text-amber-500 animate-bounce" />
@@ -241,7 +241,7 @@ export default function NearestMedicalStores() {
               </div>
             )}
 
-            {/* GPS Signal Acquisition */}
+            {}
             {!location && !locationError && (
               <div className="flex flex-col items-center justify-center py-14 px-6 text-center space-y-4">
                 <div className="relative w-20 h-20 flex items-center justify-center">
@@ -259,7 +259,7 @@ export default function NearestMedicalStores() {
               </div>
             )}
 
-            {/* Stores Loading skeleton */}
+            {}
             {location && loadingStores && (
               <div className="space-y-3">
                 {[1, 2, 3].map(i => (
@@ -281,7 +281,7 @@ export default function NearestMedicalStores() {
               </div>
             )}
 
-            {/* Stores List */}
+            {}
             {location && !loadingStores && stores.length > 0 && (
               <div className="space-y-3.5">
                 {stores.map((store, idx) => (
@@ -293,7 +293,7 @@ export default function NearestMedicalStores() {
                         : 'bg-slate-50/70 border-slate-100/50 opacity-70'
                     }`}
                   >
-                    {/* Rank & Store Name */}
+                    {}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-2">
                         <span className="flex items-center justify-center w-5.5 h-5.5 rounded-lg bg-emerald-50 text-[10px] font-black text-emerald-700 uppercase">
@@ -310,7 +310,7 @@ export default function NearestMedicalStores() {
                       </span>
                     </div>
 
-                    {/* Metadata indicators */}
+                    {}
                     <div className="flex items-center gap-4 mt-2.5 text-xs text-slate-500 font-semibold">
                       <div className="flex items-center gap-1 text-emerald-600 font-bold">
                         <FaMapPin className="text-[10px]" />
@@ -326,7 +326,7 @@ export default function NearestMedicalStores() {
                       </div>
                     </div>
 
-                    {/* Store buttons */}
+                    {}
                     <div className="grid grid-cols-2 gap-2 mt-3.5">
                       <button
                         onClick={() => window.open(store.directionsUrl, '_blank', 'noopener')}
@@ -348,7 +348,7 @@ export default function NearestMedicalStores() {
               </div>
             )}
 
-            {/* Empty State */}
+            {}
             {location && !loadingStores && stores.length === 0 && !locationError && (
               <div className="flex flex-col items-center justify-center text-center p-8 space-y-3">
                 <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xl">
@@ -366,7 +366,7 @@ export default function NearestMedicalStores() {
             )}
           </div>
 
-          {/* Panel Footer bar */}
+          {}
           {location && (
             <div className="bg-slate-50 border-t border-slate-100 p-4 flex items-center justify-between text-[10px] font-black text-slate-400 tracking-wide uppercase">
               <div className="flex items-center gap-1.5">

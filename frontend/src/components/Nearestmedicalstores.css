@@ -1,6 +1,6 @@
-/* NearestMedicalStores.css - Custom Animations and Layout Polish */
 
-/* Radar signal rings pulse animation */
+
+
 @keyframes gps-radar-pulse {
   0% {
     transform: scale(0.65);
@@ -16,7 +16,7 @@
   animation: gps-radar-pulse 2.2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
 }
 
-/* FAB Tracking ring pulse */
+
 @keyframes fab-track-pulse {
   0% {
     transform: scale(1);
@@ -36,7 +36,7 @@
   animation: fab-track-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Slide in panel animation */
+
 @keyframes panel-slide-in {
   from {
     opacity: 0;
@@ -52,7 +52,7 @@
   animation: panel-slide-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/* Skeleton Loading Shimmer Gradient Shift */
+
 @keyframes skeleton-shimmer {
   0% {
     background-position: 200% 0;
@@ -68,7 +68,7 @@
   animation: skeleton-shimmer 1.5s infinite linear;
 }
 
-/* Custom Scrollbar for Stores List */
+
 .nms-stores-scrollbar::-webkit-scrollbar {
   width: 5px;
 }

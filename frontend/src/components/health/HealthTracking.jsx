@@ -39,21 +39,21 @@ const HealthTracking = () => {
   const [modalType, setModalType] = useState('metric');
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
-  
-  // Dashboard data
+
+
   const [dashboardData, setDashboardData] = useState(null);
   const [latestMetrics, setLatestMetrics] = useState({});
   const [activeGoals, setActiveGoals] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
   const [medicationReminders, setMedicationReminders] = useState([]);
   const [alerts, setAlerts] = useState([]);
-  
-  // Trends data
+
+
   const [selectedMetricType, setSelectedMetricType] = useState('heart_rate');
   const [trendPeriod, setTrendPeriod] = useState(30);
   const [trendsData, setTrendsData] = useState(null);
-  
-  // Form data
+
+
   const [metricFormData, setMetricFormData] = useState({
     metric_type: '',
     value: '',
@@ -61,7 +61,7 @@ const HealthTracking = () => {
     notes: '',
     recorded_at: ''
   });
-  
+
   const [goalFormData, setGoalFormData] = useState({
     goal_type: '',
     title: '',
@@ -72,7 +72,7 @@ const HealthTracking = () => {
     target_date: '',
     reminder_enabled: true
   });
-  
+
   const [activityFormData, setActivityFormData] = useState({
     activity_type: '',
     title: '',
@@ -83,7 +83,7 @@ const HealthTracking = () => {
     activity_date: '',
     activity_time: ''
   });
-  
+
   const [reminderFormData, setReminderFormData] = useState({
     medication_name: '',
     dosage: '',
@@ -94,7 +94,7 @@ const HealthTracking = () => {
     notes: ''
   });
 
-  // AI Coach state
+
   const [aiCoachExercise, setAiCoachExercise] = useState('squats');
   const [aiCoachTargetReps, setAiCoachTargetReps] = useState(10);
   const [aiCoachRepCount, setAiCoachRepCount] = useState(0);
@@ -103,20 +103,20 @@ const HealthTracking = () => {
   const [aiCoachLoading, setAiCoachLoading] = useState(false);
   const [aiCoachStreaming, setAiCoachStreaming] = useState(false);
   const [aiCoachSummary, setAiCoachSummary] = useState(null);
-  
-  // Voice Log state
-  const [voiceState, setVoiceState] = useState('idle'); // idle, listening, error
+
+
+  const [voiceState, setVoiceState] = useState('idle');
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [voiceDetectedVitals, setVoiceDetectedVitals] = useState({});
 
-  // AI Coach Refs
+
   const videoRef = React.useRef(null);
   const canvasRef = React.useRef(null);
   const streamRef = React.useRef(null);
   const requestRef = React.useRef(null);
   const detectorRef = React.useRef(null);
 
-  // Metric type configurations
+
   const metricTypes = [
     { value: 'blood_pressure', label: 'Blood Pressure', unit: 'mmHg', icon: <FaTint />, color: 'green', hex: '#00b38e' },
     { value: 'heart_rate', label: 'Heart Rate', unit: 'bpm', icon: <FaHeartbeat />, color: 'rose', hex: '#f43f5e' },
@@ -221,25 +221,25 @@ const HealthTracking = () => {
     const dateTimeLocal = now.toISOString().slice(0, 16);
     const dateOnly = now.toISOString().slice(0, 10);
     const timeOnly = now.toTimeString().slice(0, 5);
-    
+
     if (type === 'metric') {
       setMetricFormData(prev => ({ ...prev, recorded_at: dateTimeLocal }));
     } else if (type === 'activity') {
-      setActivityFormData(prev => ({ 
-        ...prev, 
+      setActivityFormData(prev => ({
+        ...prev,
         activity_date: dateOnly,
         activity_time: timeOnly
       }));
     } else if (type === 'goal') {
       const futureDate = new Date();
       futureDate.setMonth(futureDate.getMonth() + 1);
-      setGoalFormData(prev => ({ 
-        ...prev, 
+      setGoalFormData(prev => ({
+        ...prev,
         target_date: futureDate.toISOString().slice(0, 10)
       }));
     } else if (type === 'reminder') {
-      setReminderFormData(prev => ({ 
-        ...prev, 
+      setReminderFormData(prev => ({
+        ...prev,
         start_date: dateOnly
       }));
     }
@@ -391,7 +391,7 @@ const HealthTracking = () => {
     }
   };
 
-  // AI PHYSIOTHERAPY & EXERCISE COACH LOGIC
+
   const speakText = (text) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
@@ -457,7 +457,7 @@ const HealthTracking = () => {
       }
 
       setAiCoachFeedback('Calibrating AI pose detection...');
-      
+
       const detector = await window.poseDetection.createDetector(
         window.poseDetection.SupportedModels.MoveNet,
         { modelType: window.poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
@@ -474,12 +474,12 @@ const HealthTracking = () => {
 
       const runLoop = async () => {
         if (!streamRef.current || !detectorRef.current || !videoRef.current || !canvasRef.current) return;
-        
+
         try {
           const poses = await detectorRef.current.estimatePoses(videoRef.current);
           const canvas = canvasRef.current;
           const ctx = canvas.getContext('2d');
-          
+
           ctx.save();
           ctx.translate(canvas.width, 0);
           ctx.scale(-1, 1);
@@ -519,7 +519,7 @@ const HealthTracking = () => {
             } else if (aiCoachExercise === 'raises' && lShoulder && lWrist && lShoulder.score > 0.3 && lWrist.score > 0.3) {
               const wristY = lWrist.y;
               const shoulderY = lShoulder.y;
-              
+
               if (lastState === 'up' && wristY < shoulderY - 20) {
                 lastState = 'down';
                 speakText("Down!");
@@ -657,7 +657,7 @@ const HealthTracking = () => {
     }
   };
 
-  // AI VOICE SPEECH-TO-VITAL LOGGER LOGIC
+
   const startVoiceLogger = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -741,7 +741,7 @@ const HealthTracking = () => {
       for (const type of keys) {
         let value = voiceDetectedVitals[type];
         let unit = '';
-        
+
         if (type === 'blood_pressure') unit = 'mmHg';
         if (type === 'heart_rate') unit = 'bpm';
         if (type === 'weight') unit = 'kg';
@@ -844,8 +844,8 @@ const HealthTracking = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50/30 via-slate-50 to-white text-slate-800 flex flex-col justify-between">
-      
-      {/* Premium Header */}
+
+      {}
       <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer group" onClick={() => window.location.href = '/'}>
@@ -854,7 +854,7 @@ const HealthTracking = () => {
             </div>
             <span className="text-lg font-black text-slate-900 tracking-tight">Rural HealthCare</span>
           </div>
-          <button 
+          <button
             className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs font-bold transition-all shadow-sm cursor-pointer"
             onClick={() => window.location.href = '/'}
           >
@@ -863,17 +863,17 @@ const HealthTracking = () => {
         </div>
       </header>
 
-      {/* ── MAIN CONTENT CONTAINER ── */}
+      {}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Header Title Section */}
+
+        {}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Health Dashboard</h1>
             <p className="text-xs md:text-sm text-slate-500 mt-2 font-bold uppercase tracking-wider">Real-time health vital signs & diagnostics</p>
           </div>
           <div className="flex-shrink-0">
-            <button 
+            <button
               onClick={() => openModal('metric')}
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-teal-600/10 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
@@ -882,7 +882,7 @@ const HealthTracking = () => {
           </div>
         </div>
 
-        {/* Alerts Section */}
+        {}
         {alerts.length > 0 && (
           <div className="mb-10 bg-rose-50/50 border border-rose-200/60 rounded-3xl p-6">
             <h3 className="text-xs font-black text-rose-800 tracking-wide uppercase mb-4 flex items-center gap-2">
@@ -902,12 +902,12 @@ const HealthTracking = () => {
           </div>
         )}
 
-        {/* Vitals Grid */}
+        {}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
           {metricTypes.map((metricType) => {
             const metric = latestMetrics[metricType.value];
             const isAbnormal = metric?.is_abnormal;
-            
+
             const colorMap = {
               green: { bg: 'bg-green-50/50', border: 'hover:border-teal-500/40', text: 'text-teal-600', icon: 'bg-teal-50 text-teal-600' },
               rose: { bg: 'bg-rose-50/50', border: 'hover:border-rose-500/40', text: 'text-rose-600', icon: 'bg-rose-50 text-rose-600' },
@@ -920,12 +920,12 @@ const HealthTracking = () => {
             const styles = colorMap[metricType.color];
 
             return (
-              <div 
+              <div
                 key={metricType.value}
                 className={`relative bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden group ${styles.border}`}
               >
                 <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: metricType.hex }}></div>
-                
+
                 <div className="flex justify-between items-start">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm ${styles.icon}`}>
                     {metricType.icon}
@@ -951,16 +951,16 @@ const HealthTracking = () => {
           })}
         </div>
 
-        {/* Trends Chart & Filter */}
+        {}
         <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-900/5 mb-10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
               <h2 className="text-base font-extrabold text-slate-900 tracking-tight">Telemetry History &amp; Trends</h2>
               <p className="text-xs text-slate-400 font-semibold mt-0.5">Visualize your diagnostic parameters over time</p>
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-3">
-              <select 
+              <select
                 value={selectedMetricType}
                 onChange={(e) => setSelectedMetricType(e.target.value)}
                 className="px-3 py-2 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-bold text-slate-700 focus:outline-none cursor-pointer"
@@ -974,7 +974,7 @@ const HealthTracking = () => {
                 {[7, 30, 90].map((period) => {
                   const isActive = trendPeriod === period;
                   return (
-                    <button 
+                    <button
                       key={period}
                       className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
                         isActive ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'
@@ -1007,16 +1007,16 @@ const HealthTracking = () => {
           )}
         </div>
 
-        {/* Bottom Section (Goals & Activities) */}
+        {}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-          
-          {/* Active Goals */}
+
+          {}
           <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-900/5">
             <div className="flex items-center justify-between gap-4 mb-6">
               <h2 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
                 <FaBullseye className="text-teal-600" /> Target Health Goals
               </h2>
-              <button 
+              <button
                 onClick={() => openModal('goal')}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs font-bold transition-all cursor-pointer shadow-sm"
               >
@@ -1038,10 +1038,10 @@ const HealthTracking = () => {
                       <span className="px-2 py-0.5 bg-teal-50 text-teal-600 rounded text-[9px] font-bold uppercase tracking-wider flex-shrink-0">{goal.goal_type_display}</span>
                     </div>
                     <p className="text-[11px] text-slate-400 mt-1 font-semibold leading-relaxed line-clamp-2">{goal.description}</p>
-                    
+
                     <div className="mt-4">
                       <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full bg-teal-500 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(goal.progress_percentage, 100)}%` }}
                         ></div>
@@ -1064,20 +1064,20 @@ const HealthTracking = () => {
             )}
           </div>
 
-          {/* Recent Activities */}
+          {}
           <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-900/5">
             <div className="flex items-center justify-between gap-4 mb-6">
               <h2 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
                 <FaRunning className="text-teal-600" /> Recent Activities
               </h2>
               <div className="flex gap-2">
-                <button 
+                <button
                   onClick={() => { openModal('ai_coach'); initAICoach(); }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-br from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-green-500/10 cursor-pointer"
                 >
                   <FaRobot /> AI Exercise Coach
                 </button>
-                <button 
+                <button
                   onClick={() => openModal('activity')}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs font-bold transition-all cursor-pointer shadow-sm"
                 >
@@ -1121,13 +1121,13 @@ const HealthTracking = () => {
           </div>
         </div>
 
-        {/* Medication Reminders Section */}
+        {}
         <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-900/5 mb-10">
           <div className="flex items-center justify-between gap-4 mb-6">
             <h2 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
               <FaPills className="text-teal-600" /> Prescribed Reminders
             </h2>
-            <button 
+            <button
               onClick={() => openModal('reminder')}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs font-bold transition-all cursor-pointer shadow-sm"
             >
@@ -1161,7 +1161,7 @@ const HealthTracking = () => {
 
                   <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-200/65">
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Adherence: <span className="text-teal-600 font-black">{reminder.adherence_rate}%</span></span>
-                    <button 
+                    <button
                       onClick={() => handleLogMedication(reminder.id)}
                       className="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
                     >
@@ -1175,24 +1175,24 @@ const HealthTracking = () => {
         </div>
       </main>
 
-      {/* Footer component rendered fully below the main content */}
+      {}
       <Footer />
 
-      {/* ── FLOAT BUTTON FOR MOBILE Add Vital ── */}
-      <button 
+      {}
+      <button
         onClick={() => openModal('metric')}
         className="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-teal-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-teal-600/20 active:scale-95 transition-transform z-50 cursor-pointer"
       >
         <FaPlus className="text-xl" />
       </button>
 
-      {/* ── MODALS ── */}
+      {}
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="absolute inset-0" onClick={closeModal}></div>
-          
+
           <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            {/* Modal Header */}
+            {}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-white">
               <h2 className="text-sm font-black text-slate-900 tracking-wide uppercase">
                 {modalType === 'metric' && 'Add Vital Health Metric'}
@@ -1201,21 +1201,21 @@ const HealthTracking = () => {
                 {modalType === 'reminder' && 'Setup Medication Reminder'}
                 {modalType === 'ai_coach' && '🤖 AI Physiotherapy Coach'}
               </h2>
-              <button 
-                onClick={closeModal} 
+              <button
+                onClick={closeModal}
                 className="w-7 h-7 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <FaTimes size={12} />
               </button>
             </div>
 
-            {/* Modal Body */}
+            {}
             <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
-              
-              {/* Metric Form */}
+
+              {}
               {modalType === 'metric' && (
                 <form onSubmit={handleAddMetric} className="space-y-4">
-                  {/* Speak Vitals Panel */}
+                  {}
                   <div className="mb-6 p-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50">
                     <div className="flex justify-between items-center mb-3">
                       <div className="flex items-center gap-2">
@@ -1225,7 +1225,7 @@ const HealthTracking = () => {
                         </span>
                         <h4 className="text-xs font-bold text-slate-700">🎙️ AI Voice Vital Parser</h4>
                       </div>
-                      <button 
+                      <button
                         type="button"
                         onClick={startVoiceLogger}
                         className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-[10px] font-bold transition-all duration-300 cursor-pointer ${voiceState === 'listening' ? 'bg-rose-600 text-white animate-pulse' : 'bg-slate-800 text-white hover:bg-slate-900'}`}
@@ -1263,12 +1263,12 @@ const HealthTracking = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Metric Type</label>
-                    <select 
+                    <select
                       value={metricFormData.metric_type}
                       onChange={(e) => {
                         const selectedType = metricTypes.find(t => t.value === e.target.value);
                         setMetricFormData({
-                          ...metricFormData, 
+                          ...metricFormData,
                           metric_type: e.target.value,
                           unit: selectedType?.unit || ''
                         });
@@ -1285,34 +1285,34 @@ const HealthTracking = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Value</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={metricFormData.value}
                       onChange={(e) => setMetricFormData({...metricFormData, value: e.target.value})}
-                      placeholder="e.g., 72 or 120/80" 
+                      placeholder="e.g., 72 or 120/80"
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
-                      required 
+                      required
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Date &amp; Time</label>
-                    <input 
-                      type="datetime-local" 
+                    <input
+                      type="datetime-local"
                       value={metricFormData.recorded_at}
                       onChange={(e) => setMetricFormData({...metricFormData, recorded_at: e.target.value})}
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none transition-all cursor-pointer"
-                      required 
+                      required
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Notes (Optional)</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={metricFormData.notes}
                       onChange={(e) => setMetricFormData({...metricFormData, notes: e.target.value})}
-                      placeholder="Any additional notes" 
+                      placeholder="Any additional notes"
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
                     />
                   </div>
@@ -1323,7 +1323,7 @@ const HealthTracking = () => {
                 </form>
               )}
 
-              {/* AI Coach Form */}
+              {}
               {modalType === 'ai_coach' && (
                 <div className="space-y-4">
                   {!aiCoachStreaming && !aiCoachSummary && (
@@ -1341,8 +1341,8 @@ const HealthTracking = () => {
                       <div className="grid grid-cols-2 gap-4 max-w-md mx-auto text-left mt-6">
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Choose Activity</label>
-                          <select 
-                            value={aiCoachExercise} 
+                          <select
+                            value={aiCoachExercise}
                             onChange={(e) => setAiCoachExercise(e.target.value)}
                             className="w-full rounded-xl border border-slate-250 p-2.5 text-xs font-bold text-slate-700 bg-white focus:outline-none cursor-pointer"
                           >
@@ -1352,9 +1352,9 @@ const HealthTracking = () => {
                         </div>
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Target Reps</label>
-                          <input 
-                            type="number" 
-                            value={aiCoachTargetReps} 
+                          <input
+                            type="number"
+                            value={aiCoachTargetReps}
                             onChange={(e) => setAiCoachTargetReps(parseInt(e.target.value) || 10)}
                             className="w-full rounded-xl border border-slate-250 p-2 text-xs font-bold text-slate-700 bg-white focus:outline-none"
                             min="1"
@@ -1411,7 +1411,7 @@ const HealthTracking = () => {
                           className="w-full h-full object-cover"
                         ></canvas>
 
-                        {/* Top HUD */}
+                        {}
                         <div className="absolute top-3 left-3 right-3 flex justify-between items-center pointer-events-none">
                           <div className="bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700/50 text-white text-[10px] font-bold uppercase tracking-wider">
                             {aiCoachExercise}
@@ -1421,7 +1421,7 @@ const HealthTracking = () => {
                           </div>
                         </div>
 
-                        {/* Bottom HUD */}
+                        {}
                         <div className="absolute bottom-3 left-3 right-3 bg-slate-900/85 backdrop-blur-md p-2.5 rounded-lg border border-slate-750 text-center text-xs font-semibold text-teal-400 leading-snug">
                           {aiCoachFeedback}
                         </div>
@@ -1485,12 +1485,12 @@ const HealthTracking = () => {
                 </div>
               )}
 
-              {/* Goal Form */}
+              {}
               {modalType === 'goal' && (
                 <form onSubmit={handleAddGoal} className="space-y-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Goal Type</label>
-                    <select 
+                    <select
                       value={goalFormData.goal_type}
                       onChange={(e) => setGoalFormData({...goalFormData, goal_type: e.target.value})}
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all cursor-pointer"
@@ -1510,19 +1510,19 @@ const HealthTracking = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Title</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={goalFormData.title}
                       onChange={(e) => setGoalFormData({...goalFormData, title: e.target.value})}
-                      placeholder="e.g., Lose 5kg in 2 months" 
+                      placeholder="e.g., Lose 5kg in 2 months"
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
-                      required 
+                      required
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Description</label>
-                    <textarea 
+                    <textarea
                       value={goalFormData.description}
                       onChange={(e) => setGoalFormData({...goalFormData, description: e.target.value})}
                       placeholder="Describe your goal..."
@@ -1535,24 +1535,24 @@ const HealthTracking = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Target Value</label>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         step="0.1"
                         value={goalFormData.target_value}
                         onChange={(e) => setGoalFormData({...goalFormData, target_value: e.target.value})}
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all"
-                        required 
+                        required
                       />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Unit</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={goalFormData.unit}
                         onChange={(e) => setGoalFormData({...goalFormData, unit: e.target.value})}
                         placeholder="kg, steps, hours"
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
-                        required 
+                        required
                       />
                     </div>
                   </div>
@@ -1560,22 +1560,22 @@ const HealthTracking = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Start Date</label>
-                      <input 
-                        type="date" 
+                      <input
+                        type="date"
                         value={goalFormData.start_date || ''}
                         onChange={(e) => setGoalFormData({...goalFormData, start_date: e.target.value})}
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none transition-all cursor-pointer"
-                        required 
+                        required
                       />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Target Date</label>
-                      <input 
-                        type="date" 
+                      <input
+                        type="date"
                         value={goalFormData.target_date}
                         onChange={(e) => setGoalFormData({...goalFormData, target_date: e.target.value})}
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none transition-all cursor-pointer"
-                        required 
+                        required
                       />
                     </div>
                   </div>
@@ -1586,12 +1586,12 @@ const HealthTracking = () => {
                 </form>
               )}
 
-              {/* Activity Form */}
+              {}
               {modalType === 'activity' && (
                 <form onSubmit={handleAddActivity} className="space-y-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Activity Type</label>
-                    <select 
+                    <select
                       value={activityFormData.activity_type}
                       onChange={(e) => setActivityFormData({...activityFormData, activity_type: e.target.value})}
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all cursor-pointer"
@@ -1610,23 +1610,23 @@ const HealthTracking = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Title</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={activityFormData.title}
                       onChange={(e) => setActivityFormData({...activityFormData, title: e.target.value})}
-                      placeholder="e.g., Morning Run" 
+                      placeholder="e.g., Morning Run"
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
-                      required 
+                      required
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Description</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={activityFormData.description}
                       onChange={(e) => setActivityFormData({...activityFormData, description: e.target.value})}
-                      placeholder="Activity details" 
+                      placeholder="Activity details"
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
                     />
                   </div>
@@ -1634,8 +1634,8 @@ const HealthTracking = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Duration (min)</label>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         value={activityFormData.duration_minutes}
                         onChange={(e) => setActivityFormData({...activityFormData, duration_minutes: e.target.value})}
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all"
@@ -1643,8 +1643,8 @@ const HealthTracking = () => {
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Calories</label>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         value={activityFormData.calories_burned}
                         onChange={(e) => setActivityFormData({...activityFormData, calories_burned: e.target.value})}
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all"
@@ -1654,7 +1654,7 @@ const HealthTracking = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Intensity</label>
-                    <select 
+                    <select
                       value={activityFormData.intensity}
                       onChange={(e) => setActivityFormData({...activityFormData, intensity: e.target.value})}
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all cursor-pointer"
@@ -1669,18 +1669,18 @@ const HealthTracking = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Date</label>
-                      <input 
-                        type="date" 
+                      <input
+                        type="date"
                         value={activityFormData.activity_date}
                         onChange={(e) => setActivityFormData({...activityFormData, activity_date: e.target.value})}
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none transition-all cursor-pointer"
-                        required 
+                        required
                       />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Time</label>
-                      <input 
-                        type="time" 
+                      <input
+                        type="time"
                         value={activityFormData.activity_time}
                         onChange={(e) => setActivityFormData({...activityFormData, activity_time: e.target.value})}
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-705 focus:outline-none transition-all cursor-pointer"
@@ -1694,36 +1694,36 @@ const HealthTracking = () => {
                 </form>
               )}
 
-              {/* Reminder Form */}
+              {}
               {modalType === 'reminder' && (
                 <form onSubmit={handleAddReminder} className="space-y-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Medication Name</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={reminderFormData.medication_name}
                       onChange={(e) => setReminderFormData({...reminderFormData, medication_name: e.target.value})}
-                      placeholder="e.g., Aspirin 100mg" 
+                      placeholder="e.g., Aspirin 100mg"
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
-                      required 
+                      required
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Dosage</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={reminderFormData.dosage}
                       onChange={(e) => setReminderFormData({...reminderFormData, dosage: e.target.value})}
-                      placeholder="e.g., 1 tablet" 
+                      placeholder="e.g., 1 tablet"
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
-                      required 
+                      required
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Frequency</label>
-                    <select 
+                    <select
                       value={reminderFormData.frequency}
                       onChange={(e) => setReminderFormData({...reminderFormData, frequency: e.target.value})}
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all cursor-pointer"
@@ -1739,33 +1739,33 @@ const HealthTracking = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Reminder Time</label>
-                    <input 
-                      type="time" 
+                    <input
+                      type="time"
                       value={reminderFormData.time_slots[0]}
                       onChange={(e) => setReminderFormData({
-                        ...reminderFormData, 
+                        ...reminderFormData,
                         time_slots: [e.target.value]
                       })}
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-755 focus:outline-none transition-all cursor-pointer"
-                      required 
+                      required
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Start Date</label>
-                      <input 
-                        type="date" 
+                      <input
+                        type="date"
                         value={reminderFormData.start_date}
                         onChange={(e) => setReminderFormData({...reminderFormData, start_date: e.target.value})}
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none transition-all cursor-pointer"
-                        required 
+                        required
                       />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">End Date (Optional)</label>
-                      <input 
-                        type="date" 
+                      <input
+                        type="date"
                         value={reminderFormData.end_date || ''}
                         onChange={(e) => setReminderFormData({...reminderFormData, end_date: e.target.value})}
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none transition-all cursor-pointer"
@@ -1775,11 +1775,11 @@ const HealthTracking = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Notes (Optional)</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={reminderFormData.notes}
                       onChange={(e) => setReminderFormData({...reminderFormData, notes: e.target.value})}
-                      placeholder="Additional instructions" 
+                      placeholder="Additional instructions"
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
                     />
                   </div>

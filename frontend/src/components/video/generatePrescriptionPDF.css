@@ -1,5 +1,5 @@
-/* generatePrescriptionPDF.css */
-/* Advanced stylesheet for Rural HealthCare digital prescription PDFs using standard project colors and fonts */
+
+
 
 .pdf-page-wrapper {
   @apply relative bg-white text-gray-800;
@@ -18,13 +18,13 @@
 
 .pdf-header {
   @apply relative text-white px-10 pb-6 pt-10 overflow-hidden;
-  background-color: #111827; /* Solid Dark from Dashboard.css */
+  background-color: #111827;
 }
 
 .pdf-header::before {
   content: '';
   @apply absolute top-0 left-0 right-0 h-1.5;
-  background-color: #16a34a; /* Solid brand green from Dashboard.css */
+  background-color: #16a34a;
 }
 
 .pdf-header-grid {
@@ -125,7 +125,7 @@
   @apply font-semibold;
 }
 
-/* Patient Details Section */
+
 .pdf-patient-card {
   @apply flex justify-between items-center rounded-2xl border px-6 py-4 mx-10 my-5;
   background-color: #f9fafb;
@@ -164,7 +164,7 @@
   @apply text-[11px] text-gray-400 font-medium;
 }
 
-/* Clinical Diagnosis Section */
+
 .pdf-diagnosis-box {
   @apply rounded-xl p-5 mx-10 mb-4 border border-dashed;
   background-color: #fffbeb;
@@ -183,7 +183,7 @@
   @apply text-gray-700 font-normal leading-relaxed text-sm;
 }
 
-/* Sections General */
+
 .pdf-section {
   @apply mx-10 mb-4;
 }
@@ -199,7 +199,7 @@
   background-color: #16a34a;
 }
 
-/* Vitals Cards Grid - Compatibility layout without flex gap */
+
 .pdf-vitals-grid {
   @apply flex flex-wrap;
   margin: 0 -6px;
@@ -229,7 +229,7 @@
   @apply text-sm font-extrabold text-gray-800;
 }
 
-/* Medications Table */
+
 .pdf-med-table {
   @apply w-full border-collapse rounded-xl overflow-hidden border;
   border-color: #e5e7eb;
@@ -273,7 +273,7 @@
   @apply italic text-gray-500 text-xs;
 }
 
-/* Info Box Cards Grid (Notes & Lab Tests) - Compatibility layout without flex gap */
+
 .pdf-info-grid {
   @apply flex;
   margin: 0 -8px;
@@ -299,7 +299,7 @@
   @apply text-gray-700 leading-relaxed text-sm;
 }
 
-/* Follow-up card */
+
 .pdf-followup-card {
   @apply flex items-center rounded-xl p-4 border;
   background-color: #dcfce7;
@@ -323,7 +323,7 @@
   @apply text-base font-extrabold text-green-900;
 }
 
-/* Footer Section */
+
 .pdf-footer {
   @apply px-10 pb-6 pt-5 mt-auto;
 }

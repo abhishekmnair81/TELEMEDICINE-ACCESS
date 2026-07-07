@@ -23,7 +23,7 @@ import './Orders.css'
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api'
 
-/* ── tiny helper: track steps ── */
+
 const TRACK_STEPS = [
   { key: 'pending',          label: 'Order Placed',     icon: <FaReceipt /> },
   { key: 'confirmed',        label: 'Confirmed',         icon: <FaCheckCircle /> },
@@ -78,9 +78,7 @@ const formatDate = (d) =>
 const fmtStatus = (s) => s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 const fmtAmt   = (n) => `₹${parseFloat(n || 0).toFixed(2)}`
 
-/* ═══════════════════════════════════════════════════════════════
-   TRACK ORDER MODAL
-   ═══════════════════════════════════════════════════════════════ */
+
 function TrackOrderModal({ order, onClose }) {
   const currentStep = STATUS_ORDER[order.order_status] ?? 0
   const isCancelled = order.order_status === 'cancelled'
@@ -88,7 +86,7 @@ function TrackOrderModal({ order, onClose }) {
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden animate-modal-in" onClick={e => e.stopPropagation()}>
-        {/* Header */}
+        {}
         <div className="px-6 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-955 text-white flex items-start justify-between gap-4 border-b border-slate-800">
           <div>
             <h2 className="text-base font-black text-white/95 flex items-center gap-2">
@@ -169,7 +167,7 @@ function TrackOrderModal({ order, onClose }) {
             </div>
           )}
 
-          {/* Delivery Info */}
+          {}
           <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3">
             <h4 className="text-[10px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1.5">
               <FaMapMarkerAlt className="text-emerald-600" />
@@ -182,7 +180,7 @@ function TrackOrderModal({ order, onClose }) {
             </div>
           </div>
 
-          {/* Status chip row */}
+          {}
           <div className="flex items-center justify-between flex-wrap gap-3 pt-2">
             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${STATUS_COLOR_TW[order.order_status]}`}>
               {STATUS_ICON[order.order_status]}
@@ -198,14 +196,12 @@ function TrackOrderModal({ order, onClose }) {
   )
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ORDER DETAIL MODAL
-   ═══════════════════════════════════════════════════════════════ */
+
 function OrderDetailModal({ order, onClose, onTrack }) {
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden animate-modal-in" onClick={e => e.stopPropagation()}>
-        {/* Header */}
+        {}
         <div className="px-6 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-955 text-white flex items-start justify-between gap-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm flex-shrink-0">
@@ -225,7 +221,7 @@ function OrderDetailModal({ order, onClose, onTrack }) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6 nms-stores-scrollbar">
-          {/* Status Banner */}
+          {}
           <div className={`p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border ${STATUS_COLOR_TW[order.order_status]}`}>
             <div className="flex items-center gap-3">
               <span className="text-2xl flex-shrink-0">
@@ -249,9 +245,9 @@ function OrderDetailModal({ order, onClose, onTrack }) {
             </button>
           </div>
 
-          {/* Two-column grid */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Left: Items */}
+            {}
             <div className="md:col-span-7 space-y-3">
               <h4 className="text-[11px] text-slate-400 font-black uppercase tracking-wider">Items Ordered</h4>
               <div className="border border-slate-100 rounded-2xl overflow-hidden divide-y divide-slate-100">
@@ -276,7 +272,7 @@ function OrderDetailModal({ order, onClose, onTrack }) {
               </div>
             </div>
 
-            {/* Right: Summary + Delivery */}
+            {}
             <div className="md:col-span-5 space-y-6">
               <div className="space-y-3">
                 <h4 className="text-[11px] text-slate-400 font-black uppercase tracking-wider">Payment Summary</h4>
@@ -324,9 +320,7 @@ function OrderDetailModal({ order, onClose, onTrack }) {
   )
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MAIN ORDERS PAGE
-   ═══════════════════════════════════════════════════════════════ */
+
 export default function Orders() {
   const navigate = useNavigate()
   const [orders,   setOrders]   = useState([])
@@ -340,14 +334,14 @@ export default function Orders() {
   const [trackOrder,  setTrackOrder]  = useState(null)
   const [detailOrder, setDetailOrder] = useState(null)
 
-  /* ── load user ── */
+
   useEffect(() => {
     const u = localStorage.getItem('user')
     if (u) setUser(JSON.parse(u))
     else    setLoading(false)
   }, [])
 
-  /* ── fetch orders ── */
+
   useEffect(() => {
     if (!user) return
     const token = localStorage.getItem('accessToken')
@@ -368,7 +362,7 @@ export default function Orders() {
       .finally(() => setLoading(false))
   }, [user])
 
-  /* ── filter + search ── */
+
   const visible = orders.filter(o => {
     const matchFilter = filter === 'all' || o.order_status === filter
     const matchSearch =
@@ -382,7 +376,7 @@ export default function Orders() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-16 font-sans text-slate-800">
-      {/* ── Top Bar ── */}
+      {}
       <header className="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5 cursor-pointer select-none" onClick={() => navigate('/')}>
@@ -427,7 +421,7 @@ export default function Orders() {
           </div>
         ) : (
           <>
-            {/* ── Page Heading ── */}
+            {}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
@@ -447,7 +441,7 @@ export default function Orders() {
               </button>
             </div>
 
-            {/* ── Search + Filter Bar ── */}
+            {}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
               <div className="relative flex-1 max-w-md w-full">
                 <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
@@ -489,7 +483,7 @@ export default function Orders() {
               </div>
             </div>
 
-            {/* ── Orders List ── */}
+            {}
             {visible.length === 0 ? (
               <EmptyState filter={filter} search={search} navigate={navigate} />
             ) : (
@@ -508,7 +502,7 @@ export default function Orders() {
         )}
       </div>
 
-      {/* ── Modals ── */}
+      {}
       {trackOrder  && <TrackOrderModal  order={trackOrder}  onClose={() => setTrackOrder(null)} />}
       {detailOrder && (
         <OrderDetailModal
@@ -521,7 +515,7 @@ export default function Orders() {
   )
 }
 
-/* ── Single Order Card ── */
+
 function OrderCard({ order, onView, onTrack }) {
   const [expanded, setExpanded] = useState(false)
   const currentStep = STATUS_ORDER[order.order_status] ?? 0
@@ -530,7 +524,7 @@ function OrderCard({ order, onView, onTrack }) {
 
   return (
     <div className="bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-lg hover:border-slate-200/80 transition-all duration-300 p-6 flex flex-col gap-5 relative overflow-hidden order-card-item">
-      {/* Card Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-100">
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-black text-slate-800">#{order.order_number}</span>
@@ -542,7 +536,7 @@ function OrderCard({ order, onView, onTrack }) {
         </span>
       </div>
 
-      {/* Progress Bar */}
+      {}
       {!isCancelled && (
         <div className="flex flex-col gap-2">
           <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
@@ -574,7 +568,7 @@ function OrderCard({ order, onView, onTrack }) {
         </div>
       )}
 
-      {/* Items preview */}
+      {}
       <div className="space-y-2">
         {(order.order_items || []).slice(0, expanded ? undefined : 2).map((item, i) => (
           <div key={i} className="flex items-center gap-3 py-2 border-b border-dashed border-slate-100 last:border-0">
@@ -613,7 +607,7 @@ function OrderCard({ order, onView, onTrack }) {
         )}
       </div>
 
-      {/* Footer */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-slate-100 mt-auto bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-3xl">
         <div className="flex items-center gap-3">
           <div className="flex flex-col">
@@ -658,7 +652,7 @@ function OrderCard({ order, onView, onTrack }) {
   )
 }
 
-/* ── Guest Page ── */
+
 function GuestPage({ navigate }) {
   return (
     <div className="max-w-md mx-auto my-24 bg-white border border-slate-100 shadow-xl rounded-3xl p-8 text-center flex flex-col items-center gap-4 animate-modal-in">
@@ -677,7 +671,7 @@ function GuestPage({ navigate }) {
   )
 }
 
-/* ── Empty State ── */
+
 function EmptyState({ filter, search, navigate }) {
   return (
     <div className="bg-white border border-slate-100 rounded-3xl p-8 text-center flex flex-col items-center gap-4 shadow-sm max-w-md mx-auto my-12 animate-modal-in">

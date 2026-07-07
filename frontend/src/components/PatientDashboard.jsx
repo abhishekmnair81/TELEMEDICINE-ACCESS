@@ -39,6 +39,7 @@ import {
   healthTrackingAPI
 } from "../services/api"
 import LanguageSelector from './common/LanguageSelector'
+import LoadingScreen from './common/LoadingScreen'
 import Footer from "./Footer"
 import "./PatientDashboard.css"
 import "./Dashboard.css"
@@ -100,7 +101,9 @@ const PatientDashboard = () => {
       console.log('[PatientDashboard] ✅ Patient authenticated:', userData.first_name, userData.last_name)
       console.log('[PatientDashboard] Patient ID:', userData.id)
       setUser(userData)
-      setIsCheckingAuth(false)
+      setTimeout(() => {
+        setIsCheckingAuth(false)
+      }, 1800)
     }
 
     checkAuth()
@@ -494,30 +497,20 @@ const PatientDashboard = () => {
   ]
 
   if (isCheckingAuth) {
-    return (
-      <div className="patient-dashboard-loading">
-        <div className="loading-spinner"></div>
-        <p>Verifying authentication...</p>
-      </div>
-    )
+    return <LoadingScreen message="Verifying authentication..." />
   }
 
   if (!user) {
-    return (
-      <div className="patient-dashboard-loading">
-        <div className="loading-spinner"></div>
-        <p>Loading dashboard...</p>
-      </div>
-    )
+    return <LoadingScreen message="Loading dashboard..." />
   }
 
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col justify-between patient-dashboard-container">
 
-      {/* HEADER SECTION */}
+      {}
       <header className="rural-topbar w-full">
-        {/* Top Emergency Strip */}
+        {}
         <div className="rural-info-strip hidden md:block py-2 bg-gradient-to-r from-green-800 to-green-700 text-white text-xs font-semibold">
           <div className="rural-wrapper max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center">
             <div className="rural-contact-info flex items-center gap-6">
@@ -530,7 +523,7 @@ const PatientDashboard = () => {
           </div>
         </div>
 
-        {/* Navbar */}
+        {}
         <div className="rural-navbar-wrap bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 py-2.5 md:py-4 shadow-sm">
           <div className="rural-wrapper max-w-7xl mx-auto px-4 md:px-8">
             <nav className="rural-navigation flex items-center justify-between w-full">
@@ -555,12 +548,12 @@ const PatientDashboard = () => {
                   <Link to="/health-tracking" className="hover:text-green-600 transition-colors">Health Logs</Link>
                 </div>
 
-                {/* Language Selector */}
+                {}
                 <div className="flex items-center justify-center">
                   <LanguageSelector />
                 </div>
 
-                {/* Profile Dropdown */}
+                {}
                 <div
                   className="rural-account-menu relative"
                   onMouseEnter={() => setShowProfileDropdown(true)}
@@ -617,10 +610,10 @@ const PatientDashboard = () => {
         </div>
       </header>
 
-      {/* MAIN CONTAINER */}
+      {}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
 
-        {/* Welcome Banner */}
+        {}
         <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-3xl p-8 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="space-y-2 text-center md:text-left z-10">
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Welcome Back, {user.first_name}!</h1>
@@ -633,7 +626,7 @@ const PatientDashboard = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
+        {}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
 
           <div className="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-sm flex items-center gap-4 hover:border-green-400 hover:-translate-y-0.5 transition-all duration-300">
@@ -683,7 +676,7 @@ const PatientDashboard = () => {
 
         </div>
 
-        {/* Quick Actions Panel */}
+        {}
         <div className="space-y-4">
           <h2 className="text-base font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
             <FaAward className="text-green-600" /> Digital Health Quick Actions
@@ -712,7 +705,7 @@ const PatientDashboard = () => {
           </div>
         </div>
 
-        {/* Tabs Control */}
+        {}
         <div className="space-y-4">
           <div className="flex border-b border-gray-200 overflow-x-auto premium-dashboard-scroll pb-1 gap-2">
             {[
@@ -739,14 +732,14 @@ const PatientDashboard = () => {
             ))}
           </div>
 
-          {/* TAB RENDERPANELS */}
+          {}
           <div className="min-h-[300px]">
 
-            {/* TAB: OVERVIEW */}
+            {}
             {activeTab === 'overview' && (
               <div className="space-y-6">
 
-                {/* Health Alerts */}
+                {}
                 {healthData?.alerts && healthData.alerts.length > 0 && (
                   <div className="bg-rose-50 border border-rose-200/80 rounded-2xl p-5 space-y-3">
                     <h3 className="text-xs font-extrabold text-rose-700 uppercase tracking-wider flex items-center gap-2">
@@ -766,10 +759,10 @@ const PatientDashboard = () => {
                   </div>
                 )}
 
-                {/* Overview cards sub-grid */}
+                {}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                  {/* Up apts */}
+                  {}
                   <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-4">
                     <h3 className="text-xs font-extrabold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-b border-gray-100 pb-2.5">
                       <FaCalendarCheck className="text-green-600" /> Upcoming Visits
@@ -808,7 +801,7 @@ const PatientDashboard = () => {
                     )}
                   </div>
 
-                  {/* Active Pres */}
+                  {}
                   <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-4">
                     <h3 className="text-xs font-extrabold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-b border-gray-100 pb-2.5">
                       <FaPrescriptionBottle className="text-green-600" /> Active Prescriptions
@@ -840,7 +833,7 @@ const PatientDashboard = () => {
                     )}
                   </div>
 
-                  {/* Health Goals */}
+                  {}
                   <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-4">
                     <h3 className="text-xs font-extrabold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-b border-gray-100 pb-2.5">
                       <FaBullseye className="text-green-600" /> Active Goals
@@ -873,7 +866,7 @@ const PatientDashboard = () => {
               </div>
             )}
 
-            {/* TAB: APPOINTMENTS */}
+            {}
             {activeTab === 'appointments' && (
               <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm space-y-6">
                 <div className="flex justify-between items-center">
@@ -970,7 +963,7 @@ const PatientDashboard = () => {
               </div>
             )}
 
-            {/* TAB: CONSULTATIONS */}
+            {}
             {activeTab === 'consultations' && (
               <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm space-y-6">
                 <div className="flex justify-between items-center">
@@ -1064,7 +1057,7 @@ const PatientDashboard = () => {
               </div>
             )}
 
-            {/* TAB: PRESCRIPTIONS */}
+            {}
             {activeTab === 'prescriptions' && (
               <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm space-y-6">
                 <div className="flex justify-between items-center">
@@ -1126,7 +1119,7 @@ const PatientDashboard = () => {
               </div>
             )}
 
-            {/* TAB: HEALTH SUMMARY */}
+            {}
             {activeTab === 'health' && (
               <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm space-y-6">
                 <div className="flex justify-between items-center">
@@ -1144,7 +1137,7 @@ const PatientDashboard = () => {
                 {healthData ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                    {/* Latest Metrics */}
+                    {}
                     <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
                       <h4 className="text-xs font-extrabold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-b border-gray-200/60 pb-2">
                         <FaHeartbeat className="text-green-600" /> Recent Vitals
@@ -1165,7 +1158,7 @@ const PatientDashboard = () => {
                       )}
                     </div>
 
-                    {/* Goals Progress */}
+                    {}
                     <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
                       <h4 className="text-xs font-extrabold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-b border-gray-200/60 pb-2">
                         <FaBullseye className="text-green-600" /> Goal Success Rate
@@ -1192,7 +1185,7 @@ const PatientDashboard = () => {
                       )}
                     </div>
 
-                    {/* Recent Activities */}
+                    {}
                     <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
                       <h4 className="text-xs font-extrabold text-gray-905 uppercase tracking-wider flex items-center gap-2 border-b border-gray-200/60 pb-2">
                         <FaRunning className="text-green-600" /> Workout &amp; Pose Routine
@@ -1218,7 +1211,7 @@ const PatientDashboard = () => {
                       )}
                     </div>
 
-                    {/* Medication Reminders */}
+                    {}
                     <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
                       <h4 className="text-xs font-extrabold text-gray-905 uppercase tracking-wider flex items-center gap-2 border-b border-gray-200/60 pb-2">
                         <FaPills className="text-green-600" /> Today's Pill Schedule

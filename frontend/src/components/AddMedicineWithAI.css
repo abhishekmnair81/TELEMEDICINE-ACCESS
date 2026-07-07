@@ -1,6 +1,6 @@
-/* AddMedicineWithAI.css - Premium Styles and Animations */
 
-/* Custom Smooth Scrollbar for the Form Container */
+
+
 .ami-form-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -19,7 +19,7 @@
   background: #94a3b8;
 }
 
-/* Pulsating shadow glow for AI mode active elements */
+
 @keyframes ai-pulse-glow {
   0%, 100% {
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
@@ -33,7 +33,7 @@
   animation: ai-pulse-glow 2.5s infinite ease-in-out;
 }
 
-/* Shimmer loading background animation */
+
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -49,7 +49,7 @@
   animation: shimmer 1.5s infinite;
 }
 
-/* Glowing scanning light line */
+
 @keyframes scan-line {
   0% {
     top: 0%;
@@ -72,7 +72,7 @@
   animation: scan-line 3s infinite linear;
 }
 
-/* Custom checkbox animations */
+
 .checkbox-anim {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -81,7 +81,7 @@
   transform: scale(0.9);
 }
 
-/* Float Animation */
+
 @keyframes float-y {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }

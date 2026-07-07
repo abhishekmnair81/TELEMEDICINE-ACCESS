@@ -1,14 +1,14 @@
-// src/services/indexedDB.js
-// IndexedDB manager for offline medicine reminder storage
+
+
 
 const DB_NAME = 'MediReminderDB';
 const DB_VERSION = 2;
 
 let dbInstance = null;
 
-// ============================================================
-// DATABASE INITIALIZATION
-// ============================================================
+
+
+
 export function openMediDB() {
   if (dbInstance) return Promise.resolve(dbInstance);
 
@@ -30,16 +30,16 @@ export function openMediDB() {
       const db = event.target.result;
       console.log('[IndexedDB] Upgrading schema...');
 
-      // --- Reminders store ---
+
       if (!db.objectStoreNames.contains('reminders')) {
         const reminderStore = db.createObjectStore('reminders', { keyPath: 'id' });
         reminderStore.createIndex('is_active', 'is_active', { unique: false });
         reminderStore.createIndex('patient', 'patient', { unique: false });
-        reminderStore.createIndex('end_date', 'end_date', { unique: false }); // ✅ Added for cleanup queries
+        reminderStore.createIndex('end_date', 'end_date', { unique: false });
         console.log('[IndexedDB] Created reminders store');
       }
 
-      // --- Medication logs store ---
+
       if (!db.objectStoreNames.contains('logs')) {
         const logStore = db.createObjectStore('logs', {
           keyPath: 'localId',
@@ -52,19 +52,19 @@ export function openMediDB() {
         console.log('[IndexedDB] Created logs store');
       }
 
-      // --- Fired reminders (to avoid duplicate notifications) ---
+
       if (!db.objectStoreNames.contains('fired')) {
         db.createObjectStore('fired', { keyPath: 'key' });
         console.log('[IndexedDB] Created fired store');
       }
 
-      // --- Settings store (auth token, preferences) ---
+
       if (!db.objectStoreNames.contains('settings')) {
         db.createObjectStore('settings', { keyPath: 'key' });
         console.log('[IndexedDB] Created settings store');
       }
 
-      // --- Pending actions (for offline queue) ---
+
       if (!db.objectStoreNames.contains('pending_actions')) {
         const pendingStore = db.createObjectStore('pending_actions', {
           keyPath: 'id',
@@ -78,9 +78,9 @@ export function openMediDB() {
   });
 }
 
-// ============================================================
-// REMINDER CRUD
-// ============================================================
+
+
+
 export async function saveRemindersOffline(reminders) {
   const db = await openMediDB();
   return new Promise((resolve, reject) => {
@@ -132,15 +132,15 @@ export async function deleteReminderOffline(reminderId) {
   });
 }
 
-// ============================================================
-// CLEANUP COMPLETED REMINDERS
-// ✅ Removes reminders from IndexedDB whose end_date has passed
-//    or that have been marked inactive by the server.
-// Called automatically during every sync in pwaService.js
-// ============================================================
+
+
+
+
+
+
 export async function cleanupCompletedReminders() {
   const db = await openMediDB();
-  const today = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+  const today = new Date().toISOString().split('T')[0];
 
   return new Promise((resolve, reject) => {
     const tx = db.transaction('reminders', 'readwrite');
@@ -174,9 +174,9 @@ export async function cleanupCompletedReminders() {
   });
 }
 
-// ============================================================
-// MEDICATION LOGS
-// ============================================================
+
+
+
 export async function logMedicationOffline({ reminderId, status, scheduledTime, notes }) {
   const db = await openMediDB();
   return new Promise((resolve, reject) => {
@@ -184,7 +184,7 @@ export async function logMedicationOffline({ reminderId, status, scheduledTime, 
     const store = tx.objectStore('logs');
     const log = {
       reminderId,
-      status,           // 'taken' | 'missed' | 'skipped'
+      status,
       scheduledTime,
       takenAt: status === 'taken' ? new Date().toISOString() : null,
       notes: notes || '',
@@ -217,14 +217,14 @@ export async function getPendingLogs() {
   });
 }
 
-// ✅ Fixed: deletes the log after marking synced to prevent DB bloat
+
 export async function markLogSynced(localId) {
   const db = await openMediDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction('logs', 'readwrite');
     const store = tx.objectStore('logs');
 
-    // First mark as synced (keeps a brief record), then delete on next cleanup
+
     const getRequest = store.get(localId);
     getRequest.onsuccess = () => {
       const log = getRequest.result;
@@ -240,14 +240,14 @@ export async function markLogSynced(localId) {
   });
 }
 
-// ✅ New: call periodically to purge logs that are already synced
+
 export async function cleanSyncedLogs() {
   const db = await openMediDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction('logs', 'readwrite');
     const store = tx.objectStore('logs');
     const index = store.index('synced');
-    const request = index.getAll(true); // get all where synced === true
+    const request = index.getAll(true);
 
     request.onsuccess = () => {
       const synced = request.result || [];
@@ -277,9 +277,9 @@ export async function getLogsForDate(date) {
   });
 }
 
-// ============================================================
-// SETTINGS (auth token sync, preferences)
-// ============================================================
+
+
+
 export async function saveSetting(key, value) {
   const db = await openMediDB();
   return new Promise((resolve, reject) => {
@@ -302,9 +302,9 @@ export async function getSetting(key) {
   });
 }
 
-// ============================================================
-// PENDING ACTIONS (for offline queue)
-// ============================================================
+
+
+
 export async function queueOfflineAction(type, payload) {
   const db = await openMediDB();
   return new Promise((resolve, reject) => {
@@ -346,9 +346,9 @@ export async function deletePendingAction(id) {
   });
 }
 
-// ============================================================
-// FIRED REMINDERS (dedup notifications)
-// ============================================================
+
+
+
 export async function markReminderFired(key) {
   const db = await openMediDB();
   return new Promise((resolve, reject) => {
@@ -371,7 +371,7 @@ export async function wasReminderFired(key) {
   });
 }
 
-// Clean up old fired records (older than 2 days)
+
 export async function cleanOldFiredRecords() {
   const db = await openMediDB();
   const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
@@ -389,9 +389,9 @@ export async function cleanOldFiredRecords() {
   });
 }
 
-// ============================================================
-// UTILITY
-// ============================================================
+
+
+
 export function isIndexedDBAvailable() {
   return typeof indexedDB !== 'undefined';
 }

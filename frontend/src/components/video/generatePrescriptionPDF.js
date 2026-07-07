@@ -1,18 +1,10 @@
-/**
- * generatePrescriptionPDF.js
- * Generates a stunning, medically-professional prescription PDF
- * Uses jsPDF + html2canvas for pixel-perfect output
- * Colors aligned with Dashboard.css Rural design system
- */
+
 
 import './generatePrescriptionPDF.css';
 
-/**
- * Generates and downloads a prescription PDF
- * @param {Object} prescription - EnhancedPrescription data from backend
- */
+
 export const generatePrescriptionPDF = async (prescription) => {
-  // Dynamically import to avoid bundle bloat
+
   const { default: jsPDF } = await import('jspdf');
   const { default: html2canvas } = await import('html2canvas');
   const { default: QRCode } = await import('qrcode');
@@ -33,12 +25,12 @@ export const generatePrescriptionPDF = async (prescription) => {
       })
     : null;
 
-  // Generate unique prescription number
+
   const rxNumber = prescription.id
     ? `RX-${prescription.id.toString().slice(-8).toUpperCase()}`
     : `RX-${Date.now().toString().slice(-8)}`;
 
-  // Generate real QR code as data URL (green, matches Dashboard green #16a34a)
+
   let qrCodeDataUrl = '';
   try {
     qrCodeDataUrl = await QRCode.toDataURL(rxNumber, {
@@ -53,7 +45,7 @@ export const generatePrescriptionPDF = async (prescription) => {
     console.error('Error generating QR Code', err);
   }
 
-  // Generate real barcode using JsBarcode (Code 128)
+
   let barcodeSvgString = '';
   try {
     const tempSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -82,7 +74,7 @@ export const generatePrescriptionPDF = async (prescription) => {
       else if (k.includes('temp')) icon = '🌡️';
       else if (k.includes('spo2') || k.includes('oxygen')) icon = '🫁';
       else if (k.includes('weight') || k.includes('height')) icon = '⚖️';
-      
+
       return `
         <div class="pdf-vital-card">
           <div class="pdf-vital-header">
@@ -112,7 +104,7 @@ export const generatePrescriptionPDF = async (prescription) => {
   const patientGender = prescription.patient_gender ? prescription.patient_gender : '';
   const patientAgeGender = [patientAge, patientGender].filter(Boolean).join(' / ');
 
-  // Create a hidden container
+
   const container = document.createElement('div');
   container.style.cssText = `
     position: fixed;
@@ -124,7 +116,7 @@ export const generatePrescriptionPDF = async (prescription) => {
   `;
   document.body.appendChild(container);
 
-  // Build the prescription HTML
+
   container.innerHTML = buildPrescriptionHTML(
     prescription,
     rxNumber,
@@ -138,7 +130,7 @@ export const generatePrescriptionPDF = async (prescription) => {
   );
 
   try {
-    // Render to canvas at 2x for retina quality
+
     const canvas = await html2canvas(container, {
       scale: 2,
       useCORS: true,
@@ -158,10 +150,10 @@ export const generatePrescriptionPDF = async (prescription) => {
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    // Handle multi-page (only add extra pages if the height overflow exceeds 5mm threshold)
+
     let heightLeft = pdfHeight;
     let position = 0;
-    const threshold = 5; // 5mm threshold to avoid blank trailing page due to rounding issues
+    const threshold = 5;
 
     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
     heightLeft -= pageHeight;
@@ -173,7 +165,7 @@ export const generatePrescriptionPDF = async (prescription) => {
       heightLeft -= pageHeight;
     }
 
-    // Filename: Rx_PatientName_Date_UniqueID
+
     const dateStr = new Date(prescription.date || Date.now())
       .toISOString()
       .slice(0, 10)
@@ -190,9 +182,7 @@ export const generatePrescriptionPDF = async (prescription) => {
   }
 };
 
-/**
- * Builds the complete HTML string for the prescription
- */
+
 const buildPrescriptionHTML = (
   rx,
   rxNumber,

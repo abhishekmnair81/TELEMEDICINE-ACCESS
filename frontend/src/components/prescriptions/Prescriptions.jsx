@@ -1,4 +1,4 @@
-// Prescriptions.jsx - Modernized for Doctor Use with Tailwind CSS
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -20,11 +20,11 @@ const Prescriptions = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [pdfDownloading, setPdfDownloading] = useState(false);
-  
-  // Patient selection
+
+
   const [myPatients, setMyPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     patient_name: '',
     patient_age: '',
@@ -43,14 +43,14 @@ const Prescriptions = () => {
 
   const checkAuthAndLoadData = async () => {
     const user = authAPI.getCurrentUser();
-    
+
     if (!user) {
       alert('Please login to access prescriptions');
       navigate('/auth?type=doctor&view=login');
       return;
     }
 
-    // Only doctors can create prescriptions
+
     if (user.user_type !== 'doctor') {
       alert('Only doctors can create prescriptions');
       navigate('/');
@@ -59,8 +59,8 @@ const Prescriptions = () => {
 
     console.log('[Prescriptions] Logged in doctor:', user);
     setCurrentUser(user);
-    
-    // Load doctor's prescriptions and patients
+
+
     await loadPrescriptions(user.id);
     await loadMyPatients(user.id);
   };
@@ -69,10 +69,10 @@ const Prescriptions = () => {
     try {
       setLoading(true);
       console.log('[Prescriptions] Loading prescriptions for doctor:', doctorId);
-      
+
       const response = await prescriptionsAPI.getDoctorPrescriptions(doctorId);
       const prescriptionsList = Array.isArray(response) ? response : (response.results || []);
-      
+
       console.log('[Prescriptions] Loaded prescriptions:', prescriptionsList);
       setPrescriptions(prescriptionsList);
     } catch (error) {
@@ -85,15 +85,15 @@ const Prescriptions = () => {
   const loadMyPatients = async (doctorId) => {
     try {
       console.log('[Prescriptions] Loading patients for doctor:', doctorId);
-      
+
       const response = await appointmentsAPI.getDoctorAppointments(doctorId);
       const appointments = Array.isArray(response) ? response : (response.results || []);
-      
+
       console.log('[Prescriptions] Doctor appointments:', appointments);
-      
+
       const uniquePatients = [];
       const patientPhones = new Set();
-      
+
       appointments.forEach(apt => {
         if (apt.patient_phone && !patientPhones.has(apt.patient_phone)) {
           patientPhones.add(apt.patient_phone);
@@ -105,10 +105,10 @@ const Prescriptions = () => {
           });
         }
       });
-      
+
       console.log('[Prescriptions] Unique patients:', uniquePatients);
       setMyPatients(uniquePatients);
-      
+
     } catch (error) {
       console.error('[Prescriptions] Error loading patients:', error);
     }
@@ -177,7 +177,7 @@ const Prescriptions = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.patient_name || !formData.patient_phone) {
       alert('Please select a patient');
       return;
@@ -202,18 +202,18 @@ const Prescriptions = () => {
       console.log('[Prescriptions] Creating prescription...');
 
       const doctorProfile = currentUser.doctor_profile || {};
-      
+
       const prescriptionData = {
         patient_name: formData.patient_name,
         patient_age: formData.patient_age || '',
         patient_gender: formData.patient_gender || '',
         patient_phone: formData.patient_phone,
-        
+
         doctor_name: `${currentUser.first_name} ${currentUser.last_name}`.trim() || currentUser.username,
         doctor_specialization: doctorProfile.specialization || 'General Physician',
         doctor_registration: doctorProfile.license_number || '',
         hospital_name: doctorProfile.hospital_name || 'Rural Health Center',
-        
+
         diagnosis: formData.diagnosis,
         medications: formData.medications,
         notes: formData.notes,
@@ -222,14 +222,14 @@ const Prescriptions = () => {
       };
 
       console.log('[Prescriptions] Prescription data:', prescriptionData);
-      
+
       const response = await prescriptionsAPI.createPrescription(prescriptionData);
       console.log('[Prescriptions] ✅ Created successfully:', response);
-      
+
       alert('Digital prescription created successfully!');
       closeModal();
       await loadPrescriptions(currentUser.id);
-      
+
     } catch (error) {
       console.error('[Prescriptions] ❌ Error creating prescription:', error);
       alert('Error creating prescription: ' + (error.message || 'Unknown error'));
@@ -294,8 +294,8 @@ const Prescriptions = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50/30 via-slate-50 to-white text-slate-800 flex flex-col justify-between">
-      
-      {/* Top Branded Header */}
+
+      {}
       <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/doctor-dashboard')}>
@@ -306,13 +306,13 @@ const Prescriptions = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={() => navigate('/doctor-dashboard')}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs font-bold transition-all shadow-sm cursor-pointer"
             >
               <FaArrowLeft /> Back to Dashboard
             </button>
-            <button 
+            <button
               onClick={() => loadPrescriptions(currentUser.id)}
               className="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 transition-all cursor-pointer"
               title="Refresh Records"
@@ -323,16 +323,16 @@ const Prescriptions = () => {
         </div>
       </header>
 
-      {/* Main Container */}
+      {}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Banner Area */}
+
+        {}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-10">
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Digital Prescriptions</h1>
             <p className="text-xs md:text-sm text-slate-500 mt-2 font-bold uppercase tracking-wider">Create, dispatch, and review electronic prescription sheets</p>
           </div>
-          <button 
+          <button
             onClick={openModal}
             className="inline-flex items-center gap-1.5 px-4.5 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 cursor-pointer self-start sm:self-auto"
           >
@@ -340,7 +340,7 @@ const Prescriptions = () => {
           </button>
         </div>
 
-        {/* Content list */}
+        {}
         {loading && prescriptions.length === 0 ? (
           <div className="text-center py-20 bg-white border border-slate-150 rounded-3xl">
             <div className="w-10 h-10 border-4 border-slate-200 border-t-teal-600 rounded-full animate-spin mx-auto mb-4"></div>
@@ -357,7 +357,7 @@ const Prescriptions = () => {
                 You haven't recorded any digital prescriptions yet. Click the button below to build an Rx sheet for a patient.
               </p>
             </div>
-            <button 
+            <button
               onClick={openModal}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-teal-600/10 cursor-pointer"
             >
@@ -367,8 +367,8 @@ const Prescriptions = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {prescriptions.map((prescription) => (
-              <div 
-                key={prescription.id} 
+              <div
+                key={prescription.id}
                 className="bg-white border border-slate-200/80 hover:border-teal-500/40 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full group"
               >
                 <div>
@@ -376,16 +376,16 @@ const Prescriptions = () => {
                     <span className="text-[10px] text-teal-650 font-black uppercase tracking-wider px-2 py-0.5 bg-teal-50 border border-teal-200 rounded-md">
                       Rx #{String(prescription.id).substring(0, 8)}
                     </span>
-                    
+
                     <div className="flex gap-1">
-                      <button 
+                      <button
                         onClick={() => viewPrescription(prescription)}
                         className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-600 transition-colors cursor-pointer"
                         title="View Full Sheet"
                       >
                         <FaEye size={11} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => deletePrescription(prescription.id)}
                         className="p-2 bg-rose-50 hover:bg-rose-100 border border-rose-100 rounded-lg text-rose-605 transition-colors cursor-pointer"
                         title="Delete Record"
@@ -398,7 +398,7 @@ const Prescriptions = () => {
                   <div className="space-y-1">
                     <h3 className="font-extrabold text-slate-900 text-sm group-hover:text-teal-600 transition-colors leading-tight">{prescription.patient_name}</h3>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                      {prescription.patient_age ? `${prescription.patient_age} yrs` : ''} 
+                      {prescription.patient_age ? `${prescription.patient_age} yrs` : ''}
                       {prescription.patient_gender ? ` • ${prescription.patient_gender}` : ''}
                     </p>
                     <p className="text-[10px] text-slate-450 font-semibold">📱 {prescription.patient_phone}</p>
@@ -438,7 +438,7 @@ const Prescriptions = () => {
                   </div>
                 </div>
 
-                <button 
+                <button
                   onClick={() => viewPrescription(prescription)}
                   className="w-full mt-2 py-2.5 bg-slate-100 hover:bg-teal-650 hover:text-white text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
                 >
@@ -457,14 +457,14 @@ const Prescriptions = () => {
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={closeModal}>
           <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
-            
+
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-gradient-to-r from-teal-800 to-teal-700 text-white">
               <h2 className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
                 <FaNotesMedical className="text-teal-400" /> Create Digital Case Prescription
               </h2>
-              <button 
-                onClick={closeModal} 
+              <button
+                onClick={closeModal}
                 className="w-7 h-7 rounded-full bg-white/10 hover:bg-red-50 text-white hover:text-red-650 flex items-center justify-center transition-colors cursor-pointer text-xs"
               >
                 ✕
@@ -473,11 +473,11 @@ const Prescriptions = () => {
 
             {/* Modal Body */}
             <form onSubmit={handleSubmit} className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white space-y-6">
-              
+
               {/* Patient Selection */}
               <div className="space-y-3.5">
                 <h3 className="text-[10px] font-black text-teal-655 uppercase tracking-widest pb-1 border-b border-slate-100">1. Select Patient</h3>
-                
+
                 {myPatients.length === 0 ? (
                   <div className="p-4 bg-amber-50 border border-amber-200/60 text-amber-850 rounded-2xl text-xs font-semibold">
                     ⚠️ No consultation records found. Patients who book telemetry slots with you will populate here.
@@ -485,12 +485,12 @@ const Prescriptions = () => {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
                     {myPatients.map((patient, idx) => (
-                      <div 
+                      <div
                         key={idx}
                         onClick={() => selectPatient(patient)}
                         className={`p-4 rounded-2xl border text-xs font-semibold cursor-pointer transition-all ${
-                          selectedPatient?.phone === patient.phone 
-                            ? 'bg-teal-50/50 border-teal-500 text-slate-800 shadow-sm' 
+                          selectedPatient?.phone === patient.phone
+                            ? 'bg-teal-50/50 border-teal-500 text-slate-800 shadow-sm'
                             : 'bg-slate-50 border-slate-200 hover:border-teal-500/30 text-slate-600'
                         }`}
                       >
@@ -508,11 +508,11 @@ const Prescriptions = () => {
               {/* Patient details edit fields if selected */}
               {selectedPatient && (
                 <div className="space-y-6 animate-fadeIn">
-                  
+
                   {/* Demographic Details */}
                   <div className="space-y-3.5">
                     <h3 className="text-[10px] font-black text-teal-655 uppercase tracking-widest pb-1 border-b border-slate-100">2. Demographics</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Patient Name *</label>
@@ -555,7 +555,7 @@ const Prescriptions = () => {
                   {/* Diagnosis details */}
                   <div className="space-y-3.5">
                     <h3 className="text-[10px] font-black text-teal-655 uppercase tracking-widest pb-1 border-b border-slate-100">3. Diagnostic Assessment</h3>
-                    
+
                     <div className="space-y-4">
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Diagnosis / Clinical Impression *</label>
@@ -706,16 +706,16 @@ const Prescriptions = () => {
 
                   {/* Actions buttons */}
                   <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
-                    <button 
-                      type="button" 
-                      onClick={closeModal} 
+                    <button
+                      type="button"
+                      onClick={closeModal}
                       className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
                       disabled={saving}
                     >
                       Cancel
                     </button>
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 cursor-pointer"
                       disabled={saving}
                     >
@@ -735,7 +735,7 @@ const Prescriptions = () => {
       {selectedPrescription && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={() => setSelectedPrescription(null)}>
           <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-            
+
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-gradient-to-r from-teal-800 to-teal-700 text-white">
               <div>
@@ -749,14 +749,14 @@ const Prescriptions = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   onClick={printPrescription}
                   className="p-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl transition-all cursor-pointer"
                   title="Print Document"
                 >
                   <FaPrint size={13} />
                 </button>
-                <button 
+                <button
                   onClick={downloadPrescription}
                   disabled={pdfDownloading}
                   className="p-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl transition-all cursor-pointer disabled:opacity-50"
@@ -768,7 +768,7 @@ const Prescriptions = () => {
                     <FaDownload size={13} />
                   )}
                 </button>
-                <button 
+                <button
                   onClick={() => setSelectedPrescription(null)}
                   className="w-7 h-7 rounded-full bg-white/10 hover:bg-red-50 text-white hover:text-red-655 flex items-center justify-center transition-colors cursor-pointer text-xs"
                 >
@@ -779,7 +779,7 @@ const Prescriptions = () => {
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white space-y-6">
-              
+
               {/* Document Header details */}
               <div className="flex justify-between items-start gap-6 border-b border-slate-100 pb-5">
                 <div>

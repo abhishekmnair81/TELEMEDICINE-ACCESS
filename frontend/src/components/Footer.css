@@ -1,4 +1,4 @@
-/* Footer Premium Styles & Keyframes */
+
 .footer-container {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   box-shadow: 0 3000px 0 3000px #020617;
@@ -31,7 +31,7 @@
   transform: scale(1.1);
 }
 
-/* Custom glow effect for the emergency card */
+
 .emergency-bar .bg-red-950\/20 {
   box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.03);
 }

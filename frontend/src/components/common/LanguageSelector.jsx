@@ -18,7 +18,7 @@ const LANGUAGES = [
   { code: 'as',  label: 'Assamese',   native: 'অসমীয়া',   flag: '🇮🇳' },
 ]
 
-// helpers
+
 function getCookie(name) {
   const value = `; ${document.cookie}`
   const parts = value.split(`; ${name}=`)
@@ -28,12 +28,12 @@ function getCookie(name) {
 
 function setCookie(name, value) {
   const d = new Date()
-  d.setTime(d.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  d.setTime(d.getTime() + 30 * 24 * 60 * 60 * 1000)
   const expires = "expires=" + d.toUTCString()
-  
+
   document.cookie = `${name}=${value}; ${expires}; path=/`
   document.cookie = `${name}=${value}; ${expires}; path=/; domain=${window.location.hostname}`
-  
+
   if (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
     const parts = window.location.hostname.split('.')
     if (parts.length >= 2) {
@@ -78,7 +78,7 @@ export default function LanguageSelector() {
   const wrapRef               = useRef(null)
   const searchRef             = useRef(null)
 
-  // Inject Google Translate script once
+
   useEffect(() => {
     window.googleTranslateElementInit = () => {
       try {
@@ -114,12 +114,12 @@ export default function LanguageSelector() {
     }
   }, [])
 
-  // Sync cookies with localStorage choice without page-reload loop
+
   useEffect(() => {
     if (!ready) return
     const saved = localStorage.getItem('rhc_lang') || 'en'
     const currentCookie = getCookie('googtrans')
-    
+
     let cookieLang = 'en'
     if (currentCookie) {
       const parts = currentCookie.split('/')
@@ -137,7 +137,7 @@ export default function LanguageSelector() {
     }
   }, [ready])
 
-  // Close on outside click
+
   useEffect(() => {
     const handler = (e) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target)) {
@@ -149,7 +149,7 @@ export default function LanguageSelector() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  // Focus search when dropdown opens
+
   useEffect(() => {
     if (open && searchRef.current) {
       setTimeout(() => searchRef.current?.focus(), 50)
@@ -171,17 +171,17 @@ export default function LanguageSelector() {
 
   return (
     <>
-      {/* Hidden GTE container */}
+      {}
       <div id="gte-hidden" style={{ display: 'none' }} />
 
       <div className="relative inline-flex items-center z-[3000]" ref={wrapRef}>
-        {/* Trigger Button */}
+        {}
         <button
           className={`flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 bg-white border rounded-full cursor-pointer text-slate-700 font-bold ${
             active.code === 'en' ? 'text-[10px] sm:text-xs' : 'text-[9px] sm:text-[11px]'
           } transition-all shadow-sm focus:outline-none ${
-            open 
-              ? 'bg-teal-50/50 border-teal-500 text-teal-600 shadow-md shadow-teal-900/5' 
+            open
+              ? 'bg-teal-50/50 border-teal-500 text-teal-600 shadow-md shadow-teal-900/5'
               : 'border-slate-200 hover:border-teal-500 hover:text-teal-600'
           }`}
           onClick={() => setOpen(p => !p)}
@@ -195,22 +195,22 @@ export default function LanguageSelector() {
           <FaChevronDown className={`transition-transform duration-200 ${open ? 'rotate-180 text-teal-500' : 'text-slate-400'} ${active.code === 'en' ? 'text-[8px] sm:text-[10px]' : 'text-[7px] sm:text-[9px]'}`} />
         </button>
 
-        {/* Dropdown Panel */}
+        {}
         {open && (
           <div className="absolute top-full mt-2 right-0 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden origin-top-right animate-dropdown-fade duration-200">
-            
-            {/* Header */}
+
+            {}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
               <span className="text-xs font-bold text-slate-700 tracking-wide uppercase">Select Language</span>
-              <button 
-                className="w-5 h-5 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 flex items-center justify-center text-xs transition-colors cursor-pointer" 
+              <button
+                className="w-5 h-5 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 flex items-center justify-center text-xs transition-colors cursor-pointer"
                 onClick={() => setOpen(false)}
               >
                 <FaTimes />
               </button>
             </div>
 
-            {/* Search */}
+            {}
             <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-100 bg-slate-50/50">
               <FaSearch className="text-slate-400 text-xs flex-shrink-0" />
               <input
@@ -222,8 +222,8 @@ export default function LanguageSelector() {
                 onChange={e => setSearch(e.target.value)}
               />
               {search && (
-                <button 
-                  className="w-4 h-4 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center text-[10px] cursor-pointer" 
+                <button
+                  className="w-4 h-4 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center text-[10px] cursor-pointer"
                   onClick={() => setSearch('')}
                 >
                   <FaTimes />
@@ -231,7 +231,7 @@ export default function LanguageSelector() {
               )}
             </div>
 
-            {/* Language List */}
+            {}
             <ul className="max-h-60 overflow-y-auto custom-scrollbar divide-y divide-slate-50" role="listbox">
               {filtered.map(lang => {
                 const isActive = active.code === lang.code;
@@ -265,7 +265,7 @@ export default function LanguageSelector() {
               )}
             </ul>
 
-            {/* Footer */}
+            {}
             <div className="px-4 py-2 border-t border-slate-100 text-center bg-slate-50/30">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Powered by Google Translate</span>
             </div>

@@ -23,13 +23,13 @@ import ShoppingCart from './components/ShoppingCart';
 import PharmacyBrowse from './components/PharmacyBrowse';
 import Orders from './components/Orders';
 import Patientprescriptions from './components/prescriptions/Patientprescriptions';
-import PharmacistProfile from './components/PharmacistProfile'; // ← NEW
+import PharmacistProfile from './components/PharmacistProfile';
 import PharmacySearch from './components/PharmacySearch';
 
 
 import './App.css';
 
-// ─── Cookie Helpers for Global Translation Persistence ────────
+
 function getCookie(name) {
   const value = `; ${document.cookie}`
   const parts = value.split(`; ${name}=`)
@@ -39,16 +39,16 @@ function getCookie(name) {
 
 function setCookie(name, value) {
   const d = new Date()
-  d.setTime(d.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  d.setTime(d.getTime() + 30 * 24 * 60 * 60 * 1000)
   const expires = "expires=" + d.toUTCString()
-  
-  // Set cookie on standard root path
+
+
   document.cookie = `${name}=${value}; ${expires}; path=/`
-  
-  // Set cookie for exact hostname
+
+
   document.cookie = `${name}=${value}; ${expires}; path=/; domain=${window.location.hostname}`
-  
-  // Set cookie for parent domain if not localhost
+
+
   if (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
     const parts = window.location.hostname.split('.')
     if (parts.length >= 2) {
@@ -72,11 +72,11 @@ function deleteCookie(name) {
 
 function App() {
   useEffect(() => {
-    // 1. Sync data-lang attribute on html tag
+
     const lang = localStorage.getItem('rhc_lang') || 'en';
     document.documentElement.setAttribute('data-lang', lang);
 
-    // 2. Sync cookies with localStorage choice without page-reload loop
+
     const currentCookie = getCookie('googtrans');
     let cookieLang = 'en';
     if (currentCookie) {
@@ -95,7 +95,7 @@ function App() {
       return;
     }
 
-    // 3. Load Google Translate script globally (mounts to #gte-hidden in index.html)
+
     if (!document.getElementById('gte-script')) {
       window.googleTranslateElementInit = () => {
         try {
@@ -141,19 +141,19 @@ function App() {
           <Route path="/doctor-patient-health" element={<DoctorPatientHealth />} />
           <Route path="/patient-profile" element={<PatientProfile />} />
 
-          {/* Patient Prescriptions routes */}
+          {}
           <Route path="/patient/prescriptions" element={<Patientprescriptions />} />
           <Route path="/patient/prescriptions/:id" element={<Patientprescriptions />} />
 
-          {/* Pharmacist routes */}
+          {}
           <Route path="/pharmacist-dashboard" element={<PharmacistDashboard />} />
-          <Route path="/pharmacist-profile" element={<PharmacistProfile />} /> {/* ← NEW */}
+          <Route path="/pharmacist-profile" element={<PharmacistProfile />} /> {}
           <Route path="/pharmacy-home" element={<PharmacistHomepage />} />
 
-          {/* Pharmacy browse route */}
+          {}
           <Route path="/pharmacy/browse" element={<PharmacyBrowse />} />
 
-          {/* Doctor viewing routes */}
+          {}
           <Route path="/doctors" element={<AllDoctors />} />
           <Route path="/doctor-detail/:doctorId" element={<DoctorDetailPage />} />
 

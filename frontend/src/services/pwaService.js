@@ -1,5 +1,5 @@
-// src/services/pwaService.js
-// Service Worker registration + notification scheduling
+
+
 
 import {
   openMediDB,
@@ -14,14 +14,14 @@ import {
   queueOfflineAction,
   getPendingActions,
   deletePendingAction,
-  cleanupCompletedReminders, // ✅ Fixed: was missing, caused no-undef ESLint error
+  cleanupCompletedReminders,
 } from './indexedDB';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
-// ============================================================
-// SERVICE WORKER REGISTRATION
-// ============================================================
+
+
+
 export async function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) {
     console.warn('[PWA] Service Workers not supported');
@@ -35,21 +35,21 @@ export async function registerServiceWorker() {
 
     console.log('[PWA] ✅ Service Worker registered:', registration.scope);
 
-    // Handle updates
+
     registration.addEventListener('updatefound', () => {
       const newWorker = registration.installing;
       newWorker?.addEventListener('statechange', () => {
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
           console.log('[PWA] New version available');
-          // Optionally show update prompt
+
         }
       });
     });
 
-    // Listen for messages from SW
+
     navigator.serviceWorker.addEventListener('message', handleSWMessage);
 
-    // Store auth token in IndexedDB so SW can access it
+
     await syncAuthTokenToSW();
 
     return registration;
@@ -80,9 +80,9 @@ function handleSWMessage(event) {
   }
 }
 
-// ============================================================
-// NOTIFICATION PERMISSION
-// ============================================================
+
+
+
 export async function requestNotificationPermission() {
   if (!('Notification' in window)) {
     console.warn('[PWA] Notifications not supported');
@@ -102,9 +102,9 @@ export function getNotificationPermission() {
   return Notification.permission;
 }
 
-// ============================================================
-// SHOW NOTIFICATION (immediate)
-// ============================================================
+
+
+
 export async function showMedicationNotification(reminder, scheduledTime) {
   const permission = await requestNotificationPermission();
   if (permission !== 'granted') return false;
@@ -135,7 +135,7 @@ export async function showMedicationNotification(reminder, scheduledTime) {
     });
     return true;
   } catch (err) {
-    // Fallback to basic notification
+
     try {
       new Notification(`💊 ${reminder.medication_name}`, {
         body: `${reminder.dosage} — Time to take your medication`,
@@ -150,9 +150,9 @@ export async function showMedicationNotification(reminder, scheduledTime) {
   }
 }
 
-// ============================================================
-// SCHEDULER - runs in foreground (setInterval per minute)
-// ============================================================
+
+
+
 let schedulerInterval = null;
 let soundEnabled = true;
 let notificationSound = null;
@@ -160,7 +160,7 @@ let notificationSound = null;
 export function startReminderScheduler(getReminders) {
   if (schedulerInterval) clearInterval(schedulerInterval);
 
-  // Create audio context for notification sound
+
   try {
     notificationSound = new Audio('/sounds/reminder.mp3');
     notificationSound.volume = 0.8;
@@ -179,7 +179,7 @@ export function startReminderScheduler(getReminders) {
       if (!reminder.is_active) continue;
       if (!reminder.time_slots || !Array.isArray(reminder.time_slots)) continue;
 
-      // Check if end_date has passed
+
       if (reminder.end_date && reminder.end_date < today) continue;
 
       for (const slot of reminder.time_slots) {
@@ -191,32 +191,32 @@ export function startReminderScheduler(getReminders) {
 
         console.log(`[Scheduler] ⏰ Firing reminder: ${reminder.medication_name} at ${slot}`);
 
-        // Mark as fired first (prevent double-fire)
+
         await markReminderFired(fireKey);
 
-        // Dispatch custom window event so active web page can show interactive popup
+
         window.dispatchEvent(
           new CustomEvent('medicationReminderActive', {
             detail: { reminder, slot }
           })
         );
 
-        // Show notification
+
         await showMedicationNotification(reminder, slot);
 
-        // Play sound
+
         if (soundEnabled && notificationSound) {
           try {
             notificationSound.currentTime = 0;
             notificationSound.play().catch(() => {
-              playBeepSound(); // Fallback beep
+              playBeepSound();
             });
           } catch {
             playBeepSound();
           }
         }
 
-        // Log as pending (will sync when online)
+
         await logMedicationOffline({
           reminderId: reminder.id,
           status: 'pending',
@@ -226,10 +226,10 @@ export function startReminderScheduler(getReminders) {
     }
   };
 
-  // Check immediately
+
   checkNow();
 
-  // Then every 10 seconds (prevents drift from missing minute boundaries)
+
   schedulerInterval = setInterval(checkNow, 10 * 1000);
   console.log('[Scheduler] ✅ Started reminder scheduler');
 
@@ -251,7 +251,7 @@ export function setSoundEnabled(enabled) {
   soundEnabled = enabled;
 }
 
-// Fallback beep using Web Audio API
+
 function playBeepSound() {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -290,7 +290,7 @@ export function setupOnlineOfflineHandlers(onOnline, onOffline) {
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
 
-  // Return cleanup
+
   return () => {
     window.removeEventListener('online', handleOnline);
     window.removeEventListener('offline', handleOffline);
@@ -321,7 +321,7 @@ export async function syncPendingData() {
 
   let synced = 0, failed = 0;
 
-  // 1️⃣ Sync pending offline logs
+
   const pendingLogs = await getPendingLogs();
   if (pendingLogs.length > 0) {
     try {
@@ -350,7 +350,7 @@ export async function syncPendingData() {
     }
   }
 
-  // 2️⃣ Sync pending actions (LOG_INTAKE, etc.)
+
   const pendingActions = await getPendingActions();
   for (const action of pendingActions) {
     try {
@@ -376,7 +376,7 @@ export async function syncPendingData() {
     }
   }
 
-  // 3️⃣ Cleanup completed reminders on server
+
   try {
     const cleanupRes = await fetch(
       `${API_BASE}/medication-reminders/cleanup-completed/`,
@@ -392,15 +392,15 @@ export async function syncPendingData() {
     console.warn('[PWA] Cleanup request failed:', err);
   }
 
-  // 4️⃣ Also clean expired reminders from IndexedDB
+
   await cleanupCompletedReminders();
 
   return { synced, failed };
 }
 
-// ============================================================
-// AUTH TOKEN SYNC TO INDEXEDDB (so SW can use it)
-// ============================================================
+
+
+
 export async function syncAuthTokenToSW() {
   const token = localStorage.getItem('accessToken');
   if (token) {
@@ -408,9 +408,9 @@ export async function syncAuthTokenToSW() {
   }
 }
 
-// ============================================================
-// PERIODIC SYNC REGISTRATION
-// ============================================================
+
+
+
 export async function registerPeriodicSync() {
   try {
     const registration = await navigator.serviceWorker.ready;
@@ -421,7 +421,7 @@ export async function registerPeriodicSync() {
 
       if (status.state === 'granted') {
         await registration.periodicSync.register('check-medication-reminders', {
-          minInterval: 60 * 1000, // 1 minute minimum
+          minInterval: 60 * 1000,
         });
         console.log('[PWA] ✅ Periodic sync registered');
       }
@@ -431,9 +431,9 @@ export async function registerPeriodicSync() {
   }
 }
 
-// ============================================================
-// UTILITIES
-// ============================================================
+
+
+
 function formatTime(date) {
   return `${String(date.getHours()).padStart(2, '0')}:${String(
     date.getMinutes()

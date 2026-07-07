@@ -7,11 +7,11 @@ const HealthReportModal = ({ conversationId, userId, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [reportText, setReportText] = useState('');
   const [patientName, setPatientName] = useState('');
-  const [step, setStep] = useState('input'); // 'input', 'preview', 'error'
+  const [step, setStep] = useState('input');
   const [error, setError] = useState('');
 
   const handleGenerateReport = async () => {
-    // Validation
+
     if (!patientName.trim()) {
       setError('Please enter patient name');
       return;
@@ -45,10 +45,10 @@ const HealthReportModal = ({ conversationId, userId, onClose }) => {
 
   const handleDownloadPDF = async () => {
     setLoading(true);
-    
+
     try {
       await healthReportAPI.downloadReportPDF(conversationId, patientName.trim());
-      // Success - PDF download should start automatically
+
     } catch (err) {
       console.error('Error downloading PDF:', err);
       setError('Failed to download PDF. Please try again.');
@@ -108,15 +108,15 @@ const HealthReportModal = ({ conversationId, userId, onClose }) => {
               )}
 
               <div className="button-group">
-                <button 
-                  className="btn-secondary" 
+                <button
+                  className="btn-secondary"
                   onClick={onClose}
                   disabled={loading}
                 >
                   Cancel
                 </button>
-                <button 
-                  className="btn-primary" 
+                <button
+                  className="btn-primary"
                   onClick={handleGenerateReport}
                   disabled={loading || !patientName.trim()}
                 >
@@ -149,15 +149,15 @@ const HealthReportModal = ({ conversationId, userId, onClose }) => {
               </div>
 
               <div className="button-group">
-                <button 
-                  className="btn-secondary" 
+                <button
+                  className="btn-secondary"
                   onClick={() => setStep('input')}
                   disabled={loading}
                 >
                   ← Back
                 </button>
-                <button 
-                  className="btn-primary" 
+                <button
+                  className="btn-primary"
                   onClick={handleDownloadPDF}
                   disabled={loading}
                 >
@@ -188,14 +188,14 @@ const HealthReportModal = ({ conversationId, userId, onClose }) => {
               </p>
 
               <div className="button-group">
-                <button 
-                  className="btn-secondary" 
+                <button
+                  className="btn-secondary"
                   onClick={onClose}
                 >
                   Close
                 </button>
-                <button 
-                  className="btn-primary" 
+                <button
+                  className="btn-primary"
                   onClick={() => {
                     setStep('input');
                     setError('');

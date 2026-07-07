@@ -1,4 +1,4 @@
-/* ===== PHARMACIST DASHBOARD - COMPACT ANIMATIONS ===== */
+
 
 @keyframes modalIn {
   from {
@@ -24,7 +24,7 @@
   animation: fadeIn 0.2s ease-out forwards;
 }
 
-/* Custom Scrollbar Utility */
+
 .pharmacist-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;

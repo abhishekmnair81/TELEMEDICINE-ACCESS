@@ -1,4 +1,4 @@
-// DoctorVideoConsultation.jsx – Doctor side
+
 import React, { useState, useRef, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import {
@@ -41,8 +41,8 @@ const DoctorVideoConsultation = () => {
   const websocketRef = useRef(null)
   const localStreamRef = useRef(null)
   const retryTimeoutRef = useRef(null)
-  const e2eKeyRef = useRef(null)          // AES-GCM CryptoKey
-  const remoteUserIdRef = useRef(null)    // tracks the patient's ID
+  const e2eKeyRef = useRef(null)
+  const remoteUserIdRef = useRef(null)
 
   const [localStream, setLocalStream] = useState(null)
   const [remoteStream, setRemoteStream] = useState(null)
@@ -63,12 +63,12 @@ const DoctorVideoConsultation = () => {
   ])
   const [chatInput, setChatInput] = useState("")
 
-  // Camera error handling states
+
   const [cameraError, setCameraError] = useState(null)
   const [retryCount, setRetryCount] = useState(0)
   const [isRetrying, setIsRetrying] = useState(false)
 
-  // Prescription states
+
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false)
   const [prescriptionForm, setPrescriptionForm] = useState({
     patient_name: '',
@@ -81,7 +81,7 @@ const DoctorVideoConsultation = () => {
   })
   const [sendingPrescription, setSendingPrescription] = useState(false)
 
-  // Teams Call states & helpers
+
   const [showChat, setShowChat] = useState(true)
   const [isRemoteVideoOn, setIsRemoteVideoOn] = useState(true)
   const [isRemoteMicOn, setIsRemoteMicOn] = useState(true)
@@ -137,17 +137,17 @@ const DoctorVideoConsultation = () => {
       setCurrentUser(user)
       await loadAppointments(user.id)
 
-      // Restore active call on page refresh
+
       const savedAppointment = sessionStorage.getItem("active_appointment")
       const savedRoom = sessionStorage.getItem("active_room")
       if (savedAppointment && savedRoom) {
         try {
           const appointment = JSON.parse(savedAppointment)
           const room = JSON.parse(savedRoom)
-          
+
           setSelectedAppointment(appointment)
           setCurrentRoom(room)
-          
+
           addChatMessage("System", "Reconnecting to active conversation...")
           await startLocalVideo(user)
           initializeWebSocket(room.room_id, user.id)
@@ -509,7 +509,7 @@ const DoctorVideoConsultation = () => {
   }
 
   const initializeWebSocket = async (roomId, userId) => {
-    // Derive E2E key for this room (same derivation as patient)
+
     if (isE2ESupported()) {
       try {
         e2eKeyRef.current = await deriveRoomKey(roomId)
@@ -528,8 +528,8 @@ const DoctorVideoConsultation = () => {
     websocketRef.current.onopen = () => {
       setIsConnected(true)
       addChatMessage("System", "🔒 Connected – waiting for patient to join...")
-      // Doctor does NOT auto-create an offer on open.
-      // Offer is created once patient's user_connected event arrives.
+
+
     }
 
     websocketRef.current.onmessage = async (event) => {
@@ -556,14 +556,14 @@ const DoctorVideoConsultation = () => {
     const myId = currentUserRef.current?.id || currentUser?.id
     switch (data.type) {
       case "user_connected": {
-        // Ignore own echo
+
         if (data.user_id === myId) break
         addChatMessage("System", `${data.user_name || 'Patient'} joined the room 🔒`)
         setIsRemoteVideoOn(true)
         setIsRemoteMicOn(true)
-        // Store patient's ID for ICE routing
+
         remoteUserIdRef.current = data.user_id
-        // Doctor creates the offer now that patient is present
+
         if (localStreamRef.current) {
           await createOffer(data.user_id)
         }
@@ -1055,7 +1055,7 @@ const DoctorVideoConsultation = () => {
     let content = message
     let iv = null
 
-    // E2E encrypt if key is available
+
     if (e2eKeyRef.current) {
       try {
         const encrypted = await encryptMessage(message, e2eKeyRef.current)
@@ -1077,7 +1077,7 @@ const DoctorVideoConsultation = () => {
       })
     )
 
-    addChatMessage("You", message)  // display plaintext locally
+    addChatMessage("You", message)
     setChatInput("")
   }
 
@@ -1123,12 +1123,12 @@ const DoctorVideoConsultation = () => {
 
   return (
     <div className={`${
-      currentRoom 
-        ? 'fixed inset-0 overflow-hidden z-50 bg-slate-900' 
+      currentRoom
+        ? 'fixed inset-0 overflow-hidden z-50 bg-slate-900'
         : 'min-h-screen bg-gradient-to-b from-green-50/20 via-slate-50 to-white'
     } text-slate-850 flex flex-col justify-between`}>
 
-      {/* Dynamic Header */}
+      {}
       <header className={`border-b sticky top-0 z-50 transition-colors flex-shrink-0 ${currentRoom ? 'bg-slate-900/95 border-white/10 backdrop-blur-md' : 'bg-white/80 border-slate-200/80 backdrop-blur-md'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/doctor-dashboard')}>
@@ -1157,12 +1157,12 @@ const DoctorVideoConsultation = () => {
         </div>
       </header>
 
-      {/* Main Area */}
+      {}
       <main className={`flex-1 w-full flex flex-col min-h-0 ${currentRoom ? 'p-0 overflow-hidden h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)]' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
 
 
         {!currentRoom ? (
-          /* Lobby State (Queue Dashboard) */
+
           <div className="space-y-8 flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
@@ -1235,16 +1235,16 @@ const DoctorVideoConsultation = () => {
             )}
           </div>
         ) : (
-          /* Active Call State */
+
           <div className="flex h-full max-h-full min-h-0 overflow-hidden bg-slate-900">
 
-            {/* Video area – fills remaining space */}
+            {}
             <div className="flex-1 relative overflow-hidden" style={{minWidth:0}}>
 
-              {/* Media Stream elements */}
+              {}
               <div className="absolute inset-0 bg-slate-900 flex items-center justify-center overflow-hidden">
 
-                {/* Camera error overlay */}
+                {}
                 {cameraError && (
                   <div className="absolute inset-0 bg-slate-900/95 z-40 flex flex-col items-center justify-center p-6 text-center">
                     <FaExclamationTriangle className="text-amber-400 w-12 h-12 mb-4 animate-bounce" />
@@ -1269,7 +1269,7 @@ const DoctorVideoConsultation = () => {
                   </div>
                 )}
 
-                {/* Retrying overlay */}
+                {}
                 {isRetrying && !cameraError && (
                   <div className="absolute inset-0 bg-slate-900/90 z-30 flex flex-col items-center justify-center p-6 text-center">
                     <div className="w-10 h-10 border-2 border-white/20 border-t-green-400 rounded-full animate-spin mb-4"></div>
@@ -1277,7 +1277,7 @@ const DoctorVideoConsultation = () => {
                   </div>
                 )}
 
-                {/* Empty feed placeholder */}
+                {}
                 {!localStream && !cameraError && !isRetrying ? (
                   <div className="text-center space-y-3 z-10">
                     <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 text-xl mx-auto animate-pulse">
@@ -1289,10 +1289,10 @@ const DoctorVideoConsultation = () => {
                     </div>
                   </div>
                 ) : (
-                  /* Video tiles wrapper */
+
                   <div className="relative w-full h-full bg-slate-900 flex items-center justify-center">
 
-                    {/* Remote Patient Video */}
+                    {}
                     <div className="w-full h-full relative bg-slate-900 flex items-center justify-center">
                       {remoteStream && isRemoteVideoOn ? (
                         <video
@@ -1322,7 +1322,7 @@ const DoctorVideoConsultation = () => {
                       )}
                     </div>
 
-                    {/* Local Practitioner Video (PIP) – always bottom-right */}
+                    {}
                     <div className="absolute bottom-24 right-4 w-36 h-24 sm:w-48 sm:h-32 rounded-2xl overflow-hidden border-2 border-white/40 shadow-2xl z-20 group hover:border-green-400 transition-colors bg-slate-800">
                       {localStream && isVideoOn ? (
                         <video
@@ -1349,7 +1349,7 @@ const DoctorVideoConsultation = () => {
 
               </div>
 
-              {/* Floating Teams Control Pill */}
+              {}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/90 border border-white/10 rounded-full px-3 py-2 sm:px-6 sm:py-3 flex items-center gap-2 sm:gap-3 z-30 shadow-2xl backdrop-blur-md max-w-[96vw]">
                 <button
                   onClick={toggleMic}
@@ -1415,11 +1415,11 @@ const DoctorVideoConsultation = () => {
 
             </div>
 
-            {/* Chat Sidebar – simple flex child, always in flow */}
+            {}
             {showChat && (
               <div className="w-80 flex-shrink-0 border-l border-white/10 bg-slate-900 flex flex-col overflow-hidden h-full max-h-full min-h-0">
 
-                {/* Active Consultation Info */}
+                {}
                 <div className="p-4 border-b border-white/10 flex-shrink-0">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-[10px] font-black text-green-400 uppercase tracking-widest">Active Consultation</h3>
@@ -1431,7 +1431,7 @@ const DoctorVideoConsultation = () => {
                   </div>
                 </div>
 
-                {/* Interactive Consultation Chat */}
+                {}
                 <div className="flex-1 flex flex-col overflow-hidden p-4 min-h-0">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-[10px] font-black text-green-400 uppercase tracking-widest">Consultation Chat</h3>
@@ -1462,7 +1462,7 @@ const DoctorVideoConsultation = () => {
                     ))}
                   </div>
 
-                  {/* Send Input */}
+                  {}
                   <div className="mt-3 flex gap-2">
                     <input
                       type="text"
@@ -1488,11 +1488,11 @@ const DoctorVideoConsultation = () => {
               </div>
             )}
 
-            {/* AI Co-Pilot Sidebar */}
+            {}
             {showCopilot && (
               <div className="w-80 flex-shrink-0 border-l border-white/10 bg-slate-950 flex flex-col overflow-hidden h-full max-h-full min-h-0 text-white">
-                
-                {/* Header */}
+
+                {}
                 <div className="p-4 border-b border-white/10 flex-shrink-0">
                   <div className="flex justify-between items-center mb-1">
                     <div className="flex items-center gap-2">
@@ -1509,7 +1509,7 @@ const DoctorVideoConsultation = () => {
                   </p>
                 </div>
 
-                {/* Content */}
+                {}
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 min-h-0">
                   {!copilotData ? (
                     <div className="h-64 flex flex-col items-center justify-center text-center p-4">
@@ -1523,7 +1523,7 @@ const DoctorVideoConsultation = () => {
                     </div>
                   ) : (
                     <>
-                      {/* Live Speech/Translation Bubble */}
+                      {}
                       <div className="space-y-1.5">
                         <span className="text-[9px] font-black text-green-400 uppercase tracking-wider block">Live Translation</span>
                         <div className="p-3 bg-white/5 border border-white/10 rounded-2xl text-xs leading-relaxed italic text-slate-300">
@@ -1531,7 +1531,7 @@ const DoctorVideoConsultation = () => {
                         </div>
                       </div>
 
-                      {/* Vital Indicators: Severity & Duration */}
+                      {}
                       <div className="grid grid-cols-2 gap-2">
                         <div className="p-2.5 bg-white/5 border border-white/10 rounded-xl">
                           <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider block">Severity</span>
@@ -1550,7 +1550,7 @@ const DoctorVideoConsultation = () => {
                         </div>
                       </div>
 
-                      {/* Red Flags Alert */}
+                      {}
                       {copilotData.suggestions?.red_flags && (
                         <div className="p-3 bg-rose-950/40 border border-rose-500/30 rounded-2xl space-y-1">
                           <span className="text-[9px] font-black text-rose-400 uppercase tracking-wider flex items-center gap-1">
@@ -1562,7 +1562,7 @@ const DoctorVideoConsultation = () => {
                         </div>
                       )}
 
-                      {/* Symptoms Extracted */}
+                      {}
                       <div className="space-y-1.5">
                         <span className="text-[9px] font-black text-green-400 uppercase tracking-wider block">Extracted Symptoms</span>
                         <div className="flex flex-wrap gap-1">
@@ -1578,7 +1578,7 @@ const DoctorVideoConsultation = () => {
                         </div>
                       </div>
 
-                      {/* Suggested Questions */}
+                      {}
                       <div className="space-y-1.5">
                         <span className="text-[9px] font-black text-green-400 uppercase tracking-wider block">Recommended Questions</span>
                         <ul className="space-y-2">
@@ -1591,7 +1591,7 @@ const DoctorVideoConsultation = () => {
                         </ul>
                       </div>
 
-                      {/* Possible Conditions */}
+                      {}
                       <div className="space-y-1.5">
                         <span className="text-[9px] font-black text-green-400 uppercase tracking-wider block">Differential Diagnoses</span>
                         <ul className="space-y-1.5">
@@ -1616,15 +1616,15 @@ const DoctorVideoConsultation = () => {
 
       </main>
 
-      {/* Footer component (Lobby State only) */}
+      {}
       {!currentRoom && <Footer />}
 
-      {/* ── CREATE PRESCRIPTION MODAL ── */}
+      {}
       {showPrescriptionModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={() => !sendingPrescription && setShowPrescriptionModal(false)}>
           <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-slate-800" onClick={(e) => e.stopPropagation()}>
 
-            {/* Modal Header */}
+            {}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-gradient-to-r from-green-800 to-green-700 text-white">
               <h2 className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
                 <FaFileMedical className="text-green-450" /> Create Digital Prescription
@@ -1638,10 +1638,10 @@ const DoctorVideoConsultation = () => {
               </button>
             </div>
 
-            {/* Modal Body */}
+            {}
             <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
 
-              {/* Patient info details */}
+              {}
               <div className="space-y-3">
                 <h3 className="text-[10px] font-black text-green-600 uppercase tracking-widest pb-1 border-b border-slate-100">1. Demographics</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1680,7 +1680,7 @@ const DoctorVideoConsultation = () => {
                 </div>
               </div>
 
-              {/* Diagnosis */}
+              {}
               <div className="space-y-3">
                 <h3 className="text-[10px] font-black text-green-600 uppercase tracking-widest pb-1 border-b border-slate-100">2. Diagnosis</h3>
                 <div className="space-y-1">
@@ -1696,7 +1696,7 @@ const DoctorVideoConsultation = () => {
                 </div>
               </div>
 
-              {/* Medications details */}
+              {}
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-1 border-b border-slate-100">
                   <h3 className="text-[10px] font-black text-green-600 uppercase tracking-widest">3. Medications</h3>
@@ -1787,7 +1787,7 @@ const DoctorVideoConsultation = () => {
                 </div>
               </div>
 
-              {/* Remarks/Follow up */}
+              {}
               <div className="space-y-3">
                 <h3 className="text-[10px] font-black text-green-600 uppercase tracking-widest pb-1 border-b border-slate-100">4. Additional Notes</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1816,7 +1816,7 @@ const DoctorVideoConsultation = () => {
 
             </div>
 
-            {/* Modal Actions */}
+            {}
             <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 flex-shrink-0">
               <button
                 onClick={() => setShowPrescriptionModal(false)}

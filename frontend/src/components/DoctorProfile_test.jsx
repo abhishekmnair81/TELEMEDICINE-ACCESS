@@ -366,7 +366,7 @@ const DoctorProfile = () => {
                         type="url"
                         value={profilePictureInput}
                         onChange={e => setProfilePictureInput(e.target.value)}
-                        placeholder="https://example.com/photo.jpg"
+                        placeholder="https:
                         className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-green-500 focus:outline-none"
                       />
                       <div className="flex gap-2">
@@ -379,7 +379,7 @@ const DoctorProfile = () => {
               )}
             </div>
 
-            {}
+            {/* Profile Info Text */}
             <div className="flex-1 text-center md:text-left space-y-2">
               {!isEditing ? (
                 <>
@@ -426,7 +426,7 @@ const DoctorProfile = () => {
               )}
             </div>
 
-            {}
+            {/* Profile Action button */}
             <div className="md:self-start mt-4 md:mt-0">
               {!isEditing ? (
                 <button
@@ -456,7 +456,7 @@ const DoctorProfile = () => {
             </div>
           </div>
 
-          {}
+          {/* Contact Details Grid - Simplified list layout, no gray box cards */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Contact Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -481,12 +481,12 @@ const DoctorProfile = () => {
             </div>
           </div>
 
-          {}
+          {/* Professional Information - Clean grid list layout, no gray box cards */}
           <div className="border-t border-slate-100 pt-6 space-y-4">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Professional Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-              {}
+              {/* Specialization */}
               <div className="flex items-start gap-3.5 py-1">
                 <div className="w-9 h-9 rounded-xl bg-green-50 text-green-650 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <FaBriefcase size={14} />
@@ -510,7 +510,7 @@ const DoctorProfile = () => {
                 </div>
               </div>
 
-              {}
+              {/* Qualification */}
               <div className="flex items-start gap-3.5 py-1">
                 <div className="w-9 h-9 rounded-xl bg-green-50 text-green-650 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <FaGraduationCap size={14} />
@@ -532,7 +532,7 @@ const DoctorProfile = () => {
                 </div>
               </div>
 
-              {}
+              {/* License Number */}
               <div className="flex items-start gap-3.5 py-1">
                 <div className="w-9 h-9 rounded-xl bg-green-50 text-green-650 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <FaCertificate size={14} />
@@ -554,7 +554,7 @@ const DoctorProfile = () => {
                 </div>
               </div>
 
-              {}
+              {/* Experience */}
               <div className="flex items-start gap-3.5 py-1">
                 <div className="w-9 h-9 rounded-xl bg-green-50 text-green-650 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <FaClock size={14} />
@@ -576,7 +576,7 @@ const DoctorProfile = () => {
                 </div>
               </div>
 
-              {}
+              {/* Consultation Fee */}
               <div className="flex items-start gap-3.5 py-1">
                 <div className="w-9 h-9 rounded-xl bg-green-50 text-green-650 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <FaAward size={14} />
@@ -601,7 +601,7 @@ const DoctorProfile = () => {
             </div>
           </div>
 
-          {}
+          {/* About Me Bio - Clean plain description, no gray cards */}
           <div className="border-t border-slate-100 pt-6 space-y-3">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">About Me</h3>
             <div className="py-1">
@@ -622,11 +622,11 @@ const DoctorProfile = () => {
             </div>
           </div>
 
-          {}
+          {/* Availability Schedule */}
           <div className="border-t border-slate-100 pt-6 space-y-6">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Availability Schedule</h3>
 
-            {}
+            {/* Days Grid */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 block">Available Days</label>
               <div className="flex flex-wrap gap-2">
@@ -650,7 +650,7 @@ const DoctorProfile = () => {
               </div>
             </div>
 
-            {}
+            {/* Time Slots Grid */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 block">Available Time Slots</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -675,7 +675,7 @@ const DoctorProfile = () => {
             </div>
           </div>
 
-          {}
+          {/* Performance Statistics - Simple inline stats grid, no box card containers */}
           {doctorProfile && (
             <div className="space-y-4 pt-6 border-t border-slate-100">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Performance Statistics</h3>
@@ -714,7 +714,7 @@ const DoctorProfile = () => {
         </div>
       </div>
 
-      {}
+      {/* Lightbox Modal */}
       {showImageModal && profilePictureUrl && (
         <div
           className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in-modal cursor-pointer"

@@ -335,7 +335,7 @@ const ShoppingCart = () => {
 
     if (!imgSrc || hasError) {
       return (
-        <div 
+        <div
           className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-2xl flex items-center justify-center text-slate-350 cursor-pointer hover:border-green-600 border border-slate-100 transition-colors"
           onClick={() => navigate(`/pharmacy/product/${item.medicine}`)}
         >
@@ -345,7 +345,7 @@ const ShoppingCart = () => {
     }
 
     return (
-      <div 
+      <div
         className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-2xl flex items-center justify-center overflow-hidden cursor-pointer hover:border-green-600 border border-slate-100 transition-colors"
         onClick={() => navigate(`/pharmacy/product/${item.medicine}`)}
       >
@@ -362,7 +362,7 @@ const ShoppingCart = () => {
     );
   };
 
-  // ── Loading state ────────────────────────────────────────────
+
   if (loading && cart.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 flex items-center justify-center py-20">
@@ -374,7 +374,7 @@ const ShoppingCart = () => {
     );
   }
 
-  // ── Empty cart state ─────────────────────────────────────────
+
   if (cart.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 flex items-center justify-center px-4 py-20">
@@ -388,8 +388,8 @@ const ShoppingCart = () => {
               Looks like you haven't added any products yet. Browse our selection of medicines and healthcare products.
             </p>
           </div>
-          <button 
-            onClick={() => navigate('/pharmacy/browse')} 
+          <button
+            onClick={() => navigate('/pharmacy/browse')}
             className="w-full py-3 bg-green-605 hover:bg-green-700 text-white font-black text-xs uppercase tracking-wider rounded-xl border-none cursor-pointer transition-colors"
           >
             Continue Shopping
@@ -404,11 +404,11 @@ const ShoppingCart = () => {
     return (
       <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 py-10 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4">
-          
+
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm">
             <div className="flex items-center gap-3">
-              <button 
-                onClick={() => setShowCheckout(false)} 
+              <button
+                onClick={() => setShowCheckout(false)}
                 className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-805 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center border-none cursor-pointer transition-colors"
                 title="Back to Cart"
               >
@@ -424,95 +424,95 @@ const ShoppingCart = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Forms section */}
             <div className="lg:col-span-2 space-y-6">
-              
+
               {/* Delivery Info */}
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-5">
                 <h2 className="text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-50 dark:border-slate-800/80 pb-3">
                   <FaBox className="text-green-600" /> Delivery Information
                 </h2>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5 sm:col-span-2">
                     <label className="text-[11px] font-black text-slate-500 dark:text-slate-450 uppercase tracking-wider">Full Name *</label>
-                    <input 
-                      type="text" 
-                      name="full_name" 
+                    <input
+                      type="text"
+                      name="full_name"
                       value={checkoutForm.full_name}
-                      onChange={handleCheckoutFormChange} 
+                      onChange={handleCheckoutFormChange}
                       placeholder="Enter your full name"
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-805 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-green-600 transition-all dark:text-white"
                     />
                   </div>
-                  
+
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-black text-slate-500 dark:text-slate-450 uppercase tracking-wider">Phone Number *</label>
-                    <input 
-                      type="tel" 
-                      name="phone" 
+                    <input
+                      type="tel"
+                      name="phone"
                       value={checkoutForm.phone}
-                      onChange={handleCheckoutFormChange} 
-                      placeholder="10-digit mobile number" 
+                      onChange={handleCheckoutFormChange}
+                      placeholder="10-digit mobile number"
                       maxLength="10"
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-805 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-green-600 transition-all dark:text-white"
                     />
                   </div>
-                  
+
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-black text-slate-500 dark:text-slate-450 uppercase tracking-wider">Email</label>
-                    <input 
-                      type="email" 
-                      name="email" 
+                    <input
+                      type="email"
+                      name="email"
                       value={checkoutForm.email}
-                      onChange={handleCheckoutFormChange} 
+                      onChange={handleCheckoutFormChange}
                       placeholder="your@email.com"
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-805 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-green-600 transition-all dark:text-white"
                     />
                   </div>
-                  
+
                   <div className="space-y-1.5 sm:col-span-2">
                     <label className="text-[11px] font-black text-slate-500 dark:text-slate-450 uppercase tracking-wider">Delivery Address *</label>
-                    <textarea 
-                      name="address" 
+                    <textarea
+                      name="address"
                       value={checkoutForm.address}
                       onChange={handleCheckoutFormChange}
-                      placeholder="House/Flat No., Building Name, Street" 
+                      placeholder="House/Flat No., Building Name, Street"
                       rows="3"
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-805 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-green-600 transition-all dark:text-white resize-none"
                     />
                   </div>
-                  
+
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-black text-slate-500 dark:text-slate-450 uppercase tracking-wider">City *</label>
-                    <input 
-                      type="text" 
-                      name="city" 
+                    <input
+                      type="text"
+                      name="city"
                       value={checkoutForm.city}
-                      onChange={handleCheckoutFormChange} 
+                      onChange={handleCheckoutFormChange}
                       placeholder="City"
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-805 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-green-600 transition-all dark:text-white"
                     />
                   </div>
-                  
+
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-black text-slate-500 dark:text-slate-450 uppercase tracking-wider">State *</label>
-                    <input 
-                      type="text" 
-                      name="state" 
+                    <input
+                      type="text"
+                      name="state"
                       value={checkoutForm.state}
-                      onChange={handleCheckoutFormChange} 
+                      onChange={handleCheckoutFormChange}
                       placeholder="State"
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-805 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-green-600 transition-all dark:text-white"
                     />
                   </div>
-                  
+
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-black text-slate-500 dark:text-slate-450 uppercase tracking-wider">Pincode *</label>
-                    <input 
-                      type="text" 
-                      name="pincode" 
+                    <input
+                      type="text"
+                      name="pincode"
                       value={checkoutForm.pincode}
-                      onChange={handleCheckoutFormChange} 
-                      placeholder="6-digit pincode" 
+                      onChange={handleCheckoutFormChange}
+                      placeholder="6-digit pincode"
                       maxLength="6"
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-805 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-green-600 transition-all dark:text-white"
                     />
@@ -526,21 +526,21 @@ const ShoppingCart = () => {
                   <h2 className="text-sm font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-2 border-b border-rose-50 dark:border-rose-950/25 pb-3">
                     <FaExclamationTriangle /> Prescription Required
                   </h2>
-                  
+
                   <div className="space-y-3">
                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed">
                       One or more medicines in your cart require a valid doctor's prescription. Please upload a clear image/document.
                     </p>
-                    
-                    <input 
-                      type="file" 
+
+                    <input
+                      type="file"
                       accept="image/*,.pdf"
-                      onChange={handlePrescriptionUpload} 
-                      id="prescription-upload" 
+                      onChange={handlePrescriptionUpload}
+                      id="prescription-upload"
                       className="hidden"
                     />
-                    <label 
-                      htmlFor="prescription-upload" 
+                    <label
+                      htmlFor="prescription-upload"
                       className="flex flex-col items-center justify-center gap-2 py-8 px-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl cursor-pointer hover:border-green-600 hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-all text-center"
                     >
                       {checkoutForm.prescription_file ? (
@@ -560,24 +560,24 @@ const ShoppingCart = () => {
                 </div>
               )}
 
-              {/* Payment Methods */}
+              {}
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-5">
                 <h2 className="text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-50 dark:border-slate-800/80 pb-3">
                   <FaCreditCard className="text-green-605" /> Payment Method
                 </h2>
-                
+
                 <div className="space-y-3">
                   <label className={`flex items-start gap-4 p-4 border rounded-2xl cursor-pointer transition-all ${
-                    checkoutForm.payment_method === 'cash_on_delivery' 
-                      ? 'border-green-600 bg-green-50/5 dark:bg-green-950/5' 
+                    checkoutForm.payment_method === 'cash_on_delivery'
+                      ? 'border-green-600 bg-green-50/5 dark:bg-green-950/5'
                       : 'border-slate-150 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-900/50'
                   }`}>
-                    <input 
-                      type="radio" 
-                      name="payment_method" 
+                    <input
+                      type="radio"
+                      name="payment_method"
                       value="cash_on_delivery"
                       checked={checkoutForm.payment_method === 'cash_on_delivery'}
-                      onChange={handleCheckoutFormChange} 
+                      onChange={handleCheckoutFormChange}
                       className="mt-1 cursor-pointer accent-green-600"
                     />
                     <div className="flex gap-3">
@@ -592,16 +592,16 @@ const ShoppingCart = () => {
                   </label>
 
                   <label className={`flex items-start gap-4 p-4 border rounded-2xl cursor-pointer transition-all ${
-                    checkoutForm.payment_method === 'online' 
-                      ? 'border-green-600 bg-green-50/5 dark:bg-green-950/5' 
+                    checkoutForm.payment_method === 'online'
+                      ? 'border-green-600 bg-green-50/5 dark:bg-green-950/5'
                       : 'border-slate-150 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-900/50'
                   }`}>
-                    <input 
-                      type="radio" 
-                      name="payment_method" 
+                    <input
+                      type="radio"
+                      name="payment_method"
                       value="online"
                       checked={checkoutForm.payment_method === 'online'}
-                      onChange={handleCheckoutFormChange} 
+                      onChange={handleCheckoutFormChange}
                       className="mt-1 cursor-pointer accent-green-605"
                     />
                     <div className="flex gap-3">
@@ -618,11 +618,11 @@ const ShoppingCart = () => {
               </div>
             </div>
 
-            {/* Sidebar calculations */}
+            {}
             <div className="space-y-6">
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm sticky top-24 space-y-6">
                 <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider border-b border-slate-50 dark:border-slate-800/80 pb-3">Order Summary</h3>
-                
+
                 <div className="max-h-60 overflow-y-auto divide-y divide-slate-50 dark:divide-slate-800/60 pr-2 nms-stores-scrollbar">
                   {cart.map(item => {
                     const medicine = item.medicine_details || {};
@@ -660,15 +660,15 @@ const ShoppingCart = () => {
                       )}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center text-sm font-black text-slate-850 dark:text-white border-t border-slate-50 dark:border-slate-800 pt-3 mt-1">
                     <span>Total</span>
                     <span className="text-base">₹{calculateTotal().toFixed(2)}</span>
                   </div>
                 </div>
 
-                <button 
-                  onClick={handlePlaceOrder} 
+                <button
+                  onClick={handlePlaceOrder}
                   disabled={submitting}
                   className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md border-none cursor-pointer transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
                 >
@@ -688,11 +688,11 @@ const ShoppingCart = () => {
     );
   }
 
-  // ── Main cart view ───────────────────────────────────────────
+
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 py-10 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4">
-        
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-green-600 flex items-center justify-center text-white text-xl shadow-md">
@@ -703,8 +703,8 @@ const ShoppingCart = () => {
               <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5">Manage your selected items ({cart.length})</p>
             </div>
           </div>
-          <button 
-            onClick={clearCart} 
+          <button
+            onClick={clearCart}
             disabled={loading}
             className="self-end sm:self-auto px-4 py-2.5 bg-rose-50 hover:bg-rose-100/60 text-rose-600 rounded-xl text-xs font-black uppercase tracking-wider transition-colors border-none cursor-pointer flex items-center gap-1.5"
           >
@@ -713,7 +713,7 @@ const ShoppingCart = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Cart Items List */}
+          {}
           <div className="lg:col-span-2 space-y-4">
             {cart.map(item => {
               const medicine = item.medicine_details || {};
@@ -725,7 +725,7 @@ const ShoppingCart = () => {
                   <div className="flex items-center gap-4 flex-1">
                     <CartItemImage item={item} />
                     <div className="space-y-1.5 min-w-0">
-                      <h3 
+                      <h3
                         onClick={() => navigate(`/pharmacy/product/${item.medicine}`)}
                         className="text-xs font-black text-slate-800 dark:text-white truncate cursor-pointer hover:text-green-605 transition-colors uppercase tracking-tight"
                       >
@@ -746,9 +746,9 @@ const ShoppingCart = () => {
                     </div>
                   </div>
 
-                  {/* Quantity Stepper */}
+                  {}
                   <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-805 p-1 rounded-xl self-end sm:self-auto border border-slate-100 dark:border-slate-800">
-                    <button 
+                    <button
                       onClick={() => updateQuantity(item.id, -1)}
                       disabled={item.quantity <= 1 || loading}
                       className="w-8 h-8 rounded-lg bg-white dark:bg-slate-700 text-slate-650 hover:bg-slate-100 dark:hover:bg-slate-600 text-xs font-black flex items-center justify-center border-none cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
@@ -756,7 +756,7 @@ const ShoppingCart = () => {
                       <FaMinus />
                     </button>
                     <span className="text-xs font-black text-slate-800 dark:text-slate-200 min-w-8 text-center">{item.quantity}</span>
-                    <button 
+                    <button
                       onClick={() => updateQuantity(item.id, 1)}
                       disabled={item.quantity >= (medicine.stock_quantity || 100) || loading}
                       className="w-8 h-8 rounded-lg bg-white dark:bg-slate-700 text-slate-650 hover:bg-slate-100 dark:hover:bg-slate-600 text-xs font-black flex items-center justify-center border-none cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
@@ -765,7 +765,7 @@ const ShoppingCart = () => {
                     </button>
                   </div>
 
-                  {/* Item Price */}
+                  {}
                   <div className="flex flex-col items-end min-w-24 self-end sm:self-auto">
                     <span className="text-sm font-black text-slate-900 dark:text-white">₹{(price * item.quantity).toFixed(2)}</span>
                     {mrp > 0 && mrp > price && (
@@ -773,9 +773,9 @@ const ShoppingCart = () => {
                     )}
                   </div>
 
-                  {/* Remove Button */}
-                  <button 
-                    onClick={() => removeItem(item.id)} 
+                  {}
+                  <button
+                    onClick={() => removeItem(item.id)}
                     disabled={loading}
                     className="absolute top-4 right-4 sm:relative sm:top-auto sm:right-auto w-8 h-8 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center border-none cursor-pointer transition-colors"
                     title="Remove Item"
@@ -787,16 +787,16 @@ const ShoppingCart = () => {
             })}
           </div>
 
-          {/* Pricing calculations & coupon */}
+          {}
           <div className="space-y-6">
             <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm sticky top-24 space-y-6">
               <h2 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider border-b border-slate-50 dark:border-slate-800/80 pb-3">Order Summary</h2>
 
-              {/* Coupon Section */}
+              {}
               <div className="space-y-3 pb-5 border-b border-slate-50 dark:border-slate-800/80">
                 <div className="flex gap-2">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="Enter coupon code"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
@@ -804,15 +804,15 @@ const ShoppingCart = () => {
                     className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-805 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-green-600 transition-all dark:text-white uppercase placeholder:normal-case"
                   />
                   {appliedCoupon ? (
-                    <button 
-                      onClick={removeCoupon} 
+                    <button
+                      onClick={removeCoupon}
                       className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100/60 text-rose-600 rounded-xl text-xs font-black uppercase tracking-wider border-none cursor-pointer transition-colors"
                     >
                       Remove
                     </button>
                   ) : (
-                    <button 
-                      onClick={applyCoupon} 
+                    <button
+                      onClick={applyCoupon}
                       className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black uppercase tracking-wider border-none cursor-pointer transition-colors"
                     >
                       Apply
@@ -826,7 +826,7 @@ const ShoppingCart = () => {
                 )}
               </div>
 
-              {/* Price Breakdown */}
+              {}
               <div className="space-y-2 pb-5 border-b border-slate-50 dark:border-slate-800/80">
                 <div className="flex justify-between text-xs font-semibold text-slate-500 dark:text-slate-400">
                   <span>Subtotal ({cart.length} items)</span>
@@ -856,27 +856,27 @@ const ShoppingCart = () => {
                 )}
               </div>
 
-              {/* Total Amount */}
+              {}
               <div className="flex justify-between items-center text-sm font-black text-slate-850 dark:text-white pt-1">
                 <span>Total Amount</span>
                 <span className="text-base">₹{calculateTotal().toFixed(2)}</span>
               </div>
 
-              <button 
+              <button
                 onClick={() => setShowCheckout(true)}
                 className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md border-none cursor-pointer transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
               >
                 Proceed to Checkout <FaArrowRight />
               </button>
 
-              {/* Trust Indicators */}
+              {}
               <div className="space-y-2 pt-2 border-t border-slate-50 dark:border-slate-800 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 <div className="flex items-center gap-2"><FaShieldAlt className="text-green-600 text-xs" /> 100% Authentic Products</div>
                 <div className="flex items-center gap-2"><FaTruck className="text-green-600 text-xs" /> Fast & Secure Delivery</div>
                 <div className="flex items-center gap-2"><FaPercent className="text-green-600 text-xs" /> Best Prices Guaranteed</div>
               </div>
 
-              <button 
+              <button
                 onClick={() => navigate('/pharmacy/browse')}
                 className="w-full py-3 bg-slate-50 hover:bg-slate-100 dark:bg-slate-805 dark:hover:bg-slate-700 text-slate-650 dark:text-slate-400 font-black text-xs uppercase tracking-wider rounded-xl border-none cursor-pointer transition-colors"
               >

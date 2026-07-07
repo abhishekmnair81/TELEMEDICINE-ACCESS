@@ -1,4 +1,4 @@
-/* Custom Keyframe Animations & Animation Helpers */
+
 
 @keyframes fadeInUp {
   from {
@@ -134,7 +134,7 @@
   }
 }
 
-/* ECG sweeping animation active line */
+
 .ecg-pulse-line-active {
   stroke-dasharray: 300;
   stroke-dashoffset: 300;
@@ -205,7 +205,7 @@
 .voice-waveform span:nth-child(4) { animation-delay: 0.1s; height: 14px; }
 .voice-waveform span:nth-child(5) { animation-delay: 0.05s; height: 8px; }
 
-/* Custom webkit scrollbars for chat container */
+
 .chat-messages::-webkit-scrollbar {
   width: 6px;
 }

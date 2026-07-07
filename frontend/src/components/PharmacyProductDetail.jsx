@@ -35,7 +35,7 @@ const getMedicineImage = (product) => {
 const PharmacyProductDetail = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
-  
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,11 +66,11 @@ const PharmacyProductDetail = () => {
       setLoading(true);
       const response = await pharmacyAPI.getMedicineById(productId);
       setProduct(response);
-      
+
       if (response.category) {
         loadRelatedProducts(response.category);
       }
-      
+
       setError(null);
     } catch (err) {
       console.error('[ProductDetail] Error:', err);
@@ -120,12 +120,12 @@ const PharmacyProductDetail = () => {
     try {
       setAddingToCart(true);
       await cartAPI.addToCart(product.id, quantity);
-      
+
       setShowAddedToCart(true);
       setTimeout(() => setShowAddedToCart(false), 3000);
-      
+
       await loadCartCount();
-      
+
       console.log(`[ProductDetail] Added ${quantity}x ${product.name} to cart`);
     } catch (err) {
       console.error('[ProductDetail] Add to cart error:', err);
@@ -139,7 +139,7 @@ const PharmacyProductDetail = () => {
     if (!product) return;
 
     const isInWishlist = wishlist.some(item => item.id === product.id);
-    
+
     let updatedWishlist;
     if (isInWishlist) {
       updatedWishlist = wishlist.filter(item => item.id !== product.id);
@@ -166,7 +166,7 @@ const PharmacyProductDetail = () => {
 
   const navigateImage = (direction) => {
     if (!product || !product.images || product.images.length === 0) return;
-    
+
     if (direction === 'next') {
       setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
     } else {
@@ -203,8 +203,8 @@ const PharmacyProductDetail = () => {
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-5 text-center px-4">
         <FaExclamationTriangle className="text-red-500" size={48} />
         <h2 className="text-2xl font-bold text-gray-900">{error || 'Product not found'}</h2>
-        <button 
-          onClick={() => navigate('/pharmacy-home')} 
+        <button
+          onClick={() => navigate('/pharmacy-home')}
           className="px-7 py-3 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white rounded-lg text-sm font-semibold transition-colors duration-200 cursor-pointer shadow-md shadow-green-500/10 border-none"
         >
           Back to Shop
@@ -215,24 +215,24 @@ const PharmacyProductDetail = () => {
 
   const discount = calculateDiscount();
   const images = product.images || [];
-  const currentImageRaw = images.length > 0 
-    ? (images[currentImageIndex]?.image_url || images[currentImageIndex]?.image) 
+  const currentImageRaw = images.length > 0
+    ? (images[currentImageIndex]?.image_url || images[currentImageIndex]?.image)
     : (product.primary_image || product.image || null);
   const currentImage = resolveImageUrl(currentImageRaw);
 
   return (
     <div className="min-h-screen bg-white py-5 pb-10">
-      {/* Breadcrumb */}
+      {}
       <div className="bg-white py-3 border-b border-gray-200 mb-5">
         <div className="max-w-[1200px] mx-auto px-4 flex items-center flex-wrap gap-y-1">
-          <span 
+          <span
             onClick={() => navigate('/')}
             className="text-gray-500 text-xs md:text-sm cursor-pointer hover:text-green-500 transition-colors"
           >
             Home
           </span>
           <span className="mx-2 text-gray-400 cursor-default">/</span>
-          <span 
+          <span
             onClick={() => navigate(`/pharmacy?category=${product.category}`)}
             className="text-gray-500 text-xs md:text-sm cursor-pointer hover:text-green-500 transition-colors"
           >
@@ -245,7 +245,7 @@ const PharmacyProductDetail = () => {
         </div>
       </div>
 
-      {/* Success Toast */}
+      {}
       {showAddedToCart && (
         <div className="fixed top-20 right-5 bg-emerald-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-2.5 z-[10000] animate-[slideIn_0.3s_ease] text-sm font-semibold">
           <FaCheck /> Added to cart successfully!
@@ -254,7 +254,7 @@ const PharmacyProductDetail = () => {
 
       <div className="max-w-[1200px] mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-[440px_1fr] gap-8 mb-10 bg-white">
-          {/* Image Gallery Section */}
+          {}
           <div className="lg:sticky lg:top-20 h-fit">
             <div className="bg-white">
               <div className="relative w-full aspect-square bg-white border border-gray-200 rounded-xl overflow-hidden mb-4 flex items-center justify-center shadow-sm">
@@ -265,14 +265,14 @@ const PharmacyProductDetail = () => {
                     <FaBox size={80} />
                   </div>
                 )}
-                
+
                 {discount > 0 && (
                   <div className="absolute top-3 left-3 bg-red-600 text-white px-2.5 py-1 rounded font-bold text-xs z-10">
                     {discount}% OFF
                   </div>
                 )}
 
-                <button 
+                <button
                   className="absolute top-3 right-3 w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center cursor-pointer transition-colors z-10 text-gray-400 hover:border-green-500 hover:text-green-500 shadow-sm"
                   onClick={handleAddToWishlist}
                 >
@@ -296,10 +296,10 @@ const PharmacyProductDetail = () => {
             </div>
           </div>
 
-          {/* Product Info Section */}
+          {}
           <div className="flex flex-col gap-4 py-2">
             <h1 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight">{product.name}</h1>
-            
+
             {product.generic_name && (
               <p className="text-xs md:text-sm text-gray-500 italic mt-0.5">{product.generic_name}</p>
             )}
@@ -310,7 +310,7 @@ const PharmacyProductDetail = () => {
               </p>
             )}
 
-            {/* Rating */}
+            {}
             <div className="flex items-center gap-3">
               <div className="flex gap-1 text-amber-400 text-sm md:text-base">
                 <FaStar />
@@ -322,7 +322,7 @@ const PharmacyProductDetail = () => {
               <span className="text-xs md:text-sm text-gray-500">4.5 | 120 ratings</span>
             </div>
 
-            {/* Price Section */}
+            {}
             <div className="py-4 border-y border-gray-200 flex flex-col gap-1">
               <div className="flex items-baseline gap-3">
                 <div className="text-2xl md:text-3xl font-extrabold text-gray-900">₹{product.price}</div>
@@ -336,7 +336,7 @@ const PharmacyProductDetail = () => {
               <p className="text-[10px] md:text-xs text-gray-500">Inclusive of all taxes</p>
             </div>
 
-            {/* Stock Status */}
+            {}
             {product.stock_quantity > 0 ? (
               <div className="inline-flex items-center gap-2 text-emerald-500 text-xs md:text-sm font-semibold">
                 <FaCheck /> In Stock
@@ -347,7 +347,7 @@ const PharmacyProductDetail = () => {
               </div>
             )}
 
-            {/* Prescription Warning */}
+            {}
             {product.requires_prescription && (
               <div className="flex items-center gap-2.5 bg-amber-50 text-amber-800 p-3.5 rounded-lg text-xs md:text-sm font-medium border-l-4 border-amber-500 shadow-sm">
                 <FaExclamationTriangle className="text-amber-500 flex-shrink-0" />
@@ -355,7 +355,7 @@ const PharmacyProductDetail = () => {
               </div>
             )}
 
-            {/* Key Information */}
+            {}
             <div className="flex flex-col gap-2 p-4 bg-gray-50 rounded-lg">
               {product.form && (
                 <div className="flex gap-3 text-xs md:text-sm">
@@ -377,13 +377,13 @@ const PharmacyProductDetail = () => {
               )}
             </div>
 
-            {/* Quantity & Add to Cart */}
+            {}
             {product.stock_quantity > 0 && (
               <div className="flex flex-col gap-4 mt-2">
                 <div className="flex items-center gap-4">
                   <label className="text-sm md:text-base font-semibold text-gray-900">Quantity:</label>
                   <div className="flex items-center gap-3 border border-gray-200 rounded-lg p-1.5 bg-white shadow-sm">
-                    <button 
+                    <button
                       onClick={() => handleQuantityChange(-1)}
                       disabled={quantity <= 1}
                       className="w-7 h-7 bg-green-500 hover:bg-green-600 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded flex items-center justify-center cursor-pointer transition-colors text-xs border-none"
@@ -391,7 +391,7 @@ const PharmacyProductDetail = () => {
                       <FaMinus />
                     </button>
                     <span className="text-sm md:text-base font-semibold text-gray-900 min-w-[24px] text-center">{quantity}</span>
-                    <button 
+                    <button
                       onClick={() => handleQuantityChange(1)}
                       disabled={quantity >= product.stock_quantity}
                       className="w-7 h-7 bg-green-500 hover:bg-green-600 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded flex items-center justify-center cursor-pointer transition-colors text-xs border-none"
@@ -401,8 +401,8 @@ const PharmacyProductDetail = () => {
                   </div>
                 </div>
 
-                <button 
-                  className="w-full py-3.5 px-7 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white rounded-lg text-sm md:text-base font-bold flex items-center justify-center gap-2.5 cursor-pointer transition-all uppercase tracking-wider shadow-md shadow-green-500/20 active:translate-y-[1px] disabled:opacity-50 disabled:cursor-not-allowed border-none mt-2" 
+                <button
+                  className="w-full py-3.5 px-7 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white rounded-lg text-sm md:text-base font-bold flex items-center justify-center gap-2.5 cursor-pointer transition-all uppercase tracking-wider shadow-md shadow-green-500/20 active:translate-y-[1px] disabled:opacity-50 disabled:cursor-not-allowed border-none mt-2"
                   onClick={handleAddToCart}
                   disabled={addingToCart}
                 >
@@ -418,8 +418,8 @@ const PharmacyProductDetail = () => {
                 </button>
 
                 {cartCount > 0 && (
-                  <button 
-                    className="w-full py-3.5 px-7 bg-white hover:bg-green-50 border-2 border-green-500 text-green-500 rounded-lg text-xs md:text-sm font-bold flex items-center justify-center gap-2.5 cursor-pointer transition-all uppercase tracking-wider mt-1 active:translate-y-[1px] shadow-sm shadow-green-500/5" 
+                  <button
+                    className="w-full py-3.5 px-7 bg-white hover:bg-green-50 border-2 border-green-500 text-green-500 rounded-lg text-xs md:text-sm font-bold flex items-center justify-center gap-2.5 cursor-pointer transition-all uppercase tracking-wider mt-1 active:translate-y-[1px] shadow-sm shadow-green-500/5"
                     onClick={() => navigate('/cart')}
                   >
                     <FaShoppingCart />
@@ -430,7 +430,7 @@ const PharmacyProductDetail = () => {
               </div>
             )}
 
-            {/* Delivery Benefits */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-5 border-t border-gray-200 mt-4">
               <div className="flex items-start gap-3">
                 <FaTruck className="text-lg md:text-xl text-green-500 flex-shrink-0 mt-0.5" />
@@ -457,12 +457,12 @@ const PharmacyProductDetail = () => {
           </div>
         </div>
 
-        {/* Product Details Accordion */}
+        {}
         <div className="mb-10 flex flex-col gap-3">
-          {/* Description */}
+          {}
           {product.description && (
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-              <div 
+              <div
                 className="flex justify-between items-center p-4 md:p-5 cursor-pointer hover:bg-gray-50 transition-colors select-none"
                 onClick={() => toggleSection('keyFeatures')}
               >
@@ -477,9 +477,9 @@ const PharmacyProductDetail = () => {
             </div>
           )}
 
-          {/* Product Information */}
+          {}
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-            <div 
+            <div
               className="flex justify-between items-center p-4 md:p-5 cursor-pointer hover:bg-gray-50 transition-colors select-none"
               onClick={() => toggleSection('usage')}
             >
@@ -539,21 +539,21 @@ const PharmacyProductDetail = () => {
           </div>
         </div>
 
-        {/* Similar Products */}
+        {}
         {relatedProducts.length > 0 && (
           <div className="py-8 border-t border-gray-200 mt-6">
             <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-5">Similar Products</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {relatedProducts.map((item) => (
-                <div 
+                <div
                   key={item.id}
                   className="bg-white border border-gray-200 rounded-xl p-3 cursor-pointer transition-all hover:border-green-500 hover:shadow-md hover:-translate-y-1 flex flex-col justify-between"
                   onClick={() => navigate(`/pharmacy/product/${item.id}`)}
                 >
                   <div className="w-full aspect-square bg-gray-50 rounded-lg flex items-center justify-center mb-3 overflow-hidden">
                     {getMedicineImage(item) ? (
-                      <img 
-                        src={getMedicineImage(item)} 
+                      <img
+                        src={getMedicineImage(item)}
                         alt={item.name}
                         className="w-full h-full object-contain p-3"
                       />
@@ -577,7 +577,7 @@ const PharmacyProductDetail = () => {
         )}
       </div>
 
-      {/* Reusable Pharmacy Footer */}
+      {}
       <Footer />
 
     </div>

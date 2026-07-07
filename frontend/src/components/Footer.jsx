@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FaHeart, FaRobot, FaVideo, FaShoppingCart, FaCalendarCheck, 
+import {
+  FaHeart, FaRobot, FaVideo, FaShoppingCart, FaCalendarCheck,
   FaFileMedical, FaAmbulance, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt,
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaHeartbeat
 } from 'react-icons/fa';
@@ -11,13 +11,13 @@ export default function Footer() {
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
 
-  // Get user context if logged in
+
   let user = null;
   try {
     const userData = localStorage.getItem('user');
     if (userData) user = JSON.parse(userData);
   } catch (e) {
-    // silent
+
   }
 
   const isDoctorLoggedIn = user?.user_type === 'doctor';
@@ -25,8 +25,8 @@ export default function Footer() {
 
   return (
     <footer className="footer-container bg-slate-950 text-slate-300 border-t border-slate-900">
-      
-      {/* Emergency Response Alert Row */}
+
+      {}
       <div className="emergency-bar rural-emergency-box max-w-7xl mx-auto px-4 md:px-8 pt-8">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6 bg-red-950/20 border border-red-900/30 rounded-3xl p-6 md:p-8">
           <div className="flex items-center gap-4 text-center lg:text-left flex-col lg:flex-row">
@@ -53,8 +53,8 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 border-b border-slate-900 pb-12 mb-8">
-          
-          {/* Brand Info */}
+
+          {}
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">
               <FaHeartbeat className="text-2xl text-green-500" />
@@ -64,7 +64,7 @@ export default function Footer() {
             <p className="text-xs md:text-sm text-slate-400 leading-relaxed">
               Making quality healthcare accessible to everyone in rural India through technology, digital consultations, and genuine medicines.
             </p>
-            {/* Social Links */}
+            {}
             <div className="flex items-center gap-3 pt-2">
               <a href="#" className="social-icon-link bg-slate-900 hover:bg-green-500 text-slate-400 hover:text-white transition-all">
                 <FaFacebookF size={13} />
@@ -81,7 +81,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-widest border-l-2 border-green-500 pl-3">Quick Links</h4>
             <ul className="space-y-3 mt-4 text-xs md:text-sm text-slate-400 p-0 m-0 list-none">
@@ -110,7 +110,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Services Column */}
+          {}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-widest border-l-2 border-green-500 pl-3">Services</h4>
             <ul className="space-y-3 mt-4 text-xs md:text-sm text-slate-400 p-0 m-0 list-none">
@@ -135,7 +135,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact & Support */}
+          {}
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-white uppercase tracking-widest border-l-2 border-green-500 pl-3">Get in Touch</h4>
             <ul className="space-y-3.5 mt-4 text-xs md:text-sm text-slate-400 p-0 m-0 list-none">
@@ -156,7 +156,7 @@ export default function Footer() {
 
         </div>
 
-        {/* Copyright Footer */}
+        {}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 pt-2">
           <div>
             &copy; {currentYear} Rural HealthCare. All rights reserved.

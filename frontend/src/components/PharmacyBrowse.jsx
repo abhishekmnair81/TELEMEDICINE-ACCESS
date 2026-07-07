@@ -221,7 +221,7 @@ export default function PharmacyBrowse() {
     try {
       const count = await cartAPI.getCartCount();
       setCartCount(count);
-    } catch { /* silent */ }
+    } catch {  }
   };
 
   useEffect(() => {
@@ -522,7 +522,7 @@ export default function PharmacyBrowse() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-6">
-            {/* UPLOAD */}
+            {}
             {scannerStep === SCANNER_STEPS.UPLOAD && (
               <div className="flex flex-col gap-4">
                 <div
@@ -579,7 +579,7 @@ export default function PharmacyBrowse() {
               </div>
             )}
 
-            {/* ANALYZING / ADDING */}
+            {}
             {(scannerStep === SCANNER_STEPS.ANALYZING || scannerStep === SCANNER_STEPS.ADDING) && (
               <div className="flex flex-col items-center text-center py-6 gap-3">
                 <div className="relative w-16 h-16 flex items-center justify-center mb-2 bg-green-50 rounded-full text-green-600">
@@ -605,7 +605,7 @@ export default function PharmacyBrowse() {
               </div>
             )}
 
-            {/* RESULTS */}
+            {}
             {scannerStep === SCANNER_STEPS.RESULTS && (
               <div className="flex flex-col gap-5">
                 {addAllResult && (
@@ -773,12 +773,12 @@ export default function PharmacyBrowse() {
       <div className="flex gap-3 px-4 md:px-7 py-5 items-center flex-wrap">
         <div className="flex-1 min-w-[220px] flex items-center gap-2.5 bg-white border border-gray-200 rounded-full px-4 py-2.5 transition-all focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-500/10">
           <Icons.Search />
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Search medicines, brands, generics..."
-            value={searchQuery} 
-            onChange={(e) => setSearchQuery(e.target.value)} 
-            className="flex-1 border-none outline-none text-xs md:text-sm text-gray-805 bg-transparent placeholder:text-gray-400" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 border-none outline-none text-xs md:text-sm text-gray-805 bg-transparent placeholder:text-gray-400"
           />
           {searchQuery && (
             <button className="bg-transparent border-none cursor-pointer text-gray-400 hover:text-red-500 p-0 flex items-center" onClick={() => setSearchQuery('')}>
@@ -786,18 +786,18 @@ export default function PharmacyBrowse() {
             </button>
           )}
         </div>
-        
+
         <div className="relative flex items-center">
-          <select 
-            value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value)} 
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
             className="appearance-none bg-white border border-gray-200 rounded-full pl-4 pr-9 py-2.5 text-xs md:text-sm text-gray-800 cursor-pointer outline-none transition-all focus:border-green-500 focus:ring-2 focus:ring-green-500/10 min-w-[160px]"
           >
             {SORT_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
           </select>
           <Icons.ChevronDown />
         </div>
-        
+
         <button className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4.5 py-2.5 text-xs md:text-sm text-gray-700 font-semibold cursor-pointer transition-all hover:border-green-500 hover:text-green-500" onClick={() => setShowFilters(!showFilters)}>
           <Icons.Filter /><span>Filters</span>
         </button>
@@ -809,22 +809,22 @@ export default function PharmacyBrowse() {
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Price Range: ₹{priceRange.min} – ₹{priceRange.max}</label>
             <div className="flex items-center gap-2">
-              <input 
-                type="number" 
-                min="0" 
-                max={priceRange.max} 
+              <input
+                type="number"
+                min="0"
+                max={priceRange.max}
                 value={priceRange.min}
-                onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))} 
-                placeholder="Min" 
+                onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))}
+                placeholder="Min"
                 className="w-24 px-3 py-1.5 border border-gray-200 rounded-lg text-xs md:text-sm outline-none transition-colors focus:border-green-500"
               />
               <span className="text-gray-400 font-semibold">to</span>
-              <input 
-                type="number" 
-                min={priceRange.min} 
+              <input
+                type="number"
+                min={priceRange.min}
                 value={priceRange.max}
-                onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))} 
-                placeholder="Max" 
+                onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))}
+                placeholder="Max"
                 className="w-24 px-3 py-1.5 border border-gray-200 rounded-lg text-xs md:text-sm outline-none transition-colors focus:border-green-500"
               />
             </div>
@@ -838,7 +838,7 @@ export default function PharmacyBrowse() {
       {/* Category Tabs */}
       <div className="flex gap-2.5 px-4 md:px-7 py-2 overflow-x-auto scrollbar-none mb-4">
         {CATEGORIES.map(cat => (
-          <button 
+          <button
             key={cat.id}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-200 bg-white text-xs md:text-sm font-semibold text-gray-700 cursor-pointer whitespace-nowrap transition-colors hover:border-green-500 hover:text-green-500 hover:bg-green-50/50 flex-shrink-0 ${activeCategory === cat.id ? '!bg-green-500 !border-green-500 !text-white shadow-md shadow-green-500/10' : ''}`}
             onClick={() => setActiveCategory(cat.id)}

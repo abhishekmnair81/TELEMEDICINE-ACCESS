@@ -16,18 +16,18 @@ import Footer from './Footer';
 
 const AllDoctors = () => {
   const navigate = useNavigate();
-  
+
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // Filters
+
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('all');
-  const [sortBy, setSortBy] = useState('rating'); // rating, experience, fee
-  
-  // Specializations for filter
+  const [sortBy, setSortBy] = useState('rating');
+
+
   const specializations = [
     { value: 'all', label: 'All Specializations' },
     { value: 'general', label: 'General Physician' },
@@ -52,17 +52,17 @@ const AllDoctors = () => {
     try {
       setLoading(true);
       console.log('[AllDoctors] Loading all doctors...');
-      
+
       const response = await doctorsAPI.getAllDoctors();
       console.log('[AllDoctors] Response:', response);
-      
+
       let doctorsList = [];
       if (Array.isArray(response)) {
         doctorsList = response;
       } else if (response && Array.isArray(response.results)) {
         doctorsList = response.results;
       }
-      
+
       console.log('[AllDoctors] Loaded doctors:', doctorsList.length);
       setDoctors(doctorsList);
       setError(null);
@@ -76,21 +76,21 @@ const AllDoctors = () => {
 
   const filterAndSortDoctors = () => {
     let filtered = [...doctors];
-    
-    // Filter by search term (name)
+
+
     if (searchTerm) {
       filtered = filtered.filter(doctor => {
         const fullName = `${doctor.user?.first_name || ''} ${doctor.user?.last_name || ''}`.toLowerCase();
         return fullName.includes(searchTerm.toLowerCase());
       });
     }
-    
-    // Filter by specialization
+
+
     if (selectedSpecialization !== 'all') {
       filtered = filtered.filter(doctor => doctor.specialization === selectedSpecialization);
     }
-    
-    // Sort doctors
+
+
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'rating':
@@ -103,7 +103,7 @@ const AllDoctors = () => {
           return 0;
       }
     });
-    
+
     setFilteredDoctors(filtered);
   };
 
@@ -112,7 +112,7 @@ const AllDoctors = () => {
     const stars = [];
     const fullStars = Math.floor(numericRating);
     const hasHalfStar = numericRating % 1 >= 0.5;
-    
+
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
         stars.push(<FaStar key={i} className="text-amber-400" />);
@@ -149,8 +149,8 @@ const AllDoctors = () => {
           <h2 className="text-2xl font-bold text-slate-900">Error Loading Doctors</h2>
           <p className="text-slate-500 text-sm mt-1 max-w-md">{error}</p>
         </div>
-        <button 
-          className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-teal-600/10" 
+        <button
+          className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-teal-600/10"
           onClick={loadDoctors}
         >
           Try Again
@@ -161,13 +161,13 @@ const AllDoctors = () => {
 
   return (
     <div className="all-doctors-page min-h-screen bg-gradient-to-b from-teal-50/30 via-slate-50 to-white text-slate-800 flex flex-col justify-between">
-      
-      {/* Header */}
+
+      {}
       <div className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-emerald-800 text-white py-16 md:py-20 px-4 md:px-8 shadow-lg shadow-teal-900/10">
-        {/* Glow overlay */}
+        {}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.08),transparent_50%)] pointer-events-none" />
         <div className="max-w-7xl mx-auto relative z-10">
-          <button 
+          <button
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white text-xs font-bold transition-all hover:-translate-x-1 shadow-sm"
             onClick={() => navigate('/')}
           >
@@ -178,11 +178,11 @@ const AllDoctors = () => {
         </div>
       </div>
 
-      {/* Filters Section */}
+      {}
       <div className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 py-6 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Search Bar */}
+            {}
             <div className="relative flex items-center">
               <FaSearch className="absolute left-4 text-teal-600 text-base pointer-events-none" />
               <input
@@ -194,7 +194,7 @@ const AllDoctors = () => {
               />
             </div>
 
-            {/* Specialization Filter */}
+            {}
             <div className="relative flex items-center">
               <FaFilter className="absolute left-4 text-teal-600 text-base pointer-events-none" />
               <select
@@ -215,7 +215,7 @@ const AllDoctors = () => {
               </div>
             </div>
 
-            {/* Sort By */}
+            {}
             <div className="relative flex items-center">
               <div className="w-full flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-500 focus-within:bg-white transition-all">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Sort by</label>
@@ -237,14 +237,14 @@ const AllDoctors = () => {
             </div>
           </div>
 
-          {/* Results Count */}
+          {}
           <div className="mt-4 text-xs font-semibold text-slate-500">
             Showing <strong className="text-teal-600 font-extrabold">{filteredDoctors.length}</strong> of <strong className="text-slate-700 font-extrabold">{doctors.length}</strong> doctors
           </div>
         </div>
       </div>
 
-      {/* Doctors Grid */}
+      {}
       <div className="flex-1 max-w-7xl mx-auto px-4 md:px-8 py-12 w-full">
         {filteredDoctors.length === 0 ? (
           <div className="text-center py-20 px-4">
@@ -262,7 +262,7 @@ const AllDoctors = () => {
                 className="bg-white rounded-3xl border border-slate-100/80 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-teal-500/30 transition-all duration-300 flex flex-col group cursor-pointer"
                 onClick={() => handleDoctorClick(doctor)}
               >
-                {/* Doctor Image */}
+                {}
                 <div className="relative w-full h-56 bg-gradient-to-br from-teal-50/50 to-emerald-50/50 overflow-hidden flex items-center justify-center border-b border-slate-50">
                   {doctor.user?.profile_picture_url ? (
                     <img
@@ -275,14 +275,14 @@ const AllDoctors = () => {
                       }}
                     />
                   ) : null}
-                  <div 
+                  <div
                     className="w-full h-full flex items-center justify-center bg-teal-50/30 text-teal-600/30 text-5xl"
                     style={{ display: doctor.user?.profile_picture_url ? 'none' : 'flex' }}
                   >
                     <FaUserMd />
                   </div>
 
-                  {/* Availability Badge */}
+                  {}
                   {doctor.is_available && (
                     <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-md shadow-emerald-500/25 tracking-wide animate-pulse">
                       Available
@@ -290,7 +290,7 @@ const AllDoctors = () => {
                   )}
                 </div>
 
-                {/* Doctor Info */}
+                {}
                 <div className="p-6 flex flex-col flex-1">
                   <h3 className="text-lg font-bold text-slate-900 group-hover:text-teal-600 transition-colors duration-200">
                     Dr. {doctor.user?.first_name} {doctor.user?.last_name}
@@ -299,7 +299,7 @@ const AllDoctors = () => {
                     {doctor.specialization_display}
                   </p>
 
-                  {/* Rating */}
+                  {}
                   <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-2xl px-3.5 py-2 mb-6 w-fit">
                     <div className="flex gap-0.5 text-amber-400 text-xs">
                       {renderStars(doctor.average_rating)}
@@ -312,7 +312,7 @@ const AllDoctors = () => {
                     </span>
                   </div>
 
-                  {/* Stats */}
+                  {}
                   <div className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-4 mt-auto">
                     <div className="flex flex-col items-center text-center p-2 bg-slate-50/60 rounded-2xl border border-slate-100/50">
                       <FaGraduationCap className="text-teal-600 text-base mb-1" />
@@ -337,7 +337,7 @@ const AllDoctors = () => {
                     </div>
                   </div>
 
-                  {/* View Profile Button */}
+                  {}
                   <button className="w-full mt-4 py-3 bg-teal-600 group-hover:bg-teal-700 text-white rounded-2xl text-xs font-bold transition-all shadow-md shadow-teal-600/10 flex items-center justify-center gap-1.5">
                     View Profile
                   </button>

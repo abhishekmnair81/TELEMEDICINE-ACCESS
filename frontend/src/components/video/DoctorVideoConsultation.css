@@ -10,16 +10,16 @@
 .dvc-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255,255,255,0.3);
 }
-/* backwards-compat alias shared across queue & chat */
+
 .custom-scrollbar::-webkit-scrollbar        { width: 4px; height: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track  { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb  { background: rgba(255,255,255,.15); border-radius: 9999px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.3); }
 
-/* ── Mirror local video ── */
+
 .mirror-feed { transform: scaleX(-1); }
 
-/* ── Doctor root layout ── */
+
 .dvc-root {
   min-height: 100svh;
   display: flex;
@@ -27,7 +27,7 @@
   color: #f8fafc;
 }
 
-/* ── Queue / lobby panel ── */
+
 .dvc-queue-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -40,7 +40,7 @@
   border-color: #cbd5e1;
 }
 
-/* ── Patient priority badge ── */
+
 .dvc-priority-badge {
   display: inline-flex;
   align-items: center;
@@ -56,7 +56,7 @@
 .dvc-priority-badge--normal { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 .dvc-priority-badge--low    { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 
-/* ── Active call layout ── */
+
 .dvc-call-grid {
   display: flex;
   flex: 1;
@@ -64,7 +64,7 @@
   background: #0f172a;
 }
 
-/* ── Video column ── */
+
 .dvc-video-col {
   flex: 1;
   position: relative;
@@ -73,14 +73,14 @@
   background: #0f172a;
 }
 
-/* ── Remote patient video ── */
+
 .dvc-remote-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* ── Local doctor PIP ── */
+
 .dvc-pip {
   position: absolute;
   bottom: 6rem;
@@ -100,7 +100,7 @@
   .dvc-pip { width: 192px; height: 128px; }
 }
 
-/* ── Control pill ── */
+
 .dvc-controls {
   position: absolute;
   bottom: 1rem;
@@ -119,7 +119,7 @@
   max-width: 96vw;
 }
 
-/* ── Control buttons ── */
+
 .dvc-btn {
   width: 2.5rem;
   height: 2.5rem;
@@ -140,7 +140,7 @@
 .dvc-btn--danger          { background: #dc2626 !important; border-color: transparent !important; }
 .dvc-btn:disabled         { opacity: 0.4; cursor: not-allowed; }
 
-/* ── Prescription button – teal accent ── */
+
 .dvc-rx-btn {
   width: 2.5rem;
   height: 2.5rem;
@@ -160,7 +160,7 @@
 .dvc-rx-btn:active { transform: scale(0.93); }
 .dvc-rx-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ── Leave button ── */
+
 .dvc-leave-btn {
   display: flex;
   align-items: center;
@@ -179,7 +179,7 @@
 }
 .dvc-leave-btn:hover { background: #b91c1c; }
 
-/* ── Chat sidebar ── */
+
 .dvc-chat-sidebar {
   width: 20rem;
   flex-shrink: 0;
@@ -190,7 +190,7 @@
   border-left: 1px solid rgba(255,255,255,0.08);
 }
 
-/* ── Chat messages ── */
+
 .dvc-msg {
   padding: 0.5rem 0.75rem;
   border-radius: 0.75rem;
@@ -224,7 +224,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Patient avatar (no video) ── */
+
 .dvc-avatar {
   width: 5rem;
   height: 5rem;
@@ -240,14 +240,14 @@
   text-transform: uppercase;
 }
 
-/* ── Doctor avatar (PIP off) ── */
+
 .dvc-avatar--sm {
   width: 2.5rem;
   height: 2.5rem;
   font-size: 0.875rem;
 }
 
-/* ── Name label ── */
+
 .dvc-name-label {
   position: absolute;
   bottom: 1rem;
@@ -262,7 +262,7 @@
   color: #f8fafc;
 }
 
-/* ── PIP "You" label ── */
+
 .dvc-pip-label {
   position: absolute;
   bottom: 0.4rem;
@@ -275,7 +275,7 @@
   color: #f8fafc;
 }
 
-/* ── Status badge ── */
+
 .dvc-status-badge {
   display: inline-flex;
   align-items: center;
@@ -302,7 +302,7 @@
   50%       { opacity: 0.4; }
 }
 
-/* ── E2E encrypted badge ── */
+
 .dvc-e2e-badge {
   display: inline-flex;
   align-items: center;
@@ -318,7 +318,7 @@
   letter-spacing: 0.06em;
 }
 
-/* ── Divider ── */
+
 .dvc-divider {
   width: 1px;
   height: 1.5rem;
@@ -326,7 +326,7 @@
   margin: 0 0.25rem;
 }
 
-/* ── Prescription modal overlay ── */
+
 .dvc-modal-overlay {
   position: fixed;
   inset: 0;
@@ -350,7 +350,7 @@
   box-shadow: 0 24px 80px rgba(0,0,0,0.25);
 }
 
-/* ── Prescription form field ── */
+
 .dvc-field {
   display: flex;
   flex-direction: column;
@@ -384,7 +384,7 @@
   cursor: not-allowed;
 }
 
-/* ── Camera error / retrying overlays ── */
+
 .dvc-overlay {
   position: absolute;
   inset: 0;
@@ -399,7 +399,7 @@
 .dvc-overlay--error   { background: rgba(15,23,42,0.97); }
 .dvc-overlay--retry   { background: rgba(15,23,42,0.90); }
 
-/* ── Queue stats row ── */
+
 .dvc-stat-chip {
   display: inline-flex;
   flex-direction: column;

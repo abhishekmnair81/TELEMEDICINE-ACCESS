@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  FaPills, FaSearch, FaPhone, FaClock, 
+  FaPills, FaSearch, FaPhone, FaClock,
   FaCheckCircle, FaShieldAlt,
-  FaChevronRight, FaStethoscope, 
+  FaChevronRight, FaStethoscope,
   FaBoxOpen, FaSignOutAlt, FaHome,
   FaCog, FaTimes, FaBox, FaChartLine, FaBell,
-  FaCalendar, FaWarehouse, FaDollarSign, 
-  FaArrowUp, FaArrowDown, FaFire, FaBolt, 
+  FaCalendar, FaWarehouse, FaDollarSign,
+  FaArrowUp, FaArrowDown, FaFire, FaBolt,
   FaSyringe, FaFirstAid, FaBaby,
   FaFlask, FaVial, FaPrescriptionBottle, FaTrash, FaEdit, FaExclamationTriangle,
   FaMedkit
@@ -24,40 +24,40 @@ const PharmacistHomepage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
-  
-  // Dashboard states
+
+
   const [dashboardData, setDashboardData] = useState(null);
-  
-  // Separate states for medicines and other products
+
+
   const activeTab = 'medicines';
   const [medicines, setMedicines] = useState([]);
   const [otherProducts, setOtherProducts] = useState([]);
-  
-  // Product management states
+
+
   const [showProductModal, setShowProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  
-  // Form placeholders/dummy states required for original method signatures (even if AddMedicineWithAI manages form)
+
+
   const [, setProductForm] = useState({
     name: '',
     generic_name: '',
     manufacturer: '',
     brand: '',
     category: 'antibiotics',
-    form: 'tablet', 
+    form: 'tablet',
     strength: '',
     price: '',
-    mrp: '', 
+    mrp: '',
     stock_quantity: '0',
     requires_prescription: false,
     description: '',
     pack_size: '',
-    storage_instructions: 'room_temp', 
+    storage_instructions: 'room_temp',
     expiry_date: '',
     batch_number: '',
   });
 
-  // Notification state
+
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -72,7 +72,7 @@ const PharmacistHomepage = () => {
         setMedicines(medicinesData || []);
         setOtherProducts(otherProductsData || []);
 
-        // Generate dynamic notifications
+
         const allProducts = [...(medicinesData || []), ...(otherProductsData || [])];
         const alerts = [];
         allProducts.forEach((p, idx) => {
@@ -91,7 +91,7 @@ const PharmacistHomepage = () => {
               time: 'Just now'
             });
           }
-          
+
           if (p.expiry_date) {
             const expDate = new Date(p.expiry_date);
             const today = new Date();
@@ -143,15 +143,15 @@ const PharmacistHomepage = () => {
     };
 
     if (checkUser()) return;
-    
+
     const timer1 = setTimeout(() => {
       if (checkUser()) return;
     }, 100);
-    
+
     const timer2 = setTimeout(() => {
       checkUser();
     }, 200);
-    
+
     const handleStorageChange = () => {
       const userData = localStorage.getItem('user');
       if (userData) {
@@ -164,7 +164,7 @@ const PharmacistHomepage = () => {
         }
       }
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
     return () => {
       clearTimeout(timer1);
@@ -175,12 +175,12 @@ const PharmacistHomepage = () => {
 
   useEffect(() => {
     if (isLoadingUser) return;
-    
+
     if (!user) {
       navigate('/auth?type=pharmacist&view=login');
       return;
     }
-    
+
     if (user.user_type !== 'pharmacist') {
       alert('Access Denied: This page is only accessible to pharmacists.');
       if (user.user_type === 'patient') {
@@ -208,62 +208,62 @@ const PharmacistHomepage = () => {
   };
 
   const medicineCategories = [
-    { 
-      icon: <FaPills />, 
-      name: 'Prescription Medicines', 
-      path: '/pharmacy/medicines?type=prescription', 
+    {
+      icon: <FaPills />,
+      name: 'Prescription Medicines',
+      path: '/pharmacy/medicines?type=prescription',
       gradient: 'linear-gradient(135deg, #15803d, #15803d)',
       items: ['Antibiotics', 'Painkillers', 'Anti-inflammatory']
     },
-    { 
-      icon: <FaPrescriptionBottle />, 
-      name: 'OTC Medicines', 
-      path: '/pharmacy/medicines?type=otc', 
+    {
+      icon: <FaPrescriptionBottle />,
+      name: 'OTC Medicines',
+      path: '/pharmacy/medicines?type=otc',
       gradient: 'linear-gradient(135deg, #2563eb, #3b82f6)',
       items: ['Cough Syrup', 'Antacids', 'Pain Relief']
     },
-    { 
-      icon: <FaFlask />, 
-      name: 'Ayurvedic', 
-      path: '/pharmacy/medicines?type=ayurvedic', 
+    {
+      icon: <FaFlask />,
+      name: 'Ayurvedic',
+      path: '/pharmacy/medicines?type=ayurvedic',
       gradient: 'linear-gradient(135deg, #15803d, #15803d)',
       items: ['Herbal Medicines', 'Natural Supplements']
     },
-    { 
-      icon: <FaVial />, 
-      name: 'Homeopathic', 
-      path: '/pharmacy/medicines?type=homeopathy', 
+    {
+      icon: <FaVial />,
+      name: 'Homeopathic',
+      path: '/pharmacy/medicines?type=homeopathy',
       gradient: 'linear-gradient(135deg, #7c3aed, #a78bfa)',
       items: ['Dilutions', 'Tablets', 'Ointments']
     },
   ];
 
   const otherCategories = [
-    { 
-      icon: <FaStethoscope />, 
-      name: 'Medical Devices', 
-      path: '/pharmacy/devices', 
+    {
+      icon: <FaStethoscope />,
+      name: 'Medical Devices',
+      path: '/pharmacy/devices',
       gradient: 'linear-gradient(135deg, #d97706, #fbbf24)',
       items: ['BP Monitors', 'Glucometers', 'Thermometers']
     },
-    { 
-      icon: <FaFirstAid />, 
-      name: 'First Aid', 
-      path: '/pharmacy/first-aid', 
+    {
+      icon: <FaFirstAid />,
+      name: 'First Aid',
+      path: '/pharmacy/first-aid',
       gradient: 'linear-gradient(135deg, #dc2626, #f87171)',
       items: ['Bandages', 'Antiseptics', 'First Aid Kits']
     },
-    { 
-      icon: <FaSyringe />, 
-      name: 'Surgical Items', 
-      path: '/pharmacy/surgical', 
+    {
+      icon: <FaSyringe />,
+      name: 'Surgical Items',
+      path: '/pharmacy/surgical',
       gradient: 'linear-gradient(135deg, #db2777, #f472b6)',
       items: ['Syringes', 'Gloves', 'Surgical Masks']
     },
-    { 
-      icon: <FaBaby />, 
-      name: 'Baby Care', 
-      path: '/pharmacy/baby-care', 
+    {
+      icon: <FaBaby />,
+      name: 'Baby Care',
+      path: '/pharmacy/baby-care',
       gradient: 'linear-gradient(135deg, #0891b2, #22d3ee)',
       items: ['Diapers', 'Baby Food', 'Baby Wipes']
     },
@@ -320,17 +320,17 @@ const PharmacistHomepage = () => {
   const handleAddProduct = (type = 'medicines') => {
     setEditingProduct(null);
     const defaultCategory = type === 'medicines' ? 'antibiotics' : 'thermometers';
-    
+
     setProductForm({
       name: '',
       generic_name: '',
       manufacturer: '',
       brand: '',
       category: defaultCategory,
-      form: 'tablet',           
+      form: 'tablet',
       strength: '',
-      price: '',                
-      mrp: '',                  
+      price: '',
+      mrp: '',
       stock_quantity: '0',
       requires_prescription: false,
       description: '',
@@ -370,16 +370,16 @@ const PharmacistHomepage = () => {
       try {
         await pharmacyAPI.deleteMedicine(productId);
         showToast('✅ Product deleted successfully!', 'success');
-        
+
         const allProducts = await pharmacyAPI.getAllMedicines();
         const medicineCategoriesList = [
           'medicines', 'prescription_drugs', 'otc_medicines',
           'antibiotics', 'painkillers', 'vitamins', 'ayurvedic', 'homeopathy'
         ];
-        
+
         setMedicines(allProducts.filter(p => medicineCategoriesList.includes(p.category?.toLowerCase())));
         setOtherProducts(allProducts.filter(p => !medicineCategoriesList.includes(p.category?.toLowerCase())));
-        
+
         if (user) {
           loadDashboard(user.id);
         }
@@ -437,20 +437,20 @@ const PharmacistHomepage = () => {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <div 
+          <div
             key={index}
             className="bg-white dark:bg-slate-800/90 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 relative overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
           >
             <div className="flex justify-between items-start mb-4">
-              <div 
+              <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center text-xl"
                 style={{ color: stat.color, backgroundColor: `${stat.color}15` }}
               >
                 {stat.icon}
               </div>
               <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black ${
-                stat.trendUp 
-                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20' 
+                stat.trendUp
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20'
                   : 'bg-rose-50 text-rose-700 dark:bg-rose-950/20'
               }`}>
                 {stat.trendUp ? <FaArrowUp /> : <FaArrowDown />}
@@ -534,9 +534,9 @@ const PharmacistHomepage = () => {
     <div key={product.id} className="bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full">
       <div className="aspect-[4/3] bg-slate-50 dark:bg-slate-900/50 relative overflow-hidden">
         {getMedicineImage(product) ? (
-          <img 
-            src={getMedicineImage(product)} 
-            alt={product.name} 
+          <img
+            src={getMedicineImage(product)}
+            alt={product.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
@@ -544,7 +544,7 @@ const PharmacistHomepage = () => {
             <FaBox />
           </div>
         )}
-        
+
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           {product.stock_quantity <= 50 && product.stock_quantity > 0 && (
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-500 text-white shadow-sm">
@@ -562,18 +562,18 @@ const PharmacistHomepage = () => {
             </span>
           )}
         </div>
-        
+
         {user && user.user_type === 'pharmacist' && (
           <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button 
-              onClick={() => handleEditProduct(product)} 
+            <button
+              onClick={() => handleEditProduct(product)}
               className="w-8 h-8 rounded-full bg-white/95 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white text-slate-700 dark:text-slate-350 flex items-center justify-center text-xs shadow transition-all hover:scale-105 cursor-pointer border-none"
               title="Edit"
             >
               <FaEdit />
             </button>
-            <button 
-              onClick={() => handleDeleteProduct(product.id)} 
+            <button
+              onClick={() => handleDeleteProduct(product.id)}
               className="w-8 h-8 rounded-full bg-white/95 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-700 dark:text-slate-350 flex items-center justify-center text-xs shadow transition-all hover:scale-105 cursor-pointer border-none"
               title="Delete"
             >
@@ -596,7 +596,7 @@ const PharmacistHomepage = () => {
             </p>
           )}
         </div>
-        
+
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50 dark:border-slate-700/60">
           <div className="flex flex-col">
             <span className="text-[8px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Price</span>
@@ -612,7 +612,7 @@ const PharmacistHomepage = () => {
 
   return (
     <div className="min-h-screen font-sans bg-slate-50/50 text-slate-800 transition-colors duration-300">
-      {/* Top Banner Info bar */}
+      {}
       <div className="bg-green-600 text-white py-2.5 text-xs font-bold shadow-sm">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center flex-wrap gap-2">
           <div className="flex items-center gap-4">
@@ -625,7 +625,7 @@ const PharmacistHomepage = () => {
         </div>
       </div>
 
-      {/* Ultra Modern Header */}
+      {}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => navigate('/pharmacy-home')}>
@@ -661,13 +661,13 @@ const PharmacistHomepage = () => {
           <div className="flex items-center gap-3.5 self-end md:self-auto">
             {user && user.user_type === 'pharmacist' && (
               <div className="flex gap-2">
-                <button 
+                <button
                   onClick={() => handleAddProduct('medicines')}
                   className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-sm border-none cursor-pointer transition-all hover:-translate-y-0.5"
                 >
                   <FaPills className="text-[10px]" /> <span>Add Medicine</span>
                 </button>
-                <button 
+                <button
                   onClick={() => handleAddProduct('other')}
                   className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-sm border-none cursor-pointer transition-all hover:-translate-y-0.5"
                 >
@@ -677,7 +677,7 @@ const PharmacistHomepage = () => {
             )}
 
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-emerald-50 text-slate-500 hover:text-emerald-600 transition-colors flex items-center justify-center text-sm border-none cursor-pointer relative"
               >
@@ -688,12 +688,12 @@ const PharmacistHomepage = () => {
                   </span>
                 )}
               </button>
-              
+
               {showNotifications && (
                 <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-modal-in">
                   <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
                     <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">Notifications</h3>
-                    <button 
+                    <button
                       onClick={() => setNotifications([])}
                       className="text-[10px] font-black text-emerald-600 hover:underline border-none bg-transparent cursor-pointer"
                     >
@@ -727,7 +727,7 @@ const PharmacistHomepage = () => {
             </div>
 
             {user ? (
-              <div 
+              <div
                 className="relative"
                 onMouseEnter={() => setShowProfileDropdown(true)}
                 onMouseLeave={() => setShowProfileDropdown(false)}
@@ -735,7 +735,7 @@ const PharmacistHomepage = () => {
                 <div className="w-10 h-10 rounded-full bg-green-600 text-white font-black flex items-center justify-center cursor-pointer shadow-sm hover:scale-105 transition-all select-none">
                   {user.first_name.charAt(0)}
                 </div>
-                
+
                 {showProfileDropdown && (
                   <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-modal-in">
                     <div className="p-4 bg-slate-50 flex items-center gap-3">
@@ -749,19 +749,19 @@ const PharmacistHomepage = () => {
                     </div>
                     <div className="h-px bg-slate-100" />
                     <div className="p-2 space-y-1">
-                      <button 
+                      <button
                         onClick={() => navigate('/pharmacist-dashboard')}
                         className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-600 hover:text-emerald-600 flex items-center gap-2 border-none bg-transparent cursor-pointer transition-colors"
                       >
                         <FaHome className="text-slate-400" /> Dashboard
                       </button>
-                      <button 
+                      <button
                         onClick={() => navigate('/pharmacy/inventory')}
                         className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-600 hover:text-emerald-600 flex items-center gap-2 border-none bg-transparent cursor-pointer transition-colors"
                       >
                         <FaWarehouse className="text-slate-400" /> Inventory
                       </button>
-                      <button 
+                      <button
                         onClick={() => navigate('/pharmacy-home')}
                         className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-600 hover:text-emerald-600 flex items-center gap-2 border-none bg-transparent cursor-pointer transition-colors"
                       >
@@ -770,8 +770,8 @@ const PharmacistHomepage = () => {
                     </div>
                     <div className="h-px bg-slate-100 dark:bg-slate-700" />
                     <div className="p-2">
-                      <button 
-                        className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100/70 text-rose-605 rounded-lg text-xs font-black flex items-center gap-2 border-none cursor-pointer transition-colors" 
+                      <button
+                        className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100/70 text-rose-605 rounded-lg text-xs font-black flex items-center gap-2 border-none cursor-pointer transition-colors"
                         onClick={handleLogout}
                       >
                         <FaSignOutAlt /> Logout
@@ -781,8 +781,8 @@ const PharmacistHomepage = () => {
                 )}
               </div>
             ) : (
-              <button 
-                className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm transition-all border-none cursor-pointer" 
+              <button
+                className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm transition-all border-none cursor-pointer"
                 onClick={() => navigate('/auth?type=pharmacist&view=login')}
               >
                 Login
@@ -792,7 +792,7 @@ const PharmacistHomepage = () => {
         </div>
       </header>
 
-      {/* Dashboard Stats */}
+      {}
       {user && user.user_type === 'pharmacist' && dashboardData && (
         <section className="py-10 bg-slate-100/50 dark:bg-slate-900/40 transition-colors">
           <div className="max-w-7xl mx-auto px-4">
@@ -801,8 +801,8 @@ const PharmacistHomepage = () => {
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Dashboard Overview</h2>
                 <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500 font-bold mt-0.5">Track your medical shop performance metrics</p>
               </div>
-              <button 
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-sm border-none cursor-pointer transition-all hover:-translate-y-0.5" 
+              <button
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-sm border-none cursor-pointer transition-all hover:-translate-y-0.5"
                 onClick={() => navigate('/pharmacist-dashboard')}
               >
                 <FaChartLine className="text-[10px]" /> <span>Full Dashboard</span>
@@ -813,7 +813,7 @@ const PharmacistHomepage = () => {
         </section>
       )}
 
-      {/* Hero Section */}
+      {}
       <section className="bg-gradient-to-b from-green-50/10 via-white to-white dark:from-slate-900/20 dark:via-slate-950 dark:to-slate-950 py-16 transition-colors">
         <div className="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1 space-y-6">
@@ -829,7 +829,7 @@ const PharmacistHomepage = () => {
             <p className="text-sm sm:text-base text-slate-400 dark:text-slate-500 font-medium leading-relaxed max-w-xl">
               Comprehensive inventory management for medicines, medical devices, surgical items, and all healthcare products. Keep track of stock levels, expirations, and sales in real-time.
             </p>
-            
+
             <div className="flex gap-4 flex-wrap">
               <span className="inline-flex items-center gap-1.5 text-xs font-black text-green-600 dark:text-green-400 uppercase tracking-wider">
                 <FaCheckCircle className="text-[10px]" />
@@ -846,21 +846,21 @@ const PharmacistHomepage = () => {
             </div>
 
             <div className="flex gap-3">
-              <button 
-                className="px-6 py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-green-500/10 active:scale-[0.98] transition-all border-none cursor-pointer" 
+              <button
+                className="px-6 py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-green-500/10 active:scale-[0.98] transition-all border-none cursor-pointer"
                 onClick={() => handleAddProduct('medicines')}
               >
                 <FaPills className="text-[10px]" /> Add Medicine
               </button>
-              <button 
-                className="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all border-none cursor-pointer" 
+              <button
+                className="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all border-none cursor-pointer"
                 onClick={() => handleAddProduct('other')}
               >
                 <FaStethoscope className="text-[10px]" /> Add Product
               </button>
             </div>
           </div>
-          
+
           <div className="flex-1 w-full flex items-center justify-center">
             <div className="relative w-72 h-72 sm:w-80 sm:h-80 bg-gradient-to-br from-emerald-100 to-teal-50 dark:from-emerald-950/20 dark:to-slate-800/20 rounded-full flex items-center justify-center">
               <div className="absolute -top-4 left-6 bg-white dark:bg-slate-850 px-4 py-3 rounded-2xl shadow-md border border-slate-100 dark:border-slate-800 flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 select-none hover:scale-105 transition-all">
@@ -882,7 +882,7 @@ const PharmacistHomepage = () => {
         </div>
       </section>
 
-      {/* Medicine Categories Section */}
+      {}
       <section className="py-12 bg-emerald-50/20 dark:bg-slate-900/20 transition-colors border-t border-slate-100 dark:border-slate-800/30">
         <div className="max-w-7xl mx-auto px-4">
           <div className="mb-8">
@@ -892,10 +892,10 @@ const PharmacistHomepage = () => {
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500 font-bold mt-0.5">Browse all types of pharmaceutical products</p>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {medicineCategories.map((cat, idx) => (
-              <div 
+              <div
                 key={idx}
                 className="bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group"
                 onClick={() => navigate(cat.path)}
@@ -917,7 +917,7 @@ const PharmacistHomepage = () => {
         </div>
       </section>
 
-      {/* Other Product Categories Section */}
+      {}
       <section className="py-12 bg-white dark:bg-slate-950 transition-colors border-t border-slate-100 dark:border-slate-800/30">
         <div className="max-w-7xl mx-auto px-4">
           <div className="mb-8">
@@ -927,10 +927,10 @@ const PharmacistHomepage = () => {
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500 font-bold mt-0.5">Devices, surgical items, and healthcare essentials</p>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {otherCategories.map((cat, idx) => (
-              <div 
+              <div
                 key={idx}
                 className="bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-850 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group"
                 onClick={() => navigate(cat.path)}
@@ -952,7 +952,7 @@ const PharmacistHomepage = () => {
         </div>
       </section>
 
-      {/* Medicines & Products Listing with Loader */}
+      {}
       {loading ? (
         <div className="py-20 flex flex-col items-center justify-center gap-3 text-center">
           <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
@@ -960,7 +960,7 @@ const PharmacistHomepage = () => {
         </div>
       ) : (
         <>
-          {/* Medicines Section */}
+          {}
           {medicines.length > 0 && (
             <section className="py-12 bg-emerald-50/20 dark:bg-slate-900/20 transition-colors border-t border-slate-100 dark:border-slate-800/30">
               <div className="max-w-7xl mx-auto px-4">
@@ -984,7 +984,7 @@ const PharmacistHomepage = () => {
             </section>
           )}
 
-          {/* Other Products Section */}
+          {}
           {otherProducts.length > 0 && (
             <section className="py-12 bg-white dark:bg-slate-950 transition-colors border-t border-slate-105 dark:border-slate-800/30">
               <div className="max-w-7xl mx-auto px-4">
@@ -1012,7 +1012,7 @@ const PharmacistHomepage = () => {
 
       <Footer />
 
-      {/* Modal */}
+      {}
       {renderProductModal()}
     </div>
   );

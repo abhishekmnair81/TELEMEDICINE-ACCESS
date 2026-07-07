@@ -10,21 +10,21 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="MediRemind" />
-    
-    <!-- Apple touch icons -->
+
+
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/icons/pill-152.png" />
     <link rel="apple-touch-icon" sizes="192x192" href="%PUBLIC_URL%/icons/pill-192.png" />
-    
-    <!-- PWA Manifest -->
+
+
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    
-    <!-- Google Fonts Inter -->
+
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <title>Rural HealthCare</title>
 
-    <!-- Suppress Google Translate banner and widgets that appear on top of page -->
+
     <style>
       * {
         font-family: 'DM Sans', sans-serif;
@@ -64,8 +64,90 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <!-- Hidden Google Translate mount point — driven by LanguageSelector component -->
+
     <div id="gte-hidden" style="display:none;visibility:hidden;"></div>
-    <div id="root"></div>
+    <div id="root">
+      <div style="min-height: 100vh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #ffffff; position: relative; overflow: hidden; font-family: 'DM Sans', sans-serif;">
+        <style>
+          @keyframes logoPulseAndFlip {
+            0% {
+              transform: perspective(1000px) rotateY(0deg) scale(1);
+              filter: drop-shadow(0 0 8px rgba(0, 179, 142, 0.25)) drop-shadow(0 0 20px rgba(0, 179, 142, 0.15));
+            }
+            50% {
+              transform: perspective(1000px) rotateY(180deg) scale(1.08);
+              filter: drop-shadow(0 0 16px rgba(0, 179, 142, 0.45)) drop-shadow(0 0 35px rgba(0, 179, 142, 0.25));
+            }
+            100% {
+              transform: perspective(1000px) rotateY(360deg) scale(1);
+              filter: drop-shadow(0 0 8px rgba(0, 179, 142, 0.25)) drop-shadow(0 0 20px rgba(0, 179, 142, 0.15));
+            }
+          }
+          .glowing-logo {
+            animation: logoPulseAndFlip 4s ease-in-out infinite;
+            transform-style: preserve-3d;
+          }
+          @keyframes pulseLine {
+            0%, 100% { stroke-dashoffset: 120; opacity: 0.8; }
+            50% { stroke-dashoffset: 0; opacity: 1; }
+          }
+          .ecg-pulse-line {
+            stroke-dasharray: 120;
+            animation: pulseLine 2.5s linear infinite;
+          }
+        </style>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+          <svg
+            viewBox="0 0 100 100"
+            style="width: 144px; height: 144px; stroke-linecap: round; stroke-linejoin: round; user-select: none;"
+            class="glowing-logo"
+          >
+            <defs>
+              <filter id="green-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <path
+              d="M50 35 L38 25 L24 35 L24 50 L50 78 L76 50 L76 35 L62 25 Z"
+              fill="none"
+              stroke="#00b38e"
+              stroke-width="3.5"
+              opacity="0.3"
+              filter="url(#green-glow)"
+            />
+            <path
+              d="M50 35 L38 25 L24 35 L24 50 L50 78 L76 50 L76 35 L62 25 Z"
+              fill="none"
+              stroke="#00b38e"
+              stroke-width="2"
+              opacity="0.95"
+            />
+            <path
+              d="M 12 50 L 32 50 L 37 42 L 42 58 L 47 22 L 53 74 L 59 44 L 64 54 L 68 50 L 88 50"
+              fill="none"
+              stroke="#00b38e"
+              stroke-width="3.5"
+              opacity="0.3"
+              filter="url(#green-glow)"
+              class="ecg-pulse-line"
+            />
+            <path
+              d="M 12 50 L 32 50 L 37 42 L 42 58 L 47 22 L 53 74 L 59 44 L 64 54 L 68 50 L 88 50"
+              fill="none"
+              stroke="#00b38e"
+              stroke-width="2.25"
+              class="ecg-pulse-line"
+            />
+          </svg>
+          <p style="color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.25em; margin-top: 32px; user-select: none; font-size: 10px; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;">
+            Loading Rural HealthCare...
+          </p>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

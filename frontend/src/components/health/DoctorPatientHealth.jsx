@@ -39,27 +39,27 @@ const DoctorPatientHealth = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [patientsList, setPatientsList] = useState([]);
-  
-  // Patient health data
+
+
   const [dashboardData, setDashboardData] = useState(null);
   const [latestMetrics, setLatestMetrics] = useState({});
   const [activeGoals, setActiveGoals] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
   const [medicationReminders, setMedicationReminders] = useState([]);
   const [alerts, setAlerts] = useState([]);
-  
-  // Trends data
+
+
   const [selectedMetricType, setSelectedMetricType] = useState('heart_rate');
   const [trendPeriod, setTrendPeriod] = useState(30);
   const [trendsData, setTrendsData] = useState(null);
-  
-  // View mode
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'detail'
-  
-  // Clinical Notes input
+
+
+  const [viewMode, setViewMode] = useState('list');
+
+
   const [clinicalNotes, setClinicalNotes] = useState('');
 
-  // Metric configurations
+
   const metricTypes = [
     { value: 'blood_pressure', label: 'Blood Pressure', unit: 'mmHg', icon: <FaTint />, color: 'green', hex: '#00b38e' },
     { value: 'heart_rate', label: 'Heart Rate', unit: 'bpm', icon: <FaHeartbeat />, color: 'rose', hex: '#f43f5e' },
@@ -89,23 +89,23 @@ const DoctorPatientHealth = () => {
     try {
       const doctor = authAPI.getCurrentUser();
       console.log('[DoctorPatientHealth] Current doctor:', doctor);
-      
+
       if (!doctor) {
         window.location.href = '/auth?type=doctor&view=login';
         return;
       }
-      
+
       if (doctor.user_type !== 'doctor') {
         alert('This page is only accessible to doctors');
         window.location.href = '/';
         return;
       }
-      
+
       setCurrentDoctor(doctor);
-      
-      // Load this doctor's patients from appointments
+
+
       await loadDoctorPatients(doctor.id);
-      
+
     } catch (error) {
       console.error('[DoctorPatientHealth] Error loading doctor:', error);
       window.location.href = '/auth?type=doctor&view=login';
@@ -117,18 +117,18 @@ const DoctorPatientHealth = () => {
   const loadDoctorPatients = async (doctorId) => {
     try {
       console.log('[DoctorPatientHealth] Loading patients for doctor:', doctorId);
-      
-      // Get doctor's appointments to find their patients
+
+
       const appointments = await appointmentsAPI.getDoctorAppointments(doctorId);
       console.log('[DoctorPatientHealth] Doctor appointments:', appointments);
-      
-      // Extract unique patients from appointments
+
+
       const patientsMap = new Map();
-      
+
       if (Array.isArray(appointments)) {
         appointments.forEach(appointment => {
           const patientKey = appointment.patient_phone;
-          
+
           if (!patientsMap.has(patientKey)) {
             patientsMap.set(patientKey, {
               id: appointment.patient || `temp_${patientKey}`,
@@ -147,7 +147,7 @@ const DoctorPatientHealth = () => {
             const patient = patientsMap.get(patientKey);
             patient.totalAppointments += 1;
             patient.appointments.push(appointment);
-            
+
             if (new Date(appointment.preferred_date) > new Date(patient.lastVisit)) {
               patient.lastVisit = appointment.preferred_date;
               patient.lastVisitId = appointment.id;
@@ -155,10 +155,10 @@ const DoctorPatientHealth = () => {
           }
         });
       }
-      
+
       const patients = Array.from(patientsMap.values());
       console.log('[DoctorPatientHealth] Unique patients found:', patients.length);
-      
+
       for (const patient of patients) {
         try {
           if (patient.id && !patient.id.toString().startsWith('temp_')) {
@@ -173,10 +173,10 @@ const DoctorPatientHealth = () => {
           patient.hasHealthData = false;
         }
       }
-      
+
       setPatientsList(patients);
       console.log('[DoctorPatientHealth] Patients loaded:', patients);
-      
+
     } catch (error) {
       console.error('[DoctorPatientHealth] Error loading patients:', error);
       setPatientsList([]);
@@ -194,7 +194,7 @@ const DoctorPatientHealth = () => {
     const alerts = dashboard.alerts || [];
     const criticalAlerts = alerts.filter(a => a.alert_level === 'critical');
     const warningAlerts = alerts.filter(a => a.alert_level === 'warning');
-    
+
     if (criticalAlerts.length > 0) return 'critical';
     if (warningAlerts.length > 0) return 'warning';
     return 'normal';
@@ -204,7 +204,7 @@ const DoctorPatientHealth = () => {
     try {
       setLoading(true);
       console.log('[DoctorPatientHealth] Loading health data for patient:', selectedPatient);
-      
+
       if (!selectedPatient.id || selectedPatient.id.toString().startsWith('temp_')) {
         setDashboardData({
           latest_metrics: [],
@@ -216,24 +216,24 @@ const DoctorPatientHealth = () => {
         setLoading(false);
         return;
       }
-      
+
       const data = await healthTrackingAPI.getDashboard(selectedPatient.id);
-      
+
       if (data.success && data.dashboard) {
         setDashboardData(data.dashboard);
-        
+
         const metricsMap = {};
         data.dashboard.latest_metrics?.forEach(metric => {
           metricsMap[metric.metric_type] = metric;
         });
         setLatestMetrics(metricsMap);
-        
+
         setActiveGoals(data.dashboard.active_goals || []);
         setRecentActivities(data.dashboard.recent_activities || []);
         setMedicationReminders(data.dashboard.medication_reminders || []);
         setAlerts(data.dashboard.alerts || []);
-        
-        // Populate existing clinical notes if any (mock observation for UI)
+
+
         setClinicalNotes('');
       } else {
         setDashboardData({
@@ -359,7 +359,7 @@ const DoctorPatientHealth = () => {
     }
   };
 
-  const filteredPatients = patientsList.filter(patient => 
+  const filteredPatients = patientsList.filter(patient =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.phone.includes(searchTerm)
   );
@@ -394,8 +394,8 @@ const DoctorPatientHealth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50/30 via-slate-50 to-white text-slate-800 flex flex-col justify-between">
-      
-      {/* Premium Branded Header */}
+
+      {}
       <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer group" onClick={() => window.location.href = '/doctor-dashboard'}>
@@ -404,7 +404,7 @@ const DoctorPatientHealth = () => {
             </div>
             <span className="text-lg font-black text-slate-900 tracking-tight">Rural HealthCare</span>
           </div>
-          <button 
+          <button
             className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs font-bold transition-all shadow-sm cursor-pointer"
             onClick={() => window.location.href = '/doctor-dashboard'}
           >
@@ -413,12 +413,12 @@ const DoctorPatientHealth = () => {
         </div>
       </header>
 
-      {/* Main Content Area */}
+      {}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {viewMode === 'list' ? (
           <>
-            {/* Header info */}
+            {}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
               <div>
                 <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Patient Diagnostics Hub</h1>
@@ -435,7 +435,7 @@ const DoctorPatientHealth = () => {
               </div>
             </div>
 
-            {/* Search & Statistics */}
+            {}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10 items-center">
               <div className="lg:col-span-6 relative flex items-center">
                 <FaSearch className="absolute left-4 text-slate-400 text-sm" />
@@ -468,7 +468,7 @@ const DoctorPatientHealth = () => {
               </div>
             </div>
 
-            {/* Patients Grid */}
+            {}
             {filteredPatients.length === 0 ? (
               <div className="text-center py-20 bg-white border border-dashed border-slate-200 rounded-3xl flex flex-col items-center gap-4 max-w-xl mx-auto">
                 <div className="w-16 h-16 bg-slate-50 text-slate-450 border border-slate-200 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
@@ -477,8 +477,8 @@ const DoctorPatientHealth = () => {
                 <div>
                   <h3 className="text-base font-extrabold text-slate-900">No Patient Records Found</h3>
                   <p className="text-xs text-slate-500 mt-2 font-medium leading-relaxed px-6">
-                    {patientsList.length === 0 
-                      ? 'No appointments found yet. Once a patient books an appointment with you, their medical profile will be generated here.' 
+                    {patientsList.length === 0
+                      ? 'No appointments found yet. Once a patient books an appointment with you, their medical profile will be generated here.'
                       : 'No records match your current search string.'}
                   </p>
                 </div>
@@ -540,12 +540,12 @@ const DoctorPatientHealth = () => {
             )}
           </>
         ) : (
-          /* PATIENT DETAIL VIEW */
+
           <>
-            {/* Detail view header */}
+            {}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10 pb-8 border-b border-slate-200/80">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                <button 
+                <button
                   className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-white border border-slate-200 text-slate-650 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer"
                   onClick={backToList}
                 >
@@ -565,13 +565,13 @@ const DoctorPatientHealth = () => {
               </div>
 
               <div className="flex items-center gap-3">
-                <button 
+                <button
                   onClick={handlePrint}
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-650 text-xs font-bold transition-all shadow-sm cursor-pointer"
                 >
                   <FaPrint /> Print Case Sheet
                 </button>
-                <button 
+                <button
                   onClick={handleExport}
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-green-650 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-green-650/10 cursor-pointer"
                 >
@@ -580,7 +580,7 @@ const DoctorPatientHealth = () => {
               </div>
             </div>
 
-            {/* Conditions Tag */}
+            {}
             {selectedPatient?.conditions && selectedPatient.conditions.length > 0 && (
               <div className="mb-8 bg-slate-50 border border-slate-200/60 rounded-3xl p-6">
                 <h3 className="text-xs font-black text-slate-805 tracking-wide uppercase mb-3.5">Diagnosed Conditions</h3>
@@ -605,7 +605,7 @@ const DoctorPatientHealth = () => {
               </div>
             ) : (
               <>
-                {/* Active Alerts */}
+                {}
                 {alerts.length > 0 && (
                   <div className="mb-10 bg-rose-50/50 border border-rose-200/60 rounded-3xl p-6">
                     <h3 className="text-xs font-black text-rose-800 tracking-wide uppercase mb-4 flex items-center gap-2">
@@ -625,7 +625,7 @@ const DoctorPatientHealth = () => {
                   </div>
                 )}
 
-                {/* Latest Vitals Grid */}
+                {}
                 <div className="mb-10">
                   <h2 className="text-base font-extrabold text-slate-900 mb-5">Latest Vital Parameters</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -645,12 +645,12 @@ const DoctorPatientHealth = () => {
                       const styles = colorMap[metricType.color];
 
                       return (
-                        <div 
+                        <div
                           key={metricType.value}
                           className={`relative bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden group ${styles.border}`}
                         >
                           <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: metricType.hex }}></div>
-                          
+
                           <div className="flex justify-between items-start">
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm ${styles.icon}`}>
                               {metricType.icon}
@@ -677,16 +677,16 @@ const DoctorPatientHealth = () => {
                   </div>
                 </div>
 
-                {/* Trends Chart & Filter */}
+                {}
                 <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-900/5 mb-10">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div>
                       <h2 className="text-base font-extrabold text-slate-905 tracking-tight">Analytical Trends &amp; Telemetry</h2>
                       <p className="text-xs text-slate-400 font-semibold mt-0.5">Plot individual vital parameters chronologically</p>
                     </div>
-                    
+
                     <div className="flex flex-wrap items-center gap-3">
-                      <select 
+                      <select
                         value={selectedMetricType}
                         onChange={(e) => setSelectedMetricType(e.target.value)}
                         className="px-3 py-2 bg-slate-50 border border-slate-200 focus:border-green-500 focus:ring-1 focus:ring-green-500 rounded-xl text-xs font-bold text-slate-700 focus:outline-none cursor-pointer"
@@ -700,7 +700,7 @@ const DoctorPatientHealth = () => {
                         {[7, 30, 90].map((period) => {
                           const isActive = trendPeriod === period;
                           return (
-                            <button 
+                            <button
                               key={period}
                               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
                                 isActive ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'
@@ -733,9 +733,9 @@ const DoctorPatientHealth = () => {
                   )}
                 </div>
 
-                {/* Goals & Medication Adherence Row */}
+                {}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-                  {/* Health Goals progress */}
+                  {}
                   <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-900/5">
                     <h2 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2 mb-6">
                       <FaBullseye className="text-green-600" /> Patient Health Targets
@@ -755,10 +755,10 @@ const DoctorPatientHealth = () => {
                               <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded text-[9px] font-bold uppercase tracking-wider flex-shrink-0">{goal.goal_type_display}</span>
                             </div>
                             <p className="text-[11px] text-slate-450 mt-1 font-semibold leading-relaxed">{goal.description}</p>
-                            
+
                             <div className="mt-4">
                               <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                <div 
+                                <div
                                   className="h-full bg-green-500 rounded-full transition-all duration-500"
                                   style={{ width: `${Math.min(goal.progress_percentage, 100)}%` }}
                                 ></div>
@@ -774,7 +774,7 @@ const DoctorPatientHealth = () => {
                     )}
                   </div>
 
-                  {/* Medication Adherence */}
+                  {}
                   <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-900/5">
                     <h2 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2 mb-6">
                       <FaPrescriptionBottle className="text-green-600" /> Prescribed Medication Adherence
@@ -794,10 +794,10 @@ const DoctorPatientHealth = () => {
                               <span className="px-2 py-0.5 bg-slate-200/70 text-slate-700 rounded text-[9px] font-bold uppercase tracking-wider flex-shrink-0">{reminder.frequency_display}</span>
                             </div>
                             <p className="text-[11px] text-slate-500 font-semibold mt-1">Dosage: {reminder.dosage}</p>
-                            
+
                             <div className="mt-4">
                               <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                <div 
+                                <div
                                   className="h-full bg-green-650 rounded-full transition-all duration-500"
                                   style={{ width: `${reminder.adherence_rate}%` }}
                                 ></div>
@@ -816,13 +816,13 @@ const DoctorPatientHealth = () => {
               </>
             )}
 
-            {/* Clinical Observations Notes */}
+            {}
             <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-900/5 mb-10">
               <h2 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2 mb-4">
                 <FaStickyNote className="text-green-600" /> Clinical Case Notes
               </h2>
               <p className="text-xs text-slate-400 font-semibold mb-4">Add observations, treatment directives, or clinical instructions for this patient's case sheet</p>
-              
+
               <div className="space-y-4">
                 <textarea
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-green-500 focus:ring-1 focus:ring-green-500 rounded-2xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-450 min-h-[140px]"
@@ -831,7 +831,7 @@ const DoctorPatientHealth = () => {
                   onChange={(e) => setClinicalNotes(e.target.value)}
                   rows="6"
                 />
-                <button 
+                <button
                   onClick={handleSaveNotes}
                   className="px-6 py-2.5 bg-green-650 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-green-650/10 cursor-pointer"
                 >

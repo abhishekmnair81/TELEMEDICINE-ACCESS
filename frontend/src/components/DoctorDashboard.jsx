@@ -27,6 +27,7 @@ import {
 } from "react-icons/fa"
 import { authAPI, videoConsultationAPI, appointmentsAPI, prescriptionsAPI, patientsAPI, doctorsAPI } from "../services/api"
 import LanguageSelector from './common/LanguageSelector'
+import LoadingScreen from './common/LoadingScreen'
 import Footer from "./Footer"
 import "./DoctorDashboard.css"
 
@@ -55,22 +56,22 @@ const DoctorDashboard = () => {
   const [ratingsSummary, setRatingsSummary] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
-  const [activeTab, setActiveTab] = useState('consultations') // 'consultations', 'appointments', 'prescriptions', 'patients', 'ratings'
+  const [activeTab, setActiveTab] = useState('consultations')
 
-  // Auth check - runs once on mount
+
   useEffect(() => {
     const checkAuth = () => {
       console.log('[DoctorDashboard] Checking authentication...')
       const userData = authAPI.getCurrentUser()
       console.log('[DoctorDashboard] User data from localStorage:', userData)
-      
+
       if (!userData) {
         console.log('[DoctorDashboard] ❌ No user data found - redirecting to login')
         setIsCheckingAuth(false)
         navigate('/auth?type=doctor&view=login')
         return
       }
-      
+
       if (userData.user_type !== 'doctor') {
         console.log('[DoctorDashboard] ❌ User is not a doctor, type:', userData.user_type)
         alert(`This is the doctor dashboard. You are logged in as ${userData.user_type}. Please logout and login as a doctor.`)
@@ -78,17 +79,19 @@ const DoctorDashboard = () => {
         navigate('/')
         return
       }
-      
+
       console.log('[DoctorDashboard] ✅ Doctor authenticated:', userData.first_name, userData.last_name)
       console.log('[DoctorDashboard] Doctor ID:', userData.id)
       setUser(userData)
-      setIsCheckingAuth(false)
+      setTimeout(() => {
+        setIsCheckingAuth(false)
+      }, 1800)
     }
 
     checkAuth()
   }, [navigate])
 
-  // Load data when user is set
+
   useEffect(() => {
     if (user && !isCheckingAuth) {
       console.log('[DoctorDashboard] Loading dashboard data for doctor:', user.id)
@@ -96,7 +99,7 @@ const DoctorDashboard = () => {
     }
   }, [user, isCheckingAuth])
 
-  // Auto-refresh
+
   useEffect(() => {
     if (!user || isCheckingAuth) return
 
@@ -117,11 +120,11 @@ const DoctorDashboard = () => {
 
       console.log('\n📋 Fetching doctor profile to get DoctorProfile ID...')
       let doctorProfileId = null
-      
+
       try {
         const doctorProfileResponse = await doctorsAPI.getDoctorById(doctorId)
         console.log('✅ Doctor profile response:', doctorProfileResponse)
-        
+
         if (doctorProfileResponse && doctorProfileResponse.id) {
           doctorProfileId = doctorProfileResponse.id
           console.log(`✅ Found DoctorProfile ID: ${doctorProfileId}`)
@@ -132,11 +135,11 @@ const DoctorDashboard = () => {
         console.error('❌ Error fetching doctor profile:', error)
       }
 
-      // 1. GET VIDEO CONSULTATIONS
+
       console.log('\n📹 Fetching video consultations...')
       let allRoomsResponse = await videoConsultationAPI.getAllRooms(doctorId)
       console.log('✅ Raw video consultations response:', allRoomsResponse)
-      
+
       let allRooms = []
       if (Array.isArray(allRoomsResponse)) {
         allRooms = allRoomsResponse
@@ -145,60 +148,60 @@ const DoctorDashboard = () => {
       } else if (allRoomsResponse && Array.isArray(allRoomsResponse.results)) {
         allRooms = allRoomsResponse.results
       }
-      
+
       console.log('✅ Final consultations array length:', allRooms.length)
 
-      // 2. GET APPOINTMENTS
+
       console.log('\n📅 Fetching appointments for doctor ID:', doctorId)
       let doctorAppointments = []
-      
+
       try {
         let appointmentsResponse = await appointmentsAPI.getDoctorAppointments(doctorId)
         console.log('✅ Raw appointments response:', appointmentsResponse)
-        
+
         if (Array.isArray(appointmentsResponse)) {
           doctorAppointments = appointmentsResponse
         } else if (appointmentsResponse && appointmentsResponse.results) {
           doctorAppointments = appointmentsResponse.results
         }
-        
+
         console.log('✅ Number of appointments:', doctorAppointments.length)
       } catch (error) {
         console.error('❌ Error fetching appointments:', error)
         doctorAppointments = []
       }
 
-      // 3. GET PRESCRIPTIONS
+
       console.log('\n💊 Fetching prescriptions for doctor ID:', doctorId)
       let doctorPrescriptions = []
-      
+
       try {
         let prescriptionsResponse = await prescriptionsAPI.getDoctorPrescriptions(doctorId)
         console.log('✅ Raw prescriptions response:', prescriptionsResponse)
-        
+
         if (Array.isArray(prescriptionsResponse)) {
           doctorPrescriptions = prescriptionsResponse
         } else if (prescriptionsResponse && prescriptionsResponse.results) {
           doctorPrescriptions = prescriptionsResponse.results
         }
-        
+
         console.log('✅ Number of prescriptions:', doctorPrescriptions.length)
       } catch (error) {
         console.error('❌ Error fetching prescriptions:', error)
         doctorPrescriptions = []
       }
 
-      // 4. GET RATINGS & REVIEWS
+
       console.log('\n⭐ Fetching ratings...')
       let doctorRatings = []
       let ratingSummary = null
-      
+
       if (doctorProfileId) {
         try {
           console.log(`⭐ Using DoctorProfile ID: ${doctorProfileId}`)
           const ratingsResponse = await doctorsAPI.getDoctorRatings(doctorProfileId)
           console.log('✅ Raw ratings response:', ratingsResponse)
-          
+
           if (ratingsResponse && ratingsResponse.success) {
             doctorRatings = ratingsResponse.ratings || []
             ratingSummary = ratingsResponse.summary || null
@@ -213,7 +216,7 @@ const DoctorDashboard = () => {
         console.warn('⚠️ Skipping ratings fetch - no DoctorProfile ID available')
       }
 
-      // 5. GET UNIQUE PATIENTS
+
       console.log('\n👥 Extracting unique patients...')
       const uniquePatientIds = new Set()
       const patientMap = new Map()
@@ -247,9 +250,9 @@ const DoctorDashboard = () => {
       const uniquePatients = Array.from(patientMap.values())
       console.log('✅ Number of unique patients:', uniquePatients.length)
 
-      // 6. CALCULATE STATS
+
       const today = new Date().toDateString()
-      
+
       const pending = allRooms.filter(r => r.status === 'scheduled' || r.status === 'waiting')
       const completedToday = allRooms.filter(r => {
         if (!r.ended_at) return false
@@ -289,7 +292,7 @@ const DoctorDashboard = () => {
       console.log('\n' + '='.repeat(60))
       console.log('DASHBOARD DATA LOADED SUCCESSFULLY')
       console.log('='.repeat(60) + '\n')
-      
+
     } catch (error) {
       console.error("\n❌ ERROR LOADING DASHBOARD DATA")
       console.error("Error:", error)
@@ -307,7 +310,7 @@ const DoctorDashboard = () => {
   const handleAppointmentAction = async (appointmentId, action) => {
     try {
       console.log(`\n🔄 ${action}ing appointment ${appointmentId}`)
-      
+
       let newStatus
       switch (action) {
         case 'confirm':
@@ -326,11 +329,11 @@ const DoctorDashboard = () => {
       console.log('  New status:', newStatus)
       await appointmentsAPI.updateAppointmentStatus(appointmentId, newStatus)
       console.log('  ✅ Status updated successfully')
-      
+
       if (user) {
         await loadDashboardData(user.id)
       }
-      
+
       alert(`Appointment ${action}ed successfully!`)
     } catch (error) {
       console.error(`❌ Error ${action}ing appointment:`, error)
@@ -341,19 +344,19 @@ const DoctorDashboard = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'scheduled':
-      case 'pending': 
+      case 'pending':
         return '#0070cd'
-      case 'waiting': 
+      case 'waiting':
         return '#d97706'
       case 'ongoing':
       case 'confirmed':
       case 'active':
         return '#059669'
-      case 'completed': 
+      case 'completed':
         return '#10b981'
-      case 'cancelled': 
+      case 'cancelled':
         return '#dc2626'
-      default: 
+      default:
         return '#6b7280'
     }
   }
@@ -437,28 +440,18 @@ const DoctorDashboard = () => {
   ]
 
   if (isCheckingAuth) {
-    return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
-        <div className="w-12 h-12 border-4 border-slate-200 border-t-green-650 rounded-full animate-spin"></div>
-        <p className="text-slate-600 font-semibold">Verifying authentication...</p>
-      </div>
-    )
+    return <LoadingScreen message="Verifying authentication..." />
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
-        <div className="w-12 h-12 border-4 border-slate-200 border-t-green-650 rounded-full animate-spin"></div>
-        <p className="text-slate-600 font-semibold">Loading dashboard...</p>
-      </div>
-    )
+    return <LoadingScreen message="Loading dashboard..." />
   }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
-      {/* Header */}
+      {}
       <header className="w-full">
-        {/* Info Strip */}
+        {}
         <div className="bg-gradient-to-r from-green-800 to-green-700 text-white text-xs font-semibold py-2">
           <div className="max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center">
             <div className="flex items-center gap-6">
@@ -471,7 +464,7 @@ const DoctorDashboard = () => {
           </div>
         </div>
 
-        {/* Navbar */}
+        {}
         <div className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100 py-3 md:py-4 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <nav className="flex items-center justify-between w-full">
@@ -493,7 +486,7 @@ const DoctorDashboard = () => {
                       </span>
                     )}
                   </Link>
-                  <div 
+                  <div
                     className="hover:text-green-600 transition-colors relative cursor-pointer"
                     onClick={() => setActiveTab('appointments')}
                   >
@@ -504,7 +497,7 @@ const DoctorDashboard = () => {
                       </span>
                     )}
                   </div>
-                  <div 
+                  <div
                     className="hover:text-green-600 transition-colors cursor-pointer"
                     onClick={() => setActiveTab('patients')}
                   >
@@ -512,13 +505,13 @@ const DoctorDashboard = () => {
                   </div>
                 </div>
 
-                {/* Language Selector */}
+                {}
                 <div className="flex items-center justify-center">
                   <LanguageSelector />
                 </div>
 
-                {/* Profile Dropdown */}
-                <div 
+                {}
+                <div
                   className="relative"
                   onMouseEnter={() => setShowProfileDropdown(true)}
                   onMouseLeave={() => setShowProfileDropdown(false)}
@@ -546,9 +539,9 @@ const DoctorDashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
+      {}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
-        {/* Welcome Banner */}
+        {}
         <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-3xl p-8 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="space-y-2 text-center md:text-left z-10">
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Welcome back, Dr. {user.first_name} {user.last_name}!</h1>
@@ -561,7 +554,7 @@ const DoctorDashboard = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
+        {}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4 hover:border-green-400 hover:-translate-y-0.5 transition-all duration-300">
             <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0">
@@ -638,31 +631,31 @@ const DoctorDashboard = () => {
 
         {/* Tab Navigation */}
         <div className="flex gap-2 border-b border-slate-200 pb-px overflow-x-auto">
-          <button 
+          <button
             className={`px-4 py-3 border-b-2 font-bold flex items-center gap-2 text-sm transition-all whitespace-nowrap ${activeTab === 'consultations' ? 'border-green-600 text-green-600 font-extrabold' : 'border-transparent text-slate-500 hover:text-green-600'}`}
             onClick={() => setActiveTab('consultations')}
           >
             <FaVideo size={14} /> Video Consultations
           </button>
-          <button 
+          <button
             className={`px-4 py-3 border-b-2 font-bold flex items-center gap-2 text-sm transition-all whitespace-nowrap ${activeTab === 'appointments' ? 'border-green-600 text-green-600 font-extrabold' : 'border-transparent text-slate-500 hover:text-green-600'}`}
             onClick={() => setActiveTab('appointments')}
           >
             <FaCalendarCheck size={14} /> Appointments
           </button>
-          <button 
+          <button
             className={`px-4 py-3 border-b-2 font-bold flex items-center gap-2 text-sm transition-all whitespace-nowrap ${activeTab === 'prescriptions' ? 'border-green-600 text-green-600 font-extrabold' : 'border-transparent text-slate-500 hover:text-green-600'}`}
             onClick={() => setActiveTab('prescriptions')}
           >
             <FaPrescriptionBottle size={14} /> Prescriptions
           </button>
-          <button 
+          <button
             className={`px-4 py-3 border-b-2 font-bold flex items-center gap-2 text-sm transition-all whitespace-nowrap ${activeTab === 'patients' ? 'border-green-600 text-green-600 font-extrabold' : 'border-transparent text-slate-500 hover:text-green-600'}`}
             onClick={() => setActiveTab('patients')}
           >
             <FaUsers size={14} /> Patients ({stats.totalPatients})
           </button>
-          <button 
+          <button
             className={`px-4 py-3 border-b-2 font-bold flex items-center gap-2 text-sm transition-all whitespace-nowrap ${activeTab === 'ratings' ? 'border-green-600 text-green-600 font-extrabold' : 'border-transparent text-slate-500 hover:text-green-600'}`}
             onClick={() => setActiveTab('ratings')}
           >
@@ -675,7 +668,7 @@ const DoctorDashboard = () => {
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-lg font-bold flex items-center gap-2 text-slate-805"><FaVideo className="text-green-600" /> Recent Video Consultations</h2>
-              <button 
+              <button
                 className="px-4 py-2 bg-green-50 text-green-700 hover:bg-green-105 text-sm font-semibold rounded-xl border border-green-200 transition-colors disabled:opacity-50"
                 onClick={() => loadDashboardData(user.id)}
                 disabled={loading}
@@ -712,9 +705,9 @@ const DoctorDashboard = () => {
                         </td>
                         <td className="px-6 py-4 font-medium text-slate-600">{formatDateTime(consultation.scheduled_time)}</td>
                         <td className="px-6 py-4">
-                          <span 
+                          <span
                             className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
-                            style={{ 
+                            style={{
                               background: `${getStatusColor(consultation.status)}12`,
                               color: getStatusColor(consultation.status)
                             }}
@@ -723,8 +716,8 @@ const DoctorDashboard = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-slate-500 font-semibold">
-                          {consultation.duration 
-                            ? `${Math.floor(consultation.duration / 60)} min` 
+                          {consultation.duration
+                            ? `${Math.floor(consultation.duration / 60)} min`
                             : '-'}
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -773,7 +766,7 @@ const DoctorDashboard = () => {
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-lg font-bold flex items-center gap-2 text-slate-805"><FaCalendarCheck className="text-green-600" /> Patient Appointments ({appointments.length})</h2>
-              <button 
+              <button
                 className="px-4 py-2 bg-green-50 text-green-700 hover:bg-green-105 text-sm font-semibold rounded-xl border border-green-200 transition-colors disabled:opacity-50"
                 onClick={() => loadDashboardData(user.id)}
                 disabled={loading}
@@ -818,9 +811,9 @@ const DoctorDashboard = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span 
+                          <span
                             className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
-                            style={{ 
+                            style={{
                               background: `${getStatusColor(appointment.status)}12`,
                               color: getStatusColor(appointment.status)
                             }}
@@ -892,7 +885,7 @@ const DoctorDashboard = () => {
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-lg font-bold flex items-center gap-2 text-slate-805"><FaPrescriptionBottle className="text-green-600" /> Issued Prescriptions ({prescriptions.length})</h2>
-              <button 
+              <button
                 className="px-4 py-2 bg-green-50 text-green-700 hover:bg-green-105 text-sm font-semibold rounded-xl border border-green-200 transition-colors disabled:opacity-50"
                 onClick={() => loadDashboardData(user.id)}
                 disabled={loading}
@@ -972,7 +965,7 @@ const DoctorDashboard = () => {
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-lg font-bold flex items-center gap-2 text-slate-805"><FaUsers className="text-green-600" /> My Patients ({patients.length})</h2>
-              <button 
+              <button
                 className="px-4 py-2 bg-green-50 text-green-700 hover:bg-green-105 text-sm font-semibold rounded-xl border border-green-200 transition-colors disabled:opacity-50"
                 onClick={() => loadDashboardData(user.id)}
                 disabled={loading}
@@ -1045,7 +1038,7 @@ const DoctorDashboard = () => {
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-lg font-bold flex items-center gap-2 text-slate-805"><FaStar className="text-green-600" /> Ratings & Reviews</h2>
-              <button 
+              <button
                 className="px-4 py-2 bg-green-50 text-green-700 hover:bg-green-105 text-sm font-semibold rounded-xl border border-green-200 transition-colors disabled:opacity-50"
                 onClick={() => loadDashboardData(user.id)}
                 disabled={loading}
@@ -1076,10 +1069,10 @@ const DoctorDashboard = () => {
                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rating Distribution</h3>
                     {[5, 4, 3, 2, 1].map((star) => {
                       const count = ratingsSummary.rating_distribution[star] || 0
-                      const percentage = ratingsSummary.total_ratings > 0 
-                        ? (count / ratingsSummary.total_ratings) * 100 
+                      const percentage = ratingsSummary.total_ratings > 0
+                        ? (count / ratingsSummary.total_ratings) * 100
                         : 0
-                      
+
                       return (
                         <div key={star} className="flex items-center gap-4 text-xs font-semibold text-slate-700">
                           <div className="flex items-center gap-1 w-8">

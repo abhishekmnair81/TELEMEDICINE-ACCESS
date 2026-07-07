@@ -1,4 +1,4 @@
-/* Health Report Modal Styles */
+
 
 .health-report-modal-overlay {
   position: fixed;
@@ -242,7 +242,7 @@
   font-size: 15px;
 }
 
-/* Scrollbar styling */
+
 .report-preview::-webkit-scrollbar {
   width: 8px;
 }

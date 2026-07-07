@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { 
-  FaUser, 
-  FaUserMd, 
-  FaPills, 
-  FaPhone, 
-  FaLock, 
-  FaEnvelope, 
-  FaIdCard, 
-  FaArrowLeft, 
-  FaHeartbeat, 
+import {
+  FaUser,
+  FaUserMd,
+  FaPills,
+  FaPhone,
+  FaLock,
+  FaEnvelope,
+  FaIdCard,
+  FaArrowLeft,
+  FaHeartbeat,
   FaKey,
   FaShieldAlt,
   FaUserShield,
@@ -26,21 +26,21 @@ const AuthSystem = () => {
   const [userType, setUserType] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  
-  // OTP states
+
+
   const [otpSent, setOtpSent] = useState(false)
   const [otpValue, setOtpValue] = useState("")
   const [tempPhone, setTempPhone] = useState("")
   const [tempEmail, setTempEmail] = useState("")
-  
+
   const [loginForm, setLoginForm] = useState({ phone: "" })
   const [registerForm, setRegisterForm] = useState({
     firstName: "",
-    lastName: "", 
-    phone: "", 
-    email: "", 
-    password: "", 
-    confirmPassword: "", 
+    lastName: "",
+    phone: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
     licenseNumber: "",
     specialization: "",
     qualification: "",
@@ -48,11 +48,11 @@ const AuthSystem = () => {
     pharmacyAddress: ""
   })
 
-  // Handle URL parameters for direct navigation from dropdowns
+
   useEffect(() => {
     const type = searchParams.get('type')
     const view = searchParams.get('view')
-    
+
     if (type && ['patient', 'doctor', 'pharmacist'].includes(type)) {
       setUserType(type)
       if (view === 'login' || view === 'register') {
@@ -78,9 +78,9 @@ const AuthSystem = () => {
     setError("")
   }
 
-  // ============================================================================
-  // OTP LOGIN FLOW
-  // ============================================================================
+
+
+
 
   const handleRequestLoginOTP = async (e) => {
     e.preventDefault()
@@ -109,7 +109,7 @@ const AuthSystem = () => {
         setOtpSent(true)
         setTempPhone(phoneNumber)
         setError("")
-        
+
         if (data.otp) {
           console.log("🔐 OTP (DEBUG):", data.otp)
         }
@@ -168,19 +168,19 @@ const AuthSystem = () => {
           profile_picture_url: data.user.profile_picture_url || null,
           ...data.user
         }
-        
+
         console.log('[AuthSystem] Storing user data:', userData)
-        
+
         localStorage.removeItem('user')
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
-        
+
         localStorage.setItem('user', JSON.stringify(userData))
         localStorage.setItem('accessToken', data.tokens?.access)
         localStorage.setItem('refreshToken', data.tokens?.refresh)
-        
+
         window.dispatchEvent(new Event('storage'))
-        
+
         setTimeout(() => {
           const loginUserType = data.user.user_type
           if (loginUserType === 'patient') {
@@ -204,9 +204,9 @@ const AuthSystem = () => {
     }
   }
 
-  // ============================================================================
-  // OTP REGISTRATION FLOW
-  // ============================================================================
+
+
+
 
   const handleRequestRegisterOTP = async (e) => {
     e.preventDefault()
@@ -275,7 +275,7 @@ const AuthSystem = () => {
         setTempPhone(phoneNumber)
         setTempEmail(email)
         setError("")
-        
+
         if (data.otp) {
           console.log("🔐 OTP (DEBUG):", data.otp)
         }
@@ -341,7 +341,7 @@ const AuthSystem = () => {
           profile_picture_url: data.user.profile_picture_url || null,
           ...data.user
         }
-        
+
         localStorage.setItem('user', JSON.stringify(userData))
         localStorage.setItem('accessToken', data.tokens?.access)
         localStorage.setItem('refreshToken', data.tokens?.refresh)
@@ -362,11 +362,11 @@ const AuthSystem = () => {
     }
   }
 
-  // ============================================================================
-  // UI HELPERS
-  // ============================================================================
 
-  const selectUserType = (type) => { 
+
+
+
+  const selectUserType = (type) => {
     setUserType(type)
     setCurrentView("login")
     setError("")
@@ -383,13 +383,13 @@ const AuthSystem = () => {
     setTempPhone("")
     setTempEmail("")
     setLoginForm({ phone: "" })
-    setRegisterForm({ 
+    setRegisterForm({
       firstName: "",
       lastName: "",
-      phone: "", 
-      email: "", 
-      password: "", 
-      confirmPassword: "", 
+      phone: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
       licenseNumber: "",
       specialization: "",
       qualification: "",
@@ -410,13 +410,13 @@ const AuthSystem = () => {
     return "Patient"
   }
 
-  // ============================================================================
-  // RENDER
-  // ============================================================================
+
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50/40 via-slate-50 to-white flex flex-col items-center justify-center py-6 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      
+
       {currentView === "select" && (
         <div className="w-full max-w-4xl bg-white border border-slate-200/80 rounded-3xl p-8 shadow-xl flex flex-col items-center">
           <div className="flex flex-col items-center text-center mb-6">
@@ -431,8 +431,8 @@ const AuthSystem = () => {
           <p className="text-[10px] text-slate-400 mb-6 text-center font-bold uppercase tracking-wider">Choose your role to get started</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
-            <button 
-              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-sky-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer" 
+            <button
+              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-sky-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
               onClick={() => selectUserType("patient")}
             >
               <div className="w-12 h-12 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center text-xl group-hover:bg-sky-500 group-hover:text-white transition-all duration-300 shadow-sm mb-4">
@@ -442,8 +442,8 @@ const AuthSystem = () => {
               <p className="text-xs text-slate-500 mt-2 leading-relaxed font-semibold">Book appointments, order medications & consult doctors</p>
             </button>
 
-            <button 
-              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-teal-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer" 
+            <button
+              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-teal-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
               onClick={() => selectUserType("doctor")}
             >
               <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-xl group-hover:bg-teal-500 group-hover:text-white transition-all duration-300 shadow-sm mb-4">
@@ -453,8 +453,8 @@ const AuthSystem = () => {
               <p className="text-xs text-slate-500 mt-2 leading-relaxed font-semibold">Consult patients, generate medical prescriptions & schedules</p>
             </button>
 
-            <button 
-              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-emerald-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer" 
+            <button
+              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-emerald-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
               onClick={() => selectUserType("pharmacist")}
             >
               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm mb-4">
@@ -469,27 +469,27 @@ const AuthSystem = () => {
 
       {(currentView === "login" || currentView === "register") && (
         <div className="w-full max-w-4xl bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
-          
-          {/* Info Card Column (Zero Images, beautiful gradient, spacious yet optimized) */}
+
+          {}
           <div className="w-full md:w-5/12 bg-gradient-to-br from-teal-600 via-teal-700 to-emerald-800 text-white p-8 md:p-10 flex flex-col justify-between relative overflow-hidden">
-            {/* Soft decorative background circles */}
+            {}
             <div className="absolute -top-10 -left-10 w-36 h-36 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
             <div className="absolute -bottom-10 -right-10 w-36 h-36 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
-            
+
             <div className="relative z-10 space-y-6">
               <div className="flex items-center gap-2">
                 <FaHeartbeat className="text-2xl text-teal-200 animate-pulse" />
                 <span className="text-base font-black tracking-tight text-white">Rural HealthCare</span>
               </div>
-              
+
               <div className="space-y-1.5">
                 <h2 className="text-2xl font-black leading-tight text-white tracking-tight">Access Digital Healthcare</h2>
                 <p className="text-xs text-teal-100/90 leading-relaxed font-semibold">
                   Connecting remote villages with instant online clinical consults, certified pharmacists, and smart AI medical monitoring.
                 </p>
               </div>
-              
-              {/* Value list */}
+
+              {}
               <div className="space-y-4 pt-4">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-teal-200 flex-shrink-0 text-sm shadow-sm">
@@ -528,10 +528,10 @@ const AuthSystem = () => {
             </div>
           </div>
 
-          {/* Form Column */}
+          {}
           <div className="w-full md:w-7/12 p-8 md:p-10 bg-white flex flex-col justify-center relative">
             <div>
-              <button 
+              <button
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-600 text-xs font-bold transition-all mb-4 cursor-pointer"
                 onClick={resetView}
               >
@@ -547,8 +547,8 @@ const AuthSystem = () => {
                     {currentView === "login" ? `${getUserTitle()} Login` : `${getUserTitle()} Registration`}
                   </h2>
                   <p className="text-[10px] text-slate-400 mt-0.5 font-bold uppercase tracking-wider">
-                    {currentView === "login" 
-                      ? (otpSent ? "Verify code sent to email" : "Enter phone to log in") 
+                    {currentView === "login"
+                      ? (otpSent ? "Verify code sent to email" : "Enter phone to log in")
                       : (otpSent ? "Verify code sent to email" : "Create your medical account")
                     }
                   </p>
@@ -562,7 +562,7 @@ const AuthSystem = () => {
                 </div>
               )}
 
-              {/* LOGIN FORM */}
+              {}
               {currentView === "login" && !otpSent && (
                 <form className="space-y-4" onSubmit={handleRequestLoginOTP}>
                   <div>
@@ -585,9 +585,9 @@ const AuthSystem = () => {
                     </div>
                   </div>
 
-                  <button 
-                    className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 disabled:opacity-50 hover:-translate-y-0.5 active:translate-y-0" 
-                    type="submit" 
+                  <button
+                    className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 disabled:opacity-50 hover:-translate-y-0.5 active:translate-y-0"
+                    type="submit"
                     disabled={loading}
                   >
                     {loading ? 'Sending OTP...' : 'Send OTP'}
@@ -601,7 +601,7 @@ const AuthSystem = () => {
                 </form>
               )}
 
-              {/* OTP VERIFICATION FOR LOGIN */}
+              {}
               {currentView === "login" && otpSent && (
                 <form className="space-y-4" onSubmit={handleVerifyLoginOTP}>
                   <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-semibold text-slate-600 space-y-0.5 shadow-sm">
@@ -628,9 +628,9 @@ const AuthSystem = () => {
                     </div>
                   </div>
 
-                  <button 
-                    className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 disabled:opacity-50" 
-                    type="submit" 
+                  <button
+                    className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 disabled:opacity-50"
+                    type="submit"
                     disabled={loading}
                   >
                     {loading ? 'Verifying...' : 'Verify & Login'}
@@ -652,7 +652,7 @@ const AuthSystem = () => {
                 <form className="space-y-3" onSubmit={handleRequestRegisterOTP}>
                   {/* Grid layout for fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
-                    
+
                     {/* First Name */}
                     <div>
                       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">First Name</label>
@@ -861,9 +861,9 @@ const AuthSystem = () => {
 
                   </div>
 
-                  <button 
-                    className="w-full py-2.5 mt-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 disabled:opacity-50 hover:-translate-y-0.5 active:translate-y-0" 
-                    type="submit" 
+                  <button
+                    className="w-full py-2.5 mt-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 disabled:opacity-50 hover:-translate-y-0.5 active:translate-y-0"
+                    type="submit"
                     disabled={loading}
                   >
                     {loading ? 'Sending OTP...' : 'Send OTP'}
@@ -904,9 +904,9 @@ const AuthSystem = () => {
                     </div>
                   </div>
 
-                  <button 
-                    className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 disabled:opacity-50" 
-                    type="submit" 
+                  <button
+                    className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 disabled:opacity-50"
+                    type="submit"
                     disabled={loading}
                   >
                     {loading ? 'Creating Account...' : 'Verify & Create Account'}

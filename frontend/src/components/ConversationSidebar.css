@@ -1,4 +1,4 @@
-/* Custom Webkit Scrollbars for Conversation List */
+
 .conversations-list::-webkit-scrollbar {
   width: 6px;
 }

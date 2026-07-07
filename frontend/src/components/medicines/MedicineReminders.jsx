@@ -1,5 +1,5 @@
-// src/components/medicines/MedicineReminders.jsx
-// Complete PWA-enabled Medicine Reminder system with offline support
+
+
 
 import React, { useState, useEffect, useRef } from 'react';
 import { healthTrackingAPI, authAPI } from '../../services/api';
@@ -28,9 +28,9 @@ import { FaPlus, FaCheck, FaTrash, FaRobot, FaExclamationTriangle, FaHeartbeat, 
 import Footer from '../Footer';
 import './MedicineReminders.css';
 
-// ============================================================
-// AI ADHERENCE PREDICTION
-// ============================================================
+
+
+
 async function fetchAdherencePrediction(patientId, reminders) {
   try {
     const token = localStorage.getItem('accessToken');
@@ -52,9 +52,9 @@ async function fetchAdherencePrediction(patientId, reminders) {
   }
 }
 
-// ============================================================
-// MAIN COMPONENT
-// ============================================================
+
+
+
 const MedicineReminders = () => {
   const [showModal, setShowModal]               = useState(false);
   const [medicines, setMedicines]               = useState([]);
@@ -483,8 +483,8 @@ const MedicineReminders = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50/30 via-slate-50 to-white text-slate-800 flex flex-col justify-between">
-      
-      {/* Premium Header */}
+
+      {}
       <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer group" onClick={() => window.location.href = '/'}>
@@ -493,7 +493,7 @@ const MedicineReminders = () => {
             </div>
             <span className="text-lg font-black text-slate-900 tracking-tight">Rural HealthCare</span>
           </div>
-          <button 
+          <button
             className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs font-bold transition-all shadow-sm cursor-pointer"
             onClick={() => window.location.href = '/'}
           >
@@ -502,10 +502,10 @@ const MedicineReminders = () => {
         </div>
       </header>
 
-      {/* Main Container */}
+      {}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Header Actions & PWA State Banner */}
+
+        {}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Medicine Reminders</h1>
@@ -521,14 +521,14 @@ const MedicineReminders = () => {
 
           <div className="flex flex-wrap items-center gap-2.5">
             {notifPermission !== 'granted' && (
-              <button 
+              <button
                 onClick={requestPermission}
                 className="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-amber-500/10 cursor-pointer"
               >
                 <FaBell /> Enable Alerts
               </button>
             )}
-            
+
             <button
               onClick={() => { setSoundOn(s => { setSoundEnabled(!s); return !s; }); }}
               className="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 transition-colors cursor-pointer"
@@ -546,7 +546,7 @@ const MedicineReminders = () => {
             </button>
 
             {installPrompt && (
-              <button 
+              <button
                 onClick={handleInstallPWA}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-950 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
               >
@@ -554,14 +554,14 @@ const MedicineReminders = () => {
               </button>
             )}
 
-            <button 
+            <button
               onClick={loadAdherencePrediction}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all border border-slate-200 cursor-pointer shadow-sm"
             >
               <FaRobot className="text-teal-655" /> AI Insights
             </button>
 
-            <button 
+            <button
               onClick={openModal}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-teal-600/10 cursor-pointer"
             >
@@ -570,7 +570,7 @@ const MedicineReminders = () => {
           </div>
         </div>
 
-        {/* Sync Status Banner */}
+        {}
         {syncStatus && (
           <div className={`mb-8 p-3 rounded-2xl text-xs font-bold text-center border ${
             isOffline ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-teal-50 border-teal-200 text-teal-600'
@@ -579,7 +579,7 @@ const MedicineReminders = () => {
           </div>
         )}
 
-        {/* Notification Blocked Alert */}
+        {}
         {notifPermission === 'denied' && (
           <div className="mb-8 p-4 bg-amber-50 border border-amber-200/60 text-amber-850 rounded-2xl text-xs font-semibold flex items-start gap-2.5">
             <FaExclamationTriangle className="text-amber-500 mt-0.5 flex-shrink-0" />
@@ -649,15 +649,15 @@ const MedicineReminders = () => {
                     onClick={sendInsightsEmail}
                     disabled={insightsEmailLoading || !!insightsEmailSent}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-                      insightsEmailSent 
-                        ? 'bg-emerald-600 text-white' 
+                      insightsEmailSent
+                        ? 'bg-emerald-600 text-white'
                         : 'bg-white text-slate-900 hover:bg-slate-100'
                     }`}
                   >
                     <FaEnvelope /> {insightsEmailLoading ? 'Sending...' : insightsEmailSent ? 'Emailed!' : 'Email Report'}
                   </button>
                 )}
-                <button 
+                <button
                   onClick={() => { setShowAdherence(false); setInsightsEmailSent(false); }}
                   className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer text-xs"
                 >
@@ -677,8 +677,8 @@ const MedicineReminders = () => {
                   <div className="mt-4 pt-4 border-t border-white/10 flex justify-center items-center gap-2">
                     <span className="text-xs text-slate-400">Risk Assessment:</span>
                     <span className={`px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${
-                      adherencePrediction.risk_level === 'high' 
-                        ? 'bg-rose-500/20 text-rose-350 border border-rose-500/40' 
+                      adherencePrediction.risk_level === 'high'
+                        ? 'bg-rose-500/20 text-rose-350 border border-rose-500/40'
                         : adherencePrediction.risk_level === 'medium'
                         ? 'bg-amber-500/20 text-amber-350 border border-amber-500/40'
                         : 'bg-emerald-500/20 text-emerald-350 border border-emerald-500/40'
@@ -737,7 +737,7 @@ const MedicineReminders = () => {
                   Log your prescribed medicines and times to setup alerts. Reminders synchronize across devices even when working offline.
                 </p>
               </div>
-              <button 
+              <button
                 onClick={openModal}
                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-650 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-teal-600/10 cursor-pointer"
               >
@@ -749,7 +749,7 @@ const MedicineReminders = () => {
               {medicines.map((medicine, idx) => {
                 const isTaken = takenToday[medicine.id];
                 const isTemp  = String(medicine.id).startsWith('temp_');
-                
+
                 return (
                   <div
                     key={medicine.id}
@@ -821,8 +821,8 @@ const MedicineReminders = () => {
                         onClick={() => !isTaken && markTaken(medicine)}
                         disabled={isTaken}
                         className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1 ${
-                          isTaken 
-                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed' 
+                          isTaken
+                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
                             : 'bg-teal-600 hover:bg-teal-700 text-white cursor-pointer shadow-teal-600/5'
                         }`}
                       >
@@ -863,15 +863,15 @@ const MedicineReminders = () => {
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="absolute inset-0" onClick={closeModal}></div>
-          
+
           <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-white">
               <h2 className="text-sm font-black text-slate-900 tracking-wide uppercase">
                 ➕ Add Medicine Reminder
               </h2>
-              <button 
-                onClick={closeModal} 
+              <button
+                onClick={closeModal}
                 className="w-7 h-7 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 flex items-center justify-center transition-colors cursor-pointer text-xs"
               >
                 ✕
@@ -933,8 +933,8 @@ const MedicineReminders = () => {
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTime())}
                     className="px-3 py-2 bg-white border border-slate-250 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-bold text-slate-700 focus:outline-none cursor-pointer flex-1"
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={addTime}
                     className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
                   >
@@ -946,8 +946,8 @@ const MedicineReminders = () => {
                     {selectedTimes.map((t) => (
                       <span key={t} className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 rounded-xl text-[10px] font-bold text-slate-700 shadow-sm">
                         ⏰ {t} <span className="text-slate-400">({getTimeLabel(t)})</span>
-                        <button 
-                          type="button" 
+                        <button
+                          type="button"
                           onClick={() => removeTime(t)}
                           className="w-4 h-4 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-650 flex items-center justify-center ml-1 text-[9px] font-extrabold cursor-pointer"
                         >
@@ -1035,8 +1035,8 @@ const MedicineReminders = () => {
                 </div>
               )}
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold transition-all shadow-md shadow-teal-600/10 cursor-pointer"
               >
                 ➕ Save Reminder Schedule
@@ -1054,8 +1054,8 @@ const MedicineReminders = () => {
             if (isTaken) return null;
 
             return (
-              <div 
-                key={item.id} 
+              <div
+                key={item.id}
                 className="bg-slate-900 border border-slate-800 rounded-3xl p-5 text-white shadow-2xl animate-bounce-short flex flex-col justify-between"
               >
                 <div className="flex items-start gap-3.5 mb-3">

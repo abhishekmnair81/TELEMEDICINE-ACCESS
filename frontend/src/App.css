@@ -1,7 +1,7 @@
-/* Import Font Awesome */
+
 @import '@fortawesome/fontawesome-free/css/all.min.css';
 
-/* Global Reset */
+
 * {
   margin: 0;
   padding: 0;
@@ -24,7 +24,7 @@ body {
   min-height: 100vh;
 }
 
-/* Common Utility Classes */
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -43,7 +43,7 @@ body {
   text-align: right;
 }
 
-/* Scrollbar Styling */
+
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -61,7 +61,7 @@ body {
   background: #a8a8a8;
 }
 
-/* Focus Styles */
+
 button:focus,
 input:focus,
 select:focus,
@@ -70,13 +70,13 @@ textarea:focus {
   outline-offset: 2px;
 }
 
-/* Loading States */
+
 .loading {
   opacity: 0.6;
   pointer-events: none;
 }
 
-/* Error States */
+
 .error {
   color: #dc2626;
   background: #fef2f2;
@@ -86,7 +86,7 @@ textarea:focus {
   margin: 10px 0;
 }
 
-/* Success States */
+
 .success {
   color: #059669;
   background: #f0fdf4;
@@ -96,13 +96,13 @@ textarea:focus {
   margin: 10px 0;
 }
 
-/* Responsive Images */
+
 img {
   max-width: 100%;
   height: auto;
 }
 
-/* Print Styles */
+
 @media print {
   .no-print {
     display: none !important;

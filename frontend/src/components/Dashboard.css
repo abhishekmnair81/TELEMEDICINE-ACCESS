@@ -1,4 +1,4 @@
-/* Premium Dashboard layout animations, modal location picker, & custom scrollbar utilities */
+
 
 :root {
   --rural-green-primary: #16a34a;
@@ -34,7 +34,7 @@
   --blur-lg: blur(12px);
 }
 
-/* Custom premium scrollbar styling */
+
 .premium-dashboard-scroll::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -81,7 +81,7 @@
   animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Telemedicine Node Network Animation */
+
 .telemedicine-node-network {
   position: absolute;
   inset: 0;
@@ -206,11 +206,9 @@
   }
 }
 
-/* ==========================================================================
-   PREMIUM LOCATION PICKER — Full-Screen Map Modal
-   ========================================================================== */
 
-/* ── Backdrop ── */
+
+
 .loc-backdrop {
   position: fixed;
   inset: 0;
@@ -230,14 +228,14 @@
   to { opacity: 1; }
 }
 
-/* ── Panel Container ── */
+
 .loc-panel {
   background: white;
   width: 100%;
   max-width: 1050px;
   height: min(780px, 90vh);
   border-radius: 28px;
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.25),
     0 0 0 1px rgba(0, 0, 0, 0.05);
   overflow: hidden;
@@ -252,7 +250,7 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ── Map Container & Markers ── */
+
 .loc-map {
   position: relative;
   width: 100%;
@@ -260,7 +258,7 @@
   background: #f1f5f9;
 }
 
-/* GPS Pulse dot */
+
 .loc-gps-pulse {
   position: absolute;
   top: 50%;
@@ -298,12 +296,12 @@
   position: absolute;
   top: -9px;
   left: -9px;
-  box-shadow: 
+  box-shadow:
     0 4px 12px rgba(22, 163, 74, 0.6),
     0 0 0 2px rgba(22, 163, 74, 0.2);
 }
 
-/* Search Sidebar styles */
+
 .loc-search-card {
   padding: 30px;
   display: flex;
@@ -529,7 +527,7 @@
   font-size: 13px;
 }
 
-/* Quick city chips */
+
 .loc-quick-cities {
   margin-bottom: 18px;
 }
@@ -575,7 +573,7 @@
   color: white;
 }
 
-/* Confirm button */
+
 .loc-confirm-btn {
   width: 100%;
   padding: 15px;
@@ -606,7 +604,7 @@
   transform: none;
 }
 
-/* Leaflet Map Control Styling */
+
 .loc-map .leaflet-container {
   font-family: inherit;
 }
@@ -700,9 +698,7 @@
   50% { transform: translateY(-6px); }
 }
 
-/* ==========================================================================
-   GOOGLE TRANSLATE BANNER & FRAME STRIP-OFF
-   ========================================================================== */
+
 .goog-te-banner-frame,
 .goog-te-banner-frame.skiptranslate,
 .goog-te-banner,
@@ -730,7 +726,7 @@ body {
   position: static !important;
 }
 
-/* Custom premium scrollbar hiding */
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -739,7 +735,7 @@ body {
   scrollbar-width: none;
 }
 
-/* Premium shine hover effect for primary buttons */
+
 .shine-button {
   position: relative;
   overflow: hidden;
@@ -760,7 +756,7 @@ body {
   transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Floating background blobs animations */
+
 @keyframes blobFloat {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-12px) scale(1.06); }

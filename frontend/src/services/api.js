@@ -1,18 +1,18 @@
-// services/api.js - COMPLETE FIXED VERSION WITH MULTIPLE IMAGES SUPPORT
+
 
 export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
-// Helper function to get auth token
+
 const getAuthToken = () => {
   return localStorage.getItem('accessToken');
 };
 
-// Helper function to get refresh token
+
 const getRefreshToken = () => {
   return localStorage.getItem('refreshToken');
 };
 
-// Helper function to get current user type
+
 const getCurrentUserType = () => {
   const userStr = localStorage.getItem('user');
   if (!userStr) return 'patient';
@@ -24,10 +24,10 @@ const getCurrentUserType = () => {
   }
 };
 
-// Helper function to refresh access token
+
 const refreshAccessToken = async () => {
   const refreshToken = getRefreshToken();
-  
+
   if (!refreshToken) {
     console.log('No refresh token available');
     throw new Error('No refresh token available');
@@ -48,13 +48,13 @@ const refreshAccessToken = async () => {
     }
 
     const data = await response.json();
-    
+
     if (data.access) {
       console.log('Token refreshed successfully');
       localStorage.setItem('accessToken', data.access);
       return data.access;
     }
-    
+
     throw new Error('No access token in refresh response');
   } catch (error) {
     console.error('Token refresh error:', error);
@@ -65,10 +65,10 @@ const refreshAccessToken = async () => {
   }
 };
 
-// Helper function to make API requests with automatic token refresh
+
 const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
   const token = getAuthToken();
-  
+
   const config = {
     headers: {
       'Content-Type': 'application/json',
@@ -81,20 +81,20 @@ const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
     const responseText = await response.text();
-    
+
     if (response.status === 401 && retryCount === 0) {
       console.log('Received 401, checking if token refresh is possible...');
-      
+
       let isTokenExpired = false;
       try {
         const errorData = JSON.parse(responseText);
-        isTokenExpired = errorData.code === 'token_not_valid' || 
+        isTokenExpired = errorData.code === 'token_not_valid' ||
                         errorData.detail?.includes('token') ||
                         errorData.detail?.includes('expired');
       } catch (e) {
         isTokenExpired = true;
       }
-      
+
       if (isTokenExpired && getRefreshToken()) {
         try {
           const newToken = await refreshAccessToken();
@@ -117,10 +117,10 @@ const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
         throw new Error('Session expired. Please login again.');
       }
     }
-    
+
     if (!response.ok) {
       console.error(`API Error (${response.status}):`, responseText);
-      
+
       let errorMessage = `Request failed with status ${response.status}`;
       try {
         const errorData = JSON.parse(responseText);
@@ -132,10 +132,10 @@ const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
           errorMessage = responseText || errorMessage;
         }
       }
-      
+
       throw new Error(errorMessage);
     }
-    
+
     try {
       return JSON.parse(responseText);
     } catch (e) {
@@ -150,7 +150,7 @@ const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
   }
 };
 
-// Auth API
+
 export const authAPI = {
   register: async (userData) => {
     return apiRequest('/auth/register/', {
@@ -164,22 +164,22 @@ export const authAPI = {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
-    
+
     if (response.access || response.accessToken) {
       const accessToken = response.access || response.accessToken;
       const refreshToken = response.refresh || response.refreshToken;
-      
+
       localStorage.setItem('accessToken', accessToken);
-      
+
       if (refreshToken) {
         localStorage.setItem('refreshToken', refreshToken);
       }
-      
+
       if (response.user) {
         localStorage.setItem('user', JSON.stringify(response.user));
       }
     }
-    
+
     return response;
   },
 
@@ -203,7 +203,7 @@ export const authAPI = {
   },
 };
 
-// Video Consultation API
+
 export const videoConsultationAPI = {
   createRoom: async (roomData) => {
     return apiRequest('/video-consultations/create-room/', {
@@ -221,7 +221,7 @@ export const videoConsultationAPI = {
     try {
       const response = await apiRequest(`/video-consultations/doctor/${doctorId}/rooms/`);
       console.log('[videoConsultationAPI] Raw response:', response);
-      
+
       if (Array.isArray(response)) {
         return response;
       } else if (response && Array.isArray(response.rooms)) {
@@ -244,7 +244,7 @@ export const videoConsultationAPI = {
     console.log('[videoConsultationAPI] Fetching rooms for patient:', patientId);
     try {
       const response = await apiRequest(`/video-consultations/patient/${patientId}/rooms/`);
-      
+
       if (Array.isArray(response)) {
         return response;
       } else if (response && Array.isArray(response.rooms)) {
@@ -284,7 +284,7 @@ export const videoConsultationAPI = {
   },
 };
 
-// Appointments API
+
 export const appointmentsAPI = {
   createAppointment: async (appointmentData) => {
     console.log('API: Creating appointment with data:', appointmentData);
@@ -304,7 +304,7 @@ export const appointmentsAPI = {
 
   getDoctorAppointments: async (doctorId) => {
     console.log('[appointmentsAPI] Fetching appointments for doctor ID:', doctorId);
-    
+
     try {
       const response = await apiRequest(`/appointments/?doctor__user=${doctorId}`);
       return response;
@@ -315,9 +315,9 @@ export const appointmentsAPI = {
       } catch (error2) {
         try {
           const allAppointments = await apiRequest('/appointments/');
-          const filtered = Array.isArray(allAppointments) 
-            ? allAppointments.filter(apt => 
-                apt.doctor === doctorId || 
+          const filtered = Array.isArray(allAppointments)
+            ? allAppointments.filter(apt =>
+                apt.doctor === doctorId ||
                 apt.doctor === parseInt(doctorId) ||
                 (apt.doctor_details && apt.doctor_details.id === doctorId)
               )
@@ -346,7 +346,7 @@ export const appointmentsAPI = {
   },
 };
 
-// Prescriptions API
+
 export const prescriptionsAPI = {
   createPrescription: async (prescriptionData) => {
     console.log('[prescriptionsAPI] Creating prescription:', prescriptionData);
@@ -376,7 +376,7 @@ export const prescriptionsAPI = {
   },
 };
 
-// Patients API
+
 export const patientsAPI = {
   getPatientDetails: async (patientId) => {
     return apiRequest(`/patients/${patientId}/`);
@@ -396,9 +396,9 @@ export const patientsAPI = {
   uploadProfilePicture: async (patientId, file) => {
     const formData = new FormData();
     formData.append('profile_picture', file);
-    
+
     const token = getAuthToken();
-    
+
     const response = await fetch(`${API_BASE_URL}/patients/${patientId}/upload_profile_picture/`, {
       method: 'POST',
       headers: {
@@ -406,12 +406,12 @@ export const patientsAPI = {
       },
       body: formData,
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to upload profile picture');
     }
-    
+
     return response.json();
   },
 
@@ -420,14 +420,14 @@ export const patientsAPI = {
   },
 };
 
-// Doctors API
+
 export const doctorsAPI = {
   getAllDoctors: () => apiRequest('/doctors/'),
   getDoctorById: (doctorId) => apiRequest(`/doctors/${doctorId}/`),
   getDoctorRatings: (doctorId) => apiRequest(`/doctors/${doctorId}/rating-summary/`),
   getDoctorAppointments: (doctorId) => apiRequest(`/appointments/doctor/${doctorId}/`),
   getAvailableDoctors: async (specialty) => {
-    const endpoint = specialty 
+    const endpoint = specialty
       ? `/doctors/?specialization=${specialty}&available=true`
       : '/doctors/?available=true';
     return apiRequest(endpoint);
@@ -443,9 +443,9 @@ export const doctorsAPI = {
   uploadProfilePicture: async (doctorId, file) => {
     const formData = new FormData();
     formData.append('profile_picture', file);
-    
+
     const token = getAuthToken();
-    
+
     const response = await fetch(`${API_BASE_URL}/doctors/${doctorId}/upload_profile_picture/`, {
       method: 'POST',
       headers: {
@@ -453,12 +453,12 @@ export const doctorsAPI = {
       },
       body: formData,
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to upload profile picture');
     }
-    
+
     return response.json();
   },
 
@@ -470,7 +470,7 @@ export const doctorsAPI = {
   },
 };
 
-// Health Records API
+
 export const healthRecordsAPI = {
   createRecord: async (recordData) => {
     return apiRequest('/health-records/', {
@@ -505,7 +505,7 @@ export const healthRecordsAPI = {
     if (metricType) params.append('metric_type', metricType);
     if (startDate) params.append('start_date', startDate);
     if (endDate) params.append('end_date', endDate);
-    
+
     return apiRequest(`/health-records/?patient=${patientId}&${params.toString()}`);
   },
 
@@ -521,7 +521,7 @@ export const healthRecordsAPI = {
   },
 };
 
-// Health Tracking API
+
 export const healthTrackingAPI = {
   createMetric: async (metricData) => {
     return apiRequest('/health-metrics/', {
@@ -608,12 +608,12 @@ export const healthTrackingAPI = {
     return apiRequest(`/medication-reminders/?${params}`);
   },
 
-  // ✅ FIXED: correct endpoint for log_intake
+
   logMedicationIntake: async (reminderId, data = {}) => {
     if (!reminderId) {
       throw new Error('reminderId is required for logMedicationIntake');
     }
-    return apiRequest(`/medication-reminders/${reminderId}/log_intake/`, { 
+    return apiRequest(`/medication-reminders/${reminderId}/log_intake/`, {
       method: 'POST',
       body: JSON.stringify({
         status: data.status || 'taken',
@@ -628,7 +628,7 @@ export const healthTrackingAPI = {
     return apiRequest(`/medication-reminders/${reminderId}/`, { method: 'DELETE' });
   },
 
-  // ── Sync endpoints (PWA offline support) ─────────────────────────────────
+
 
   syncMedicationLogs: async (logData) => {
     return apiRequest('/medication-reminders/sync-logs/', {
@@ -676,7 +676,7 @@ export const healthTrackingAPI = {
 };
 
 
-// Medicine/Medication API
+
 export const medicineAPI = {
   getAllMedicines: async () => {
     return apiRequest('/medicines/');
@@ -715,11 +715,11 @@ export const medicineAPI = {
   },
 };
 
-// Chat/AI Assistant API
+
 export const chatAPI = {
   sendMessage: async (message, userId = 'anonymous', language = 'English', options = {}) => {
     console.log('[chatAPI] Sending text message:', { message, userId, language });
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/chat/stream/`, {
         method: 'POST',
@@ -740,7 +740,7 @@ export const chatAPI = {
 
       console.log('[chatAPI] ✅ Received streaming response');
       return response;
-      
+
     } catch (error) {
       console.error('[chatAPI] Error:', error);
       throw error;
@@ -748,20 +748,20 @@ export const chatAPI = {
   },
 
   sendMessageWithImage: async (
-  message, 
-  imageFile, 
-  userId = 'anonymous', 
-  language = 'English', 
+  message,
+  imageFile,
+  userId = 'anonymous',
+  language = 'English',
   options = {},
   onProgress = null
 ) => {
-  console.log('[chatAPI] Sending message with image:', { 
-    message, 
-    imageFile: imageFile.name, 
-    userId, 
-    language 
+  console.log('[chatAPI] Sending message with image:', {
+    message,
+    imageFile: imageFile.name,
+    userId,
+    language
   });
-  
+
   try {
     const formData = new FormData();
     formData.append('msg', message);
@@ -773,8 +773,8 @@ export const chatAPI = {
     if (onProgress) {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        
-        // Upload progress
+
+
         xhr.upload.addEventListener('progress', (e) => {
           if (e.lengthComputable) {
             const percentComplete = Math.round((e.loaded / e.total) * 100);
@@ -786,8 +786,8 @@ export const chatAPI = {
           if (xhr.status >= 200 && xhr.status < 300) {
             console.log('[chatAPI] ✅ Image uploaded successfully');
             onProgress(100);
-            
-            // Return response as a readable stream-like object
+
+
             const response = {
               ok: true,
               body: {
@@ -799,7 +799,7 @@ export const chatAPI = {
               },
               text: async () => xhr.responseText
             };
-            
+
             resolve(response);
           } else {
             console.error('[chatAPI] Upload failed:', xhr.status, xhr.responseText);
@@ -823,7 +823,7 @@ export const chatAPI = {
         xhr.send(formData);
       });
     } else {
-      // Simple fetch without progress
+
       const response = await fetch(`${API_BASE_URL}/chat/image/`, {
         method: 'POST',
         body: formData,
@@ -839,7 +839,7 @@ export const chatAPI = {
       console.log('[chatAPI] ✅ Received streaming response');
       return response;
     }
-    
+
   } catch (error) {
     console.error('[chatAPI] Error sending image:', error);
     throw error;
@@ -851,9 +851,9 @@ export const chatAPI = {
   },
 };
 
-// ============================================================================
-// PHARMACY API - COMPLETE WITH MULTIPLE IMAGES SUPPORT
-// ============================================================================
+
+
+
 export const pharmacyAPI = {
   getAllMedicines: async (filters = {}) => {
     const params = new URLSearchParams(filters);
@@ -885,10 +885,10 @@ getOtherProductsOnly: async () => {
   scanPrescription: async (formData, onProgress = null) => {
     try {
       const token = getAuthToken();
-      
+
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        
+
         if (onProgress) {
           xhr.upload.addEventListener('progress', (e) => {
             if (e.lengthComputable) {
@@ -897,7 +897,7 @@ getOtherProductsOnly: async () => {
             }
           });
         }
-        
+
         xhr.addEventListener('load', () => {
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
@@ -915,11 +915,11 @@ getOtherProductsOnly: async () => {
             }
           }
         });
-        
+
         xhr.addEventListener('error', () => {
           reject(new Error('Network error'));
         });
-        
+
         xhr.open('POST', `${API_BASE_URL}/prescriptions/scan/`);
         if (token) {
           xhr.setRequestHeader('Authorization', `Bearer ${token}`);
@@ -932,7 +932,7 @@ getOtherProductsOnly: async () => {
     }
   },
 
-  
+
   getMedicineById: async (id) => {
     console.log('[pharmacyAPI] Fetching medicine by ID:', id);
     return apiRequest(`/medicines/${id}/`);
@@ -1000,7 +1000,7 @@ getOtherProductsOnly: async () => {
     const params = new URLSearchParams();
     if (sessionId) params.append('session_id', sessionId);
     if (phone) params.append('phone', phone);
-    
+
     return apiRequest(`/orders/my-orders/?${params.toString()}`);
   },
 
@@ -1019,17 +1019,17 @@ getOtherProductsOnly: async () => {
   uploadMedicineImages: async (medicineId, imageFiles, onProgress = null) => {
     try {
       const formData = new FormData();
-      
-      // Append multiple images
+
+
       Array.from(imageFiles).forEach((file) => {
         formData.append('images', file);
       });
-      
-      const token = getAuthToken(); // ✅ FIXED: Use getAuthToken()
-      
+
+      const token = getAuthToken();
+
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        
+
         if (onProgress) {
           xhr.upload.addEventListener('progress', (e) => {
             if (e.lengthComputable) {
@@ -1038,7 +1038,7 @@ getOtherProductsOnly: async () => {
             }
           });
         }
-        
+
         xhr.addEventListener('load', () => {
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
@@ -1056,13 +1056,13 @@ getOtherProductsOnly: async () => {
             }
           }
         });
-        
+
         xhr.addEventListener('error', () => {
           reject(new Error('Network error occurred'));
         });
-        
+
         xhr.open('POST', `${API_BASE_URL}/medicines/${medicineId}/add_images/`);
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`); // ✅ FIXED
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
         xhr.send(formData);
       });
     } catch (error) {
@@ -1075,72 +1075,72 @@ getOtherProductsOnly: async () => {
   createMedicineWithImages: async (medicineData, imageFiles, onProgress = null) => {
     try {
       const formData = new FormData();
-      
+
       console.log('[DEBUG] Original medicineData:', medicineData);
-      
-      // ✅ Map frontend categories to backend categories
+
+
       const categoryMapping = {
-        // Medical Devices → map to 'other'
+
         'thermometers': 'thermometers',
         'bp_monitors': 'bp_monitors',
         'glucometers': 'glucometers',
         'pulse_oximeters': 'pulse_oximeters',
         'nebulizers': 'nebulizers',
-        
-        // First Aid & Surgical
+
+
         'bandages': 'bandages',
         'antiseptics': 'antiseptics',
         'first_aid_kits': 'first_aid_kits',
         'syringes': 'syringes',
         'gloves': 'gloves',
-        
-        // Baby Care
+
+
         'diapers': 'diapers',
         'baby_food': 'baby_food',
         'baby_wipes': 'baby_wipes',
-        
-        // Personal Care
+
+
         'sanitizers': 'sanitizers',
         'masks': 'masks',
         'cotton': 'cotton',
-        
-        // Diabetic - ✅ FIXED
+
+
         'diabetic_supplies': 'diabetic_supplies',
-        'insulin': 'diabetic_supplies',  // ✅ Map insulin to diabetic_supplies
+        'insulin': 'diabetic_supplies',
       };
-      
-      // ✅ Get backend category
+
+
       let backendCategory = medicineData.category || 'other';
-      
-      // Map category if needed
+
+
       if (categoryMapping[backendCategory]) {
         console.log(`[DEBUG] Mapping category ${backendCategory} → ${categoryMapping[backendCategory]}`);
         backendCategory = categoryMapping[backendCategory];
       }
-      
-      // Parse price and MRP
+
+
       let price = parseFloat(medicineData.price || 0);
       let mrp = parseFloat(medicineData.mrp || medicineData.price || 0);
-      
+
       if (isNaN(price)) price = 0;
       if (isNaN(mrp)) mrp = price;
       if (mrp < price) mrp = price;
-      
-      // Parse stock
+
+
       let stock = parseInt(medicineData.stock_quantity || 0);
       if (isNaN(stock)) stock = 0;
-      
-      // ✅ CRITICAL FIX: Make form optional for non-medicines
+
+
       const medicineCategories = [
         'medicines', 'prescription_drugs', 'otc_medicines',
         'antibiotics', 'painkillers', 'vitamins', 'ayurvedic', 'homeopathy'
       ];
       const isMedicine = medicineCategories.includes(backendCategory.toLowerCase());
-      
+
       const cleanedData = {
         name: medicineData.name || 'Unnamed Product',
-        category: backendCategory, 
-        form: isMedicine ? (medicineData.form || 'tablet') : (medicineData.form || ''),  // ✅ Empty for non-medicines
+        category: backendCategory,
+        form: isMedicine ? (medicineData.form || 'tablet') : (medicineData.form || ''),
         price: price.toFixed(2),
         mrp: mrp.toFixed(2),
         stock_quantity: stock.toString(),
@@ -1155,32 +1155,32 @@ getOtherProductsOnly: async () => {
         expiry_date: medicineData.expiry_date || '',
         requires_prescription: medicineData.requires_prescription ? 'true' : 'false',
       };
-      
+
       console.log('[DEBUG] Cleaned data:', cleanedData);
-      
-      // Append all fields to FormData
+
+
       Object.keys(cleanedData).forEach(key => {
         formData.append(key, cleanedData[key]);
       });
-      
-      // Append image_urls if provided
+
+
       if (medicineData.image_urls) {
         formData.append('image_urls', JSON.stringify(medicineData.image_urls));
       }
-      
-      // Append images
+
+
       if (imageFiles && imageFiles.length > 0) {
         Array.from(imageFiles).forEach((file, index) => {
           formData.append('images', file);
           console.log(`[DEBUG] Appended image ${index + 1}:`, file.name);
         });
       }
-      
+
       const token = getAuthToken();
-      
+
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        
+
         if (onProgress) {
           xhr.upload.addEventListener('progress', (e) => {
             if (e.lengthComputable) {
@@ -1189,7 +1189,7 @@ getOtherProductsOnly: async () => {
             }
           });
         }
-        
+
         xhr.addEventListener('load', () => {
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
@@ -1210,11 +1210,11 @@ getOtherProductsOnly: async () => {
             }
           }
         });
-        
+
         xhr.addEventListener('error', () => {
           reject(new Error('Network error'));
         });
-        
+
         xhr.open('POST', `${API_BASE_URL}/medicines/upload_images/`);
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
         xhr.send(formData);
@@ -1229,8 +1229,8 @@ getOtherProductsOnly: async () => {
   updateMedicineWithImages: async (medicineId, medicineData, imageFiles, onProgress = null) => {
     try {
       const formData = new FormData();
-      
-      // Append medicine data
+
+
       Object.keys(medicineData).forEach(key => {
         if (medicineData[key] !== null && medicineData[key] !== undefined && medicineData[key] !== '') {
           if (key === 'image_urls') {
@@ -1240,19 +1240,19 @@ getOtherProductsOnly: async () => {
           }
         }
       });
-      
-      // Append multiple images if provided
+
+
       if (imageFiles && imageFiles.length > 0) {
         Array.from(imageFiles).forEach((file) => {
           formData.append('images', file);
         });
       }
-      
-      const token = getAuthToken(); // ✅ FIXED: Use getAuthToken()
-      
+
+      const token = getAuthToken();
+
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        
+
         if (onProgress) {
           xhr.upload.addEventListener('progress', (e) => {
             if (e.lengthComputable) {
@@ -1261,7 +1261,7 @@ getOtherProductsOnly: async () => {
             }
           });
         }
-        
+
         xhr.addEventListener('load', () => {
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
@@ -1279,13 +1279,13 @@ getOtherProductsOnly: async () => {
             }
           }
         });
-        
+
         xhr.addEventListener('error', () => {
           reject(new Error('Network error occurred'));
         });
-        
+
         xhr.open('PUT', `${API_BASE_URL}/medicines/${medicineId}/update_images/`);
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`); // ✅ FIXED
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
         xhr.send(formData);
       });
     } catch (error) {
@@ -1294,12 +1294,10 @@ getOtherProductsOnly: async () => {
     }
   },
 
-  /**
-   * ✅ Delete specific image
-   */
+
   deleteMedicineImage: async (medicineId, imageId) => {
     try {
-      const token = getAuthToken(); // ✅ FIXED: Use getAuthToken()
+      const token = getAuthToken();
       const response = await fetch(
         `${API_BASE_URL}/medicines/${medicineId}/delete_image/${imageId}/`,
         {
@@ -1309,12 +1307,12 @@ getOtherProductsOnly: async () => {
           },
         }
       );
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to delete image');
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('[pharmacyAPI] deleteMedicineImage error:', error);
@@ -1322,12 +1320,10 @@ getOtherProductsOnly: async () => {
     }
   },
 
-  /**
-   * ✅ Set primary image
-   */
+
   setPrimaryImage: async (medicineId, imageId) => {
     try {
-      const token = getAuthToken(); // ✅ FIXED: Use getAuthToken()
+      const token = getAuthToken();
       const response = await fetch(
         `${API_BASE_URL}/medicines/${medicineId}/set_primary_image/`,
         {
@@ -1339,12 +1335,12 @@ getOtherProductsOnly: async () => {
           body: JSON.stringify({ image_id: imageId }),
         }
       );
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to set primary image');
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('[pharmacyAPI] setPrimaryImage error:', error);
@@ -1352,10 +1348,10 @@ getOtherProductsOnly: async () => {
     }
   },
 
-  // ============================================================================
-  // ORDER MANAGEMENT
-  // ============================================================================
-  
+
+
+
+
   getAllOrders: async (filters = {}) => {
     const params = new URLSearchParams(filters);
     return apiRequest(`/medicine-orders/?${params.toString()}`);
@@ -1382,9 +1378,9 @@ getOtherProductsOnly: async () => {
   updatePaymentStatus: async (orderId, paymentStatus, paymentId = '') => {
     return apiRequest(`/medicine-orders/${orderId}/update_payment_status/`, {
       method: 'PATCH',
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         payment_status: paymentStatus,
-        payment_id: paymentId 
+        payment_id: paymentId
       }),
     });
   },
@@ -1397,10 +1393,10 @@ getOtherProductsOnly: async () => {
     return apiRequest(`/medicine-orders/?patient=${userId}`);
   },
 
-  // ============================================================================
-  // DASHBOARD & ANALYTICS
-  // ============================================================================
-  
+
+
+
+
   getDashboard: async (pharmacistId) => {
     return apiRequest(`/pharmacy/dashboard/?pharmacist_id=${pharmacistId}`);
   },
@@ -1409,10 +1405,10 @@ getOtherProductsOnly: async () => {
     return apiRequest(`/pharmacy/analytics/?days=${days}`);
   },
 
-  // ============================================================================
-  // PRESCRIPTIONS
-  // ============================================================================
-  
+
+
+
+
   getPharmacistPrescriptions: async (filters = {}) => {
     const params = new URLSearchParams(filters);
     return apiRequest(`/pharmacy/prescriptions/?${params.toString()}`);
@@ -1425,12 +1421,12 @@ getOtherProductsOnly: async () => {
     });
   },
 
-  // ============================================================================
-  // UTILITIES
-  // ============================================================================
-  
+
+
+
+
   bulkUpdateStock: async (updates) => {
-    const promises = updates.map(update => 
+    const promises = updates.map(update =>
       apiRequest(`/medicines/${update.medicine_id}/update_stock/`, {
         method: 'PATCH',
         body: JSON.stringify({
@@ -1470,7 +1466,7 @@ export const cartAPI = {
   addToCart: async (medicineId, quantity = 1) => {
     try {
       const user = cartAPI.getCurrentUser();
-      
+
       const requestBody = {
         medicine_id: medicineId,
         quantity: quantity
@@ -1496,7 +1492,7 @@ export const cartAPI = {
   getCart: async () => {
     try {
       const user = cartAPI.getCurrentUser();
-      
+
       const params = new URLSearchParams();
       if (!user) {
         params.append('session_id', cartAPI.getSessionId());
@@ -1513,7 +1509,7 @@ export const cartAPI = {
   updateQuantity: async (cartItemId, quantity) => {
     try {
       const user = cartAPI.getCurrentUser();
-      
+
       const requestBody = { quantity };
       if (!user) {
         requestBody.session_id = cartAPI.getSessionId();
@@ -1533,7 +1529,7 @@ export const cartAPI = {
   removeItem: async (cartItemId) => {
     try {
       const user = cartAPI.getCurrentUser();
-      
+
       const requestBody = {};
       if (!user) {
         requestBody.session_id = cartAPI.getSessionId();
@@ -1553,7 +1549,7 @@ export const cartAPI = {
   clearCart: async () => {
     try {
       const user = cartAPI.getCurrentUser();
-      
+
       const params = new URLSearchParams();
       if (!user) {
         params.append('session_id', cartAPI.getSessionId());
@@ -1572,7 +1568,7 @@ export const cartAPI = {
   applyCoupon: async (couponCode) => {
     try {
       const user = cartAPI.getCurrentUser();
-      
+
       const requestBody = {
         coupon_code: couponCode.toUpperCase()
       };
@@ -1595,7 +1591,7 @@ export const cartAPI = {
   getCartCount: async () => {
     try {
       const user = cartAPI.getCurrentUser();
-      
+
       const params = new URLSearchParams();
       if (!user) {
         params.append('session_id', cartAPI.getSessionId());
@@ -1610,7 +1606,7 @@ export const cartAPI = {
   }
 };
 
-// Notifications API
+
 export const notificationsAPI = {
   getUserNotifications: async (userId) => {
     return apiRequest(`/notifications/?user=${userId}`);
@@ -1641,7 +1637,7 @@ export const notificationsAPI = {
   },
 };
 
-// Voice API
+
 export const voiceAPI = {
   textToSpeech: async (text, language = 'English') => {
     return apiRequest('/voice/text-to-speech/', {
@@ -1653,11 +1649,11 @@ export const voiceAPI = {
   speechToText: async (audioData) => {
     const formData = new FormData();
     formData.append('audio', audioData);
-    
+
     return apiRequest('/voice/transcribe/', {
       method: 'POST',
       body: formData,
-      headers: {}, 
+      headers: {},
     });
   },
 
@@ -1669,7 +1665,7 @@ export const voiceAPI = {
     const formData = new FormData();
     formData.append('audio', audioData);
     if (conversationId) formData.append('conversationId', conversationId);
-    
+
     return apiRequest('/voice/chat/', {
       method: 'POST',
       body: formData,
@@ -1678,7 +1674,7 @@ export const voiceAPI = {
   },
 };
 
-// Doctor Ratings API
+
 export const doctorRatingsAPI = {
   getPatientDoctors: async (patientId) => {
     return apiRequest(`/patients/my-doctors/?patient=${patientId}`);
@@ -1704,7 +1700,7 @@ export const doctorRatingsAPI = {
   },
 };
 
-// Conversations API
+
 export const conversationsAPI = {
   getConversations: async (userId, showArchived = false) => {
     const params = showArchived ? `?user_id=${userId}&is_archived=true` : `?user_id=${userId}`;
@@ -1739,7 +1735,7 @@ export const conversationsAPI = {
   },
 };
 
-// Health Report API
+
 export const healthReportAPI = {
   generateReport: async (conversationId, userId, patientName = '') => {
     return apiRequest('/conversations/generate-report/', {
@@ -1789,11 +1785,11 @@ export const autocorrectAPI = {
         },
         body: JSON.stringify({ query })
       })
-      
+
       if (!response.ok) {
         throw new Error('Autocorrect failed')
       }
-      
+
       const data = await response.json()
       return data.result
     } catch (error) {
@@ -1804,12 +1800,7 @@ export const autocorrectAPI = {
 }
 
 export const patientPrescriptionsAPI = {
-  /**
-   * GET /api/patient/prescriptions/
-   * List all prescriptions for the logged-in patient
-   * @param {string} status  - optional filter: 'active' | 'completed' | 'cancelled'
-   * @param {string} search  - optional search string
-   */
+
   getMyPrescriptions: async (status = "", search = "") => {
     const params = new URLSearchParams();
     if (status) params.set("status", status);
@@ -1817,42 +1808,30 @@ export const patientPrescriptionsAPI = {
     return apiRequest(`/patient/prescriptions/?${params}`);
   },
 
-  /**
-   * GET /api/patient/prescriptions/<id>/
-   * Get a single prescription — returns 404 if it doesn't belong to this patient
-   */
+
   getPrescriptionById: async (id) => {
     return apiRequest(`/patient/prescriptions/${id}/`);
   },
 
-  /**
-   * GET /api/patient/prescriptions/active/
-   * Active prescriptions only (shortcut)
-   */
+
   getActivePrescriptions: async () => {
     return apiRequest(`/patient/prescriptions/active/`);
   },
 
-  /**
-   * GET /api/patient/prescriptions/stats/
-   * Prescription statistics (totals, follow-ups, etc.)
-   */
+
   getPrescriptionStats: async () => {
     return apiRequest(`/patient/prescriptions/stats/`);
   },
 
-  /**
-   * GET /api/patient/prescriptions/<id>/medications/
-   * Just the medications list for a prescription
-   */
+
   getPrescriptionMedications: async (id) => {
     return apiRequest(`/patient/prescriptions/${id}/medications/`);
   },
 };
 
-// ──────────────────────────────────────────────────────────────────────────────
-// ADD THIS BLOCK TO api.js  (alongside your other API objects)
-// ──────────────────────────────────────────────────────────────────────────────
+
+
+
 
 export const pharmacistsAPI = {
   getProfile: (userId) =>
@@ -1868,7 +1847,7 @@ export const pharmacistsAPI = {
     const formData = new FormData();
     formData.append('profile_picture', file);
 
-    const token = getAuthToken(); 
+    const token = getAuthToken();
 
     const response = await fetch(`${API_BASE_URL}/pharmacists/${userId}/upload_profile_picture/`, {
       method: 'POST',

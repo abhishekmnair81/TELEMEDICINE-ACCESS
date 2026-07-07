@@ -30,14 +30,14 @@ const PharmacySearch = () => {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   const initialTab = searchParams.get('tab') || 'medicines';
-  
+
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [allProducts, setAllProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Load all products
+
   useEffect(() => {
     const loadProducts = async () => {
       try {
@@ -53,32 +53,32 @@ const PharmacySearch = () => {
     loadProducts();
   }, []);
 
-  // Filter products based on search and tab
+
   useEffect(() => {
     const query = searchQuery.toLowerCase().trim();
-    
-    // Define medicine categories
+
+
     const medicineCategories = [
       'medicines', 'prescription_drugs', 'otc_medicines',
       'antibiotics', 'painkillers', 'vitamins', 'ayurvedic', 'homeopathy'
     ];
-    
+
     const filtered = allProducts.filter(product => {
-      // Search filter
-      const matchesQuery = !query || 
+
+      const matchesQuery = !query ||
         product.name?.toLowerCase().includes(query) ||
         product.generic_name?.toLowerCase().includes(query) ||
         product.manufacturer?.toLowerCase().includes(query) ||
         product.brand?.toLowerCase().includes(query) ||
         product.category?.toLowerCase().includes(query);
-      
-      // Tab filter
+
+
       const isMedicine = medicineCategories.includes(product.category?.toLowerCase());
       const matchesTab = activeTab === 'medicines' ? isMedicine : !isMedicine;
-      
+
       return matchesQuery && matchesTab;
     });
-    
+
     setFilteredProducts(filtered);
   }, [searchQuery, activeTab, allProducts]);
 
@@ -90,9 +90,9 @@ const PharmacySearch = () => {
     <div key={product.id} className="bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full">
       <div className="aspect-[4/3] bg-slate-50 dark:bg-slate-900/50 relative overflow-hidden">
         {getMedicineImage(product) ? (
-          <img 
-            src={getMedicineImage(product)} 
-            alt={product.name} 
+          <img
+            src={getMedicineImage(product)}
+            alt={product.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
@@ -100,7 +100,7 @@ const PharmacySearch = () => {
             <FaBox />
           </div>
         )}
-        
+
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           {product.stock_quantity <= 50 && product.stock_quantity > 0 && (
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-500 text-white shadow-sm">
@@ -128,7 +128,7 @@ const PharmacySearch = () => {
             </p>
           )}
         </div>
-        
+
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50 dark:border-slate-700/60">
           <div className="flex flex-col">
             <span className="text-[8px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Price</span>
@@ -142,26 +142,26 @@ const PharmacySearch = () => {
     </div>
   );
 
-  // Count products for each tab
+
   const medicineCategories = [
     'medicines', 'prescription_drugs', 'otc_medicines',
     'antibiotics', 'painkillers', 'vitamins', 'ayurvedic', 'homeopathy'
   ];
-  
-  const medicineCount = allProducts.filter(p => 
+
+  const medicineCount = allProducts.filter(p =>
     medicineCategories.includes(p.category?.toLowerCase())
   ).length;
-  
-  const otherCount = allProducts.filter(p => 
+
+  const otherCount = allProducts.filter(p =>
     !medicineCategories.includes(p.category?.toLowerCase())
   ).length;
 
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 transition-colors duration-300">
-      {/* Header */}
+      {}
       <header className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/80 sticky top-0 z-40 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <button 
+          <button
             className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-black uppercase tracking-wider transition-colors border-none cursor-pointer"
             onClick={() => navigate(-1)}
           >
@@ -182,9 +182,9 @@ const PharmacySearch = () => {
         </div>
       </header>
 
-      {/* Search Results */}
+      {}
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Tabs */}
+        {}
         <div className="flex border-b border-slate-200 dark:border-slate-800 mb-8 overflow-x-auto nms-stores-scrollbar">
           <button
             onClick={() => setActiveTab('medicines')}
@@ -208,7 +208,7 @@ const PharmacySearch = () => {
           </button>
         </div>
 
-        {/* Results Header */}
+        {}
         <div className="mb-6">
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
             {searchQuery ? `Search Results: "${searchQuery}"` : 'All Products'}
@@ -216,7 +216,7 @@ const PharmacySearch = () => {
           <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1">Found {filteredProducts.length} matching products</p>
         </div>
 
-        {/* Results Grid */}
+        {}
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3 text-center">
             <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
@@ -233,8 +233,8 @@ const PharmacySearch = () => {
               {searchQuery ? 'No Products Found' : 'Start Searching'}
             </h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold max-w-sm mx-auto">
-              {searchQuery 
-                ? 'Try different keywords or check spelling.' 
+              {searchQuery
+                ? 'Try different keywords or check spelling.'
                 : 'Enter a product name, category, or manufacturer.'}
             </p>
           </div>

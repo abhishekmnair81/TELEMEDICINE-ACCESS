@@ -17,7 +17,7 @@ const resolveImageUrl = (url) => {
   return `${MEDIA_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
-// ─── AI Analysis Hook ─────────────────────────────────────────────────────────
+
 const useMedicineImageAI = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -68,7 +68,7 @@ const useMedicineImageAI = () => {
   return { isAnalyzing, analysisResult, error, analyzeImage, reset };
 };
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+
 const MEDICINE_CATEGORIES = [
   'medicines', 'prescription_drugs', 'otc_medicines',
   'antibiotics', 'painkillers', 'vitamins', 'ayurvedic', 'homeopathy',
@@ -77,7 +77,7 @@ const MEDICINE_CATEGORIES = [
 const normalizeMedicineForm = (formStr, category) => {
   if (!formStr) return '';
   const s = formStr.toLowerCase().trim();
-  
+
   const isMedCategory = MEDICINE_CATEGORIES.includes(category?.toLowerCase());
   if (!isMedCategory) return '';
 
@@ -149,7 +149,7 @@ const EMPTY_FORM = {
 
 const MAX_IMAGES = 10;
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+
 const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
   const fileInputRef = useRef(null);
   const [imageUrlInput, setImageUrlInput] = useState('');
@@ -227,7 +227,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
     setForm(prev => ({ ...prev, [key]: value }));
   };
 
-  // ── Local Files Handler ──────────────────────────────────────────────────────
+
   const handleLocalFileSelect = (e) => {
     const files = Array.from(e.target.files);
     addLocalFiles(files);
@@ -250,7 +250,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
     showToast(`Added ${files.length} image(s)`, 'success');
   };
 
-  // ── AI Analysis ──────────────────────────────────────────────────────────────
+
   const handleAIUrlAnalyze = async () => {
     const url = aiUrlInput.trim();
     if (!url || !/^https?:\/\//.test(url)) {
@@ -258,13 +258,13 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
       return;
     }
 
-    // Add to images gallery if space available
+
     if (images.length < MAX_IMAGES) {
       setImages(prev => [...prev, { file: null, preview: url, isExisting: false, isUrl: true }]);
     }
 
     try {
-      // Fetch the image as a blob to pass to analyzeImage
+
       const res = await fetch(url);
       const blob = await res.blob();
       const file = new File([blob], 'ai-image.jpg', { type: blob.type || 'image/jpeg' });
@@ -330,13 +330,13 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    
-    // Check if dragging files
+
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
       if (files.length > 0) {
         addLocalFiles(files);
-        // Auto-analyze the first image in AI mode
+
         if (mode === 'ai' && !isAnalyzing && !analysisResult) {
           handleAIImageSelect(files[0]);
         }
@@ -344,7 +344,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
         showToast('Please drop image files', 'error');
       }
     } else {
-      // dropped URLs from browser image dragging
+
       const url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
       if (url && /^https?:\/\//.test(url)) {
         addImageUrl(url);
@@ -354,7 +354,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
     }
   };
 
-  // ── Save ─────────────────────────────────────────────────────────────────────
+
   const handleSave = async () => {
     if (!form.name?.trim()) return showToast('Product name is required', 'error');
     if (!form.category) return showToast('Category is required', 'error');
@@ -397,7 +397,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
       setUploadProgress(100);
       showToast(editingProduct ? 'Product updated successfully!' : 'Product added successfully!', 'success');
 
-      // Reset form after successful save
+
       setTimeout(() => {
         setIsSaving(false);
         setUploadProgress(0);
@@ -423,10 +423,10 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
     }`;
   };
 
-  // ─── Render ──────────────────────────────────────────────────────────────────
+
   return (
     <div className="flex flex-col h-full max-h-[90vh] md:max-h-[85vh] w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-100 relative">
-      {/* Toast Notification */}
+      {}
       {toast && (
         <div
           className={`fixed bottom-6 right-6 z-[99999] flex items-center gap-2.5 px-5 py-3.5 rounded-2xl shadow-xl border text-sm font-bold transition-all duration-300 animate-bounce ${
@@ -448,7 +448,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
         </div>
       )}
 
-      {/* Header Panel */}
+      {}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 border-b border-slate-100 bg-gradient-to-r from-emerald-50/40 via-teal-50/10 to-transparent sticky top-0 z-20">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
@@ -460,7 +460,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
           </div>
         </div>
 
-        {/* Mode Toggle Tabs */}
+        {}
         <div className="flex p-1 bg-slate-100 rounded-xl gap-1 w-full sm:w-auto shadow-inner">
           <button
             className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2 rounded-lg text-xs font-bold transition-all ${
@@ -485,12 +485,12 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
         </div>
       </div>
 
-      {/* Main Workspace Body */}
+      {}
       <div className="flex-1 overflow-y-auto p-6 space-y-6 ami-form-scrollbar">
-        {/* AI Magic Helper Card */}
+        {}
         {mode === 'ai' && (
           <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500/5 via-teal-500/5 to-transparent border border-emerald-500/10 rounded-2xl p-5 animate-ai-glow">
-            {/* Header info */}
+            {}
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
                 <FaMagic className="text-sm animate-pulse" />
@@ -501,7 +501,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
             </div>
 
-            {/* Input fields for AI */}
+            {}
             <div className="flex flex-col sm:flex-row gap-2.5 items-center w-full relative">
               <input
                 type="url"
@@ -521,7 +521,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </button>
             </div>
 
-            {/* AI Loading State Overlay */}
+            {}
             {isAnalyzing && (
               <div className="absolute inset-0 bg-white/95 z-10 flex flex-col items-center justify-center gap-3">
                 <div className="scan-indicator" />
@@ -533,7 +533,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
             )}
 
-            {/* AI Success Result Tags */}
+            {}
             {analysisResult && (
               <div className="mt-4 p-4 bg-emerald-50/30 border border-emerald-100/50 rounded-xl flex flex-col items-center text-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm">
@@ -559,7 +559,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
             )}
 
-            {/* AI Error Alert */}
+            {}
             {aiError && (
               <div className="mt-3 flex items-start gap-2.5 p-3.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs font-bold">
                 <FaExclamationTriangle className="text-base flex-shrink-0 mt-0.5" />
@@ -570,7 +570,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
             )}
 
-            {/* Helper Text */}
+            {}
             {!analysisResult && !aiError && !isAnalyzing && (
               <p className="mt-3 text-[10px] font-medium text-slate-400 flex items-center gap-1.5 justify-center sm:justify-start">
                 <FaBolt className="text-emerald-500" />
@@ -580,10 +580,10 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
           </div>
         )}
 
-        {/* Master Workspace Layout Grid */}
+        {}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
-          {/* LEFT: Image Gallery Hub Column */}
+
+          {}
           <div className="lg:col-span-4 space-y-4">
             <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 space-y-4">
               <div className="flex items-center justify-between text-xs font-extrabold text-slate-500 uppercase tracking-wider">
@@ -595,7 +595,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
 
               {images.length > 0 ? (
                 <div className="space-y-3">
-                  {/* Large Preview box */}
+                  {}
                   <div
                     className={`relative aspect-square w-full rounded-xl overflow-hidden bg-white border border-slate-200 transition-all ${
                       isDragging ? 'border-emerald-500 bg-emerald-50/15' : ''
@@ -613,7 +613,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                       }}
                     />
 
-                    {/* Image navigation overlays */}
+                    {}
                     {images.length > 1 && (
                       <>
                         <button
@@ -631,12 +631,12 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                       </>
                     )}
 
-                    {/* Counter Overlay */}
+                    {}
                     <span className="absolute bottom-2 left-1/2 -translate-y-0 -translate-x-1/2 px-2.5 py-1 bg-black/60 text-white rounded-full text-[10px] font-black tracking-wide">
                       {currentIdx + 1} / {images.length}
                     </span>
 
-                    {/* Delete Item overlay */}
+                    {}
                     <button
                       className="absolute top-2 right-2 w-8 h-8 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center shadow-md border border-rose-500/20 text-xs transition-all active:scale-95 opacity-0 group-hover:opacity-100"
                       onClick={() => removeImage(currentIdx)}
@@ -645,7 +645,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                     </button>
                   </div>
 
-                  {/* Thumbnail Row */}
+                  {}
                   <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-thin">
                     {images.map((img, idx) => (
                       <div
@@ -699,7 +699,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                 </div>
               )}
 
-              {/* Upload & Url Actions */}
+              {}
               <div className="space-y-2 pt-1 border-t border-slate-200/50">
                 {images.length < MAX_IMAGES && (
                   <div className="flex gap-1.5 items-center w-full">
@@ -737,10 +737,10 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
             </div>
           </div>
 
-          {/* RIGHT: Form Fields Column */}
+          {}
           <div className="lg:col-span-8 space-y-6">
-            
-            {/* Section: General Info */}
+
+            {}
             <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
               <div className="flex items-center gap-2 text-slate-800 font-bold text-sm border-b border-slate-100 pb-2.5">
                 <FaBox className="text-teal-600 text-xs" />
@@ -748,7 +748,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Category Selection */}
+                {}
                 <Field label="Category *" icon={<FaTag />} aiField={aiFilledFields.has('category')} full>
                   <select
                     value={form.category}
@@ -767,7 +767,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                   {aiFilledFields.has('category') && <AIBadge />}
                 </Field>
 
-                {/* Name */}
+                {}
                 <Field label="Product Name *" icon={<FaBox />} aiField={aiFilledFields.has('name')}>
                   <input
                     type="text"
@@ -779,7 +779,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                   {aiFilledFields.has('name') && <AIBadge />}
                 </Field>
 
-                {/* Manufacturer / Brand */}
+                {}
                 <Field
                   label={isMedicine ? 'Manufacturer' : 'Brand'}
                   icon={<FaTag />}
@@ -795,7 +795,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                   {aiFilledFields.has(isMedicine ? 'manufacturer' : 'brand') && <AIBadge />}
                 </Field>
 
-                {/* Generic Name (medicine only) */}
+                {}
                 {isMedicine && (
                   <Field label="Generic Name" icon={<FaPills />} aiField={aiFilledFields.has('generic_name')} full>
                     <input
@@ -811,7 +811,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
             </div>
 
-            {/* Section: Medical Specifications (Conditional) */}
+            {}
             {isMedicine && (
               <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center gap-2 text-slate-800 font-bold text-sm border-b border-slate-100 pb-2.5">
@@ -820,7 +820,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Form */}
+                  {}
                   <Field label="Form *" icon={<FaPills />} aiField={aiFilledFields.has('form')}>
                     <select
                       value={form.form}
@@ -835,7 +835,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                     {aiFilledFields.has('form') && <AIBadge />}
                   </Field>
 
-                  {/* Strength */}
+                  {}
                   <Field label="Strength / Dosage" icon={<FaChartBar />} aiField={aiFilledFields.has('strength')}>
                     <input
                       type="text"
@@ -850,7 +850,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
             )}
 
-            {/* Section: Device Specifications (Conditional for non-medicine) */}
+            {}
             {!isMedicine && (
               <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center gap-2 text-slate-800 font-bold text-sm border-b border-slate-100 pb-2.5">
@@ -871,7 +871,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
             )}
 
-            {/* Section: Price & Stock Catalog */}
+            {}
             <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
               <div className="flex items-center gap-2 text-slate-800 font-bold text-sm border-b border-slate-100 pb-2.5">
                 <FaDollarSign className="text-teal-600 text-xs" />
@@ -879,7 +879,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* MRP */}
+                {}
                 <Field label="MRP (₹) *" icon={<FaDollarSign />} aiField={aiFilledFields.has('mrp')}>
                   <input
                     type="number"
@@ -892,7 +892,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                   {aiFilledFields.has('mrp') && <AIBadge />}
                 </Field>
 
-                {/* Selling Price */}
+                {}
                 <Field label="Selling Price (₹) *" icon={<FaDollarSign />} aiField={aiFilledFields.has('price')}>
                   <input
                     type="number"
@@ -905,7 +905,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                   {aiFilledFields.has('price') && <AIBadge />}
                 </Field>
 
-                {/* Stock Quantity */}
+                {}
                 <Field label="Stock Quantity *" icon={<FaWarehouse />}>
                   <input
                     type="number"
@@ -918,7 +918,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
             </div>
 
-            {/* Section: Supply details & Expiry */}
+            {}
             <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
               <div className="flex items-center gap-2 text-slate-800 font-bold text-sm border-b border-slate-100 pb-2.5">
                 <FaCalendar className="text-teal-600 text-xs" />
@@ -926,7 +926,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Pack Size */}
+                {}
                 <Field label="Pack Size" icon={<FaBox />} aiField={aiFilledFields.has('pack_size')}>
                   <input
                     type="text"
@@ -938,7 +938,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                   {aiFilledFields.has('pack_size') && <AIBadge />}
                 </Field>
 
-                {/* Batch Number */}
+                {}
                 <Field label="Batch Number" icon={<FaCalendar />}>
                   <input
                     type="text"
@@ -949,7 +949,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                   />
                 </Field>
 
-                {/* Expiry Date */}
+                {}
                 <Field label="Expiry Date" icon={<FaCalendar />}>
                   <input
                     type="date"
@@ -961,7 +961,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
             </div>
 
-            {/* Section: Prescription & Storage */}
+            {}
             <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
               <div className="flex items-center gap-2 text-slate-800 font-bold text-sm border-b border-slate-100 pb-2.5">
                 <FaThermometerHalf className="text-teal-600 text-xs" />
@@ -969,7 +969,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
 
               <div className="grid grid-cols-1 gap-4">
-                {/* Storage Condition */}
+                {}
                 {isMedicine && (
                   <Field label="Storage Condition" icon={<FaThermometerHalf />}>
                     <select
@@ -985,7 +985,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                   </Field>
                 )}
 
-                {/* Prescription Checkbox */}
+                {}
                 {isMedicine && (
                   <label className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-100 hover:bg-slate-100/70 rounded-xl cursor-pointer transition-colors w-full select-none mt-1">
                     <input
@@ -1005,7 +1005,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
             </div>
 
-            {/* Section: Description & Composition */}
+            {}
             <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
               <div className="flex items-center gap-2 text-slate-800 font-bold text-sm border-b border-slate-100 pb-2.5">
                 <FaClipboardList className="text-teal-600 text-xs" />
@@ -1013,7 +1013,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
               </div>
 
               <div className="grid grid-cols-1 gap-4">
-                {/* Description */}
+                {}
                 <Field label="Description" icon={<FaClipboardList />} aiField={aiFilledFields.has('description')} full>
                   <textarea
                     value={form.description}
@@ -1026,10 +1026,10 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                   {aiFilledFields.has('description') && <AIBadge />}
                 </Field>
 
-                {/* Medicine details composition */}
+                {}
                 {isMedicine && (
                   <>
-                    {/* Composition */}
+                    {}
                     <Field label="Composition" icon={<FaPills />} aiField={aiFilledFields.has('composition')} full>
                       <textarea
                         value={form.composition}
@@ -1042,7 +1042,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                       {aiFilledFields.has('composition') && <AIBadge />}
                     </Field>
 
-                    {/* Side Effects */}
+                    {}
                     <Field label="Side Effects" icon={<FaExclamationTriangle />} aiField={aiFilledFields.has('side_effects')} full>
                       <textarea
                         value={form.side_effects}
@@ -1055,7 +1055,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
                       {aiFilledFields.has('side_effects') && <AIBadge />}
                     </Field>
 
-                    {/* Contraindications */}
+                    {}
                     <Field label="Contraindications" icon={<FaExclamationTriangle />} aiField={aiFilledFields.has('contraindications')} full>
                       <textarea
                         value={form.contraindications}
@@ -1076,7 +1076,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
         </div>
       </div>
 
-      {/* Uploading Product Loading Progress Bar */}
+      {}
       {uploadProgress > 0 && uploadProgress < 100 && (
         <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50 z-20">
           <div className="flex items-center justify-between text-xs font-bold text-slate-600 mb-1.5">
@@ -1095,7 +1095,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
         </div>
       )}
 
-      {/* Sticky Bottom Actions Footer */}
+      {}
       <div className="flex items-center justify-between gap-4 p-5 border-t border-slate-100 bg-slate-50/50 sticky bottom-0 z-20">
         <div>
           {aiFilledFields.size > 0 && (
@@ -1132,7 +1132,7 @@ const AddMedicineWithAI = ({ onSave, onCancel, editingProduct = null }) => {
   );
 };
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+
 const AIBadge = () => (
   <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2.5 py-1 bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-full text-[10px] font-black pointer-events-none shadow-sm shadow-emerald-100/10">
     <FaMagic className="text-[8px] animate-pulse" /> AI

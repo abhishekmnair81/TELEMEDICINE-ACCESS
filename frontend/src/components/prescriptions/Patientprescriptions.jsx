@@ -6,14 +6,14 @@ import Footer from '../Footer';
 import { FaHeartbeat, FaArrowLeft, FaFileMedical, FaPrescriptionBottle, FaPrint, FaDownload, FaCalendarAlt, FaCheck, FaTimes, FaSearch, FaUserMd, FaExclamationTriangle, FaLock, FaSync } from 'react-icons/fa';
 import './Patientprescriptions.css';
 
-// ─── Status config ─────────────────────────────────────────────────────────
+
 const STATUS = {
   active:    { label: 'Active',    badge: 'bg-emerald-50 text-emerald-600 border border-emerald-200' },
   completed: { label: 'Completed', badge: 'bg-blue-50 text-blue-600 border border-blue-200' },
   cancelled: { label: 'Cancelled', badge: 'bg-slate-50 text-slate-500 border border-slate-200' },
 };
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+
 const fmt = (date) => {
   if (!date) return '—';
   return new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -25,7 +25,7 @@ const daysUntil = (date) => {
   return diff;
 };
 
-// ─── PrescriptionDownloadButton ──────────────────────────────────────────────
+
 const PrescriptionDownloadButton = ({
   prescription,
   size = 'md',
@@ -34,11 +34,11 @@ const PrescriptionDownloadButton = ({
   showIcon = true,
   className = '',
 }) => {
-  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [status, setStatus] = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleDownload = async (e) => {
-    e.stopPropagation(); // prevent card click / modal events bubbling
+    e.stopPropagation();
     if (status === 'loading') return;
     if (!prescription) {
       setErrorMsg('No prescription data available');
@@ -67,7 +67,7 @@ const PrescriptionDownloadButton = ({
     return label || 'Download PDF';
   };
 
-  const btnClasses = size === 'sm' 
+  const btnClasses = size === 'sm'
     ? 'px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider rounded-lg'
     : size === 'lg'
     ? 'w-full py-3 text-xs font-extrabold uppercase tracking-wider rounded-xl justify-center'
@@ -109,7 +109,7 @@ const PrescriptionDownloadButton = ({
   );
 };
 
-// ─── Stat Card ─────────────────────────────────────────────────────────────
+
 const StatCard = ({ icon, value, label, bg, text }) => (
   <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-4">
     <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg ${bg} ${text}`}>
@@ -122,14 +122,14 @@ const StatCard = ({ icon, value, label, bg, text }) => (
   </div>
 );
 
-// ─── Prescription Card ──────────────────────────────────────────────────────
+
 const PrescriptionCard = ({ rx, onClick }) => {
   const st = STATUS[rx.status] || STATUS.active;
   const days = daysUntil(rx.follow_up_date);
   const meds = rx.medications || [];
 
   return (
-    <div 
+    <div
       className="bg-white border border-slate-200/80 hover:border-teal-500/40 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between h-full group"
       onClick={() => onClick(rx)}
     >
@@ -188,7 +188,7 @@ const PrescriptionCard = ({ rx, onClick }) => {
   );
 };
 
-// ─── Prescription Modal ─────────────────────────────────────────────────────
+
 const PrescriptionModal = ({ rx, onClose }) => {
   if (!rx) return null;
   const st = STATUS[rx.status] || STATUS.active;
@@ -201,7 +201,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={onClose}>
       <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-        {/* Modal Header */}
+        {}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-gradient-to-r from-teal-800 to-teal-700 text-white">
           <div>
             <div className="flex items-center gap-2">
@@ -217,7 +217,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={handlePrint}
               className="p-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl transition-all cursor-pointer"
               title="Print Case Sheet"
@@ -233,7 +233,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
               className="bg-white/15 hover:bg-white/25 text-white border border-white/25 hover:border-white/40"
             />
 
-            <button 
+            <button
               onClick={onClose}
               className="w-7 h-7 rounded-full bg-white/10 hover:bg-red-50 text-white hover:text-red-650 flex items-center justify-center transition-colors cursor-pointer text-xs"
             >
@@ -242,10 +242,10 @@ const PrescriptionModal = ({ rx, onClose }) => {
           </div>
         </div>
 
-        {/* Modal Body */}
+        {}
         <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white space-y-6">
-          
-          {/* Hospital Stamp */}
+
+          {}
           {(rx.hospital_name || rx.doctor_name) && (
             <div className="relative p-5 bg-gradient-to-br from-teal-50/50 to-emerald-50/30 border border-teal-500/20 rounded-2xl">
               <div className="absolute right-6 top-1/2 -translate-y-1/2 text-5xl font-black text-teal-600/5 select-none pointer-events-none">Rx</div>
@@ -259,7 +259,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
             </div>
           )}
 
-          {/* Info cards */}
+          {}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-4 text-xs font-semibold text-slate-500 space-y-1">
               <h4 className="text-[10px] font-black text-teal-655 uppercase tracking-widest mb-1.5">Patient Details</h4>
@@ -268,7 +268,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
               {rx.patient_gender && <p>Gender: <strong className="text-slate-800 font-bold">{rx.patient_gender}</strong></p>}
               {rx.patient_phone && <p>Contact: <strong className="text-slate-800 font-bold">{rx.patient_phone}</strong></p>}
             </div>
-            
+
             <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-4 text-xs font-semibold text-slate-500 space-y-2">
               <h4 className="text-[10px] font-black text-teal-655 uppercase tracking-widest">Case Status</h4>
               <span className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${st.badge}`}>{st.label}</span>
@@ -276,7 +276,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
             </div>
           </div>
 
-          {/* Diagnosis */}
+          {}
           {rx.diagnosis && (
             <div className="space-y-2">
               <h4 className="text-[10px] font-black text-teal-655 uppercase tracking-widest">Clinical Diagnosis</h4>
@@ -286,7 +286,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
             </div>
           )}
 
-          {/* Medications */}
+          {}
           {meds.length > 0 && (
             <div className="space-y-3.5">
               <h4 className="text-[10px] font-black text-teal-655 uppercase tracking-widest">Prescribed Medications ({meds.length})</h4>
@@ -303,7 +303,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
                           <span className="px-2 py-0.5 bg-teal-50 border border-teal-200 text-teal-650 rounded-lg text-[10px] font-black uppercase tracking-wider">{med.dosage}</span>
                         )}
                       </div>
-                      
+
                       <div className="flex flex-wrap gap-4 text-slate-500 font-semibold mt-2.5">
                         {med.frequency && <span>🕐 Frequency: {med.frequency}</span>}
                         {med.duration && <span>📅 Duration: {med.duration}</span>}
@@ -316,7 +316,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
             </div>
           )}
 
-          {/* Vitals */}
+          {}
           {Object.keys(vitals).length > 0 && (
             <div className="space-y-3">
               <h4 className="text-[10px] font-black text-teal-655 uppercase tracking-widest">Logged Vital Signs</h4>
@@ -331,7 +331,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
             </div>
           )}
 
-          {/* Lab tests */}
+          {}
           {rx.lab_tests && (
             <div className="space-y-2">
               <h4 className="text-[10px] font-black text-teal-655 uppercase tracking-widest">Recommended Lab Diagnostics</h4>
@@ -341,7 +341,7 @@ const PrescriptionModal = ({ rx, onClose }) => {
             </div>
           )}
 
-          {/* Notes */}
+          {}
           {rx.notes && (
             <div className="space-y-2">
               <h4 className="text-[10px] font-black text-teal-655 uppercase tracking-widest">Doctor's Observational Notes</h4>
@@ -466,7 +466,7 @@ export default function PatientPrescriptions() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50/30 via-slate-50 to-white text-slate-800 flex flex-col justify-between">
-      
+
       {/* Branded Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -478,13 +478,13 @@ export default function PatientPrescriptions() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <button 
+            <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs font-bold transition-all shadow-sm cursor-pointer"
             >
               <FaArrowLeft /> Back
             </button>
-            <button 
+            <button
               onClick={fetchData}
               className="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 transition-all cursor-pointer"
               title="Refresh Prescriptions History"
@@ -497,7 +497,7 @@ export default function PatientPrescriptions() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Banner Area */}
         <div className="mb-10">
           <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">My Prescriptions</h1>
@@ -526,7 +526,7 @@ export default function PatientPrescriptions() {
               className="w-full pl-11 pr-10 py-3 bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-2xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400 shadow-sm"
             />
             {searchInput && (
-              <button 
+              <button
                 onClick={() => setSearchInput('')}
                 className="absolute right-4 text-slate-400 hover:text-slate-650"
               >
@@ -536,8 +536,8 @@ export default function PatientPrescriptions() {
           </div>
 
           <div className="md:col-span-4">
-            <select 
-              value={filter} 
+            <select
+              value={filter}
               onChange={(e) => setFilter(e.target.value)}
               className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-2xl text-xs font-bold text-slate-700 focus:outline-none transition-all cursor-pointer shadow-sm"
             >
@@ -559,7 +559,7 @@ export default function PatientPrescriptions() {
           <div className="text-center py-20 bg-white border border-rose-100 rounded-3xl max-w-md mx-auto flex flex-col items-center gap-4">
             <FaExclamationTriangle className="text-rose-600 w-12 h-12" />
             <div className="text-xs font-bold text-slate-800">{error}</div>
-            <button 
+            <button
               onClick={fetchData}
               className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-teal-600/10 cursor-pointer"
             >
@@ -572,8 +572,8 @@ export default function PatientPrescriptions() {
             <div>
               <h3 className="font-extrabold text-slate-900">No Prescriptions Registered</h3>
               <p className="text-xs text-slate-500 mt-2 font-medium leading-relaxed">
-                {search || filter 
-                  ? 'Try matching other queries or clearing your current search string.' 
+                {search || filter
+                  ? 'Try matching other queries or clearing your current search string.'
                   : 'Your digital prescriptions will appear dynamically here after consultations with doctors.'}
               </p>
             </div>

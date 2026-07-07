@@ -77,7 +77,7 @@ const PatientProfile = () => {
     try {
       setLoading(true)
       console.log('[PatientProfile] Loading profile...')
-      
+
       const userData = authAPI.getCurrentUser()
       if (!userData) {
         console.log('[PatientProfile] No user data - redirecting')
@@ -97,16 +97,16 @@ const PatientProfile = () => {
         console.log('[PatientProfile] Fetching profile for user:', userData.id)
         const profile = await patientsAPI.getPatientDetails(userData.id)
         console.log('[PatientProfile] ✅ Got profile:', profile)
-        
+
         setPatientProfile(profile)
-        
-        // Set profile picture URL
+
+
         if (profile.profile_picture_url) {
           setProfilePictureUrl(profile.profile_picture_url)
         } else {
           setProfilePictureUrl(null)
         }
-        
+
         setFormData({
           first_name: profile.first_name || '',
           last_name: profile.last_name || '',
@@ -284,9 +284,9 @@ const PatientProfile = () => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col justify-between patient-profile-container">
-      {/* HEADER SECTION */}
+      {}
       <header className="rural-topbar w-full">
-        {/* Top Emergency Strip */}
+        {}
         <div className="rural-info-strip hidden md:block py-2 bg-gradient-to-r from-green-800 to-green-700 text-white text-xs font-semibold">
           <div className="rural-wrapper max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center">
             <div className="rural-contact-info flex items-center gap-6">
@@ -299,11 +299,11 @@ const PatientProfile = () => {
           </div>
         </div>
 
-        {/* Navbar */}
+        {}
         <div className="rural-navbar-wrap bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 py-2.5 md:py-4 shadow-sm">
           <div className="rural-wrapper max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button 
+              <button
                 className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-all"
                 onClick={() => navigate('/patient-dashboard')}
               >
@@ -313,7 +313,7 @@ const PatientProfile = () => {
             </div>
             <div>
               {!isEditing ? (
-                <button 
+                <button
                   className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
                   onClick={() => setIsEditing(true)}
                 >
@@ -321,14 +321,14 @@ const PatientProfile = () => {
                 </button>
               ) : (
                 <div className="flex items-center gap-2">
-                  <button 
+                  <button
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50"
                     onClick={handleSave}
                     disabled={saving}
                   >
                     <FaSave /> {saving ? 'Saving...' : 'Save'}
                   </button>
-                  <button 
+                  <button
                     className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 disabled:opacity-50"
                     onClick={handleCancel}
                     disabled={saving}
@@ -342,28 +342,28 @@ const PatientProfile = () => {
         </div>
       </header>
 
-      {/* MAIN CONTAINER */}
+      {}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* LEFT PANEL: PROFILE CARD & STATS */}
+
+          {}
           <div className="lg:col-span-4 space-y-6">
-            
-            {/* Primary Profile Card */}
+
+            {}
             <div className="bg-white rounded-3xl border border-gray-200/70 overflow-hidden shadow-sm">
               <div className="bg-gradient-to-br from-green-600 to-green-700 p-8 text-center text-white relative">
-                
-                {/* Photo wrapper */}
+
+                {}
                 <div className="relative w-28 h-28 mx-auto mb-4 group">
-                  <div 
+                  <div
                     onClick={handleProfilePictureClick}
                     className={`w-full h-full rounded-full border-4 border-white bg-green-50/30 overflow-hidden flex items-center justify-center text-white shadow-md relative ${profilePictureUrl && !isEditing ? 'cursor-pointer' : 'cursor-default'}`}
                   >
                     {profilePictureUrl ? (
                       <div className="relative w-full h-full">
-                        <img 
-                          src={profilePictureUrl} 
-                          alt="Profile" 
+                        <img
+                          src={profilePictureUrl}
+                          alt="Profile"
                           className="w-full h-full object-cover"
                           onError={() => setProfilePictureUrl(null)}
                         />
@@ -379,7 +379,7 @@ const PatientProfile = () => {
                   </div>
 
                   {isEditing && (
-                    <button 
+                    <button
                       onClick={() => { setShowUrlInput(true); setProfilePictureInput(profilePictureUrl || '') }}
                       className="absolute -bottom-1 -right-1 bg-white hover:bg-gray-100 text-green-700 w-8 h-8 rounded-full flex items-center justify-center shadow-lg border border-gray-200 transition-transform hover:scale-105"
                       title="Set Photo URL"
@@ -392,7 +392,7 @@ const PatientProfile = () => {
                 {showUrlInput && isEditing && (
                   <div className="absolute inset-0 bg-gray-900/95 p-4 flex flex-col justify-center items-center z-10 transition-all">
                     <span className="text-xs font-bold text-white mb-2">Provide Image Address URL</span>
-                    <input 
+                    <input
                       type="url"
                       value={profilePictureInput}
                       onChange={e => setProfilePictureInput(e.target.value)}
@@ -400,13 +400,13 @@ const PatientProfile = () => {
                       className="w-full text-gray-900 text-xs px-3 py-2 rounded-lg border border-gray-300 focus:outline-none mb-2"
                     />
                     <div className="flex gap-2 w-full">
-                      <button 
+                      <button
                         onClick={handleProfilePictureUrlSave}
                         className="flex-1 bg-green-600 text-white text-[11px] font-bold py-1.5 rounded-md hover:bg-green-700"
                       >
                         Apply
                       </button>
-                      <button 
+                      <button
                         onClick={() => { setShowUrlInput(false); setProfilePictureInput('') }}
                         className="flex-1 bg-gray-800 text-white text-[11px] font-bold py-1.5 rounded-md hover:bg-gray-700"
                       >
@@ -416,7 +416,7 @@ const PatientProfile = () => {
                   </div>
                 )}
 
-                {/* Patient Name / Badge */}
+                {}
                 {!isEditing ? (
                   <div>
                     <h2 className="text-xl font-extrabold tracking-tight">{formData.first_name} {formData.last_name}</h2>
@@ -426,7 +426,7 @@ const PatientProfile = () => {
                   </div>
                 ) : (
                   <div className="space-y-2 mt-2">
-                    <input 
+                    <input
                       type="text"
                       name="first_name"
                       value={formData.first_name}
@@ -434,7 +434,7 @@ const PatientProfile = () => {
                       placeholder="First Name"
                       className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-center text-sm placeholder-white/50 text-white focus:outline-none focus:border-white focus:bg-white/20"
                     />
-                    <input 
+                    <input
                       type="text"
                       name="last_name"
                       value={formData.last_name}
@@ -446,7 +446,7 @@ const PatientProfile = () => {
                 )}
               </div>
 
-              {/* Patient Basic Quick Stats badges */}
+              {}
               <div className="p-6 bg-gray-50/70 border-t border-gray-100 grid grid-cols-2 gap-3 text-center text-xs">
                 {formData.date_of_birth && (
                   <div className="bg-white p-2.5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
@@ -475,13 +475,13 @@ const PatientProfile = () => {
               </div>
             </div>
 
-            {/* Health summary / count indicators */}
+            {}
             {patientProfile && patientProfile.statistics && (
               <div className="bg-white rounded-3xl p-6 border border-gray-200/70 shadow-sm space-y-4">
                 <h3 className="text-sm font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
                   <FaHeartbeat className="text-green-600" /> Medical Log Summary
                 </h3>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
                     <div className="flex items-center gap-2 text-xs font-semibold text-gray-600">
@@ -514,10 +514,10 @@ const PatientProfile = () => {
             )}
           </div>
 
-          {/* RIGHT PANEL: FULL EDITABLE DETAILS */}
+          {}
           <div className="lg:col-span-8 space-y-6">
-            
-            {/* Contact & Personal details card */}
+
+            {}
             <div className="bg-white rounded-3xl border border-gray-200/70 shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                 <h3 className="font-extrabold text-gray-900 text-sm tracking-tight flex items-center gap-2">
@@ -526,10 +526,10 @@ const PatientProfile = () => {
               </div>
 
               <div className="p-6 space-y-6">
-                
-                {/* 2x2 Grid for Contact Details */}
+
+                {}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
+
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Phone Number</label>
                     <div className="flex items-center gap-2 text-gray-700 bg-gray-50/50 border border-gray-200 p-3 rounded-xl">
@@ -546,7 +546,7 @@ const PatientProfile = () => {
                         <span className="text-xs font-semibold">{displayValue(formData.email)}</span>
                       </div>
                     ) : (
-                      <input 
+                      <input
                         type="email"
                         name="email"
                         value={formData.email}
@@ -563,13 +563,13 @@ const PatientProfile = () => {
                       <div className="flex items-center gap-2 text-gray-700 bg-gray-50/50 border border-gray-200 p-3 rounded-xl">
                         <FaCalendarAlt className="text-gray-400 flex-shrink-0" />
                         <span className="text-xs font-semibold">
-                          {formData.date_of_birth 
+                          {formData.date_of_birth
                             ? new Date(formData.date_of_birth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
                             : 'Not provided'}
                         </span>
                       </div>
                     ) : (
-                      <input 
+                      <input
                         type="date"
                         name="date_of_birth"
                         value={formData.date_of_birth}
@@ -587,7 +587,7 @@ const PatientProfile = () => {
                         <span className="text-xs font-bold text-rose-600">{displayValue(formData.blood_group)}</span>
                       </div>
                     ) : (
-                      <select 
+                      <select
                         name="blood_group"
                         value={formData.blood_group}
                         onChange={handleInputChange}
@@ -609,7 +609,7 @@ const PatientProfile = () => {
                         <span className="text-xs font-semibold capitalize">{formData.gender || 'Not provided'}</span>
                       </div>
                     ) : (
-                      <select 
+                      <select
                         name="gender"
                         value={formData.gender}
                         onChange={handleInputChange}
@@ -628,14 +628,14 @@ const PatientProfile = () => {
                       <div className="flex items-center gap-2 text-gray-700 bg-gray-50/50 border border-gray-200 p-3 rounded-xl">
                         <FaMapMarkerAlt className="text-gray-400 flex-shrink-0" />
                         <span className="text-xs font-semibold">
-                          {formData.city || formData.state 
+                          {formData.city || formData.state
                             ? `${formData.city}${formData.city && formData.state ? ', ' : ''}${formData.state}`
                             : 'Not provided'}
                         </span>
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 gap-2">
-                        <input 
+                        <input
                           type="text"
                           name="city"
                           value={formData.city}
@@ -643,7 +643,7 @@ const PatientProfile = () => {
                           placeholder="City"
                           className="w-full text-xs font-medium bg-white border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
-                        <input 
+                        <input
                           type="text"
                           name="state"
                           value={formData.state}
@@ -656,7 +656,7 @@ const PatientProfile = () => {
                   </div>
                 </div>
 
-                {/* Complete Address & Pincode */}
+                {}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-100">
                   <div className="md:col-span-2 space-y-1">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Complete Address</label>
@@ -665,7 +665,7 @@ const PatientProfile = () => {
                         {displayValue(formData.address)}
                       </p>
                     ) : (
-                      <textarea 
+                      <textarea
                         name="address"
                         value={formData.address}
                         onChange={handleInputChange}
@@ -683,7 +683,7 @@ const PatientProfile = () => {
                         {displayValue(formData.pincode)}
                       </div>
                     ) : (
-                      <input 
+                      <input
                         type="text"
                         name="pincode"
                         value={formData.pincode}
@@ -697,10 +697,10 @@ const PatientProfile = () => {
               </div>
             </div>
 
-            {/* Emergency Contacts & Vitals card */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              {/* Emergency Contact Card */}
+
+              {}
               <div className="bg-white rounded-3xl border border-gray-200/70 p-6 shadow-sm space-y-4">
                 <h3 className="text-sm font-extrabold text-gray-900 tracking-tight flex items-center gap-2 border-b border-gray-100 pb-3">
                   <FaUserInjured className="text-rose-600" /> Emergency Contact
@@ -714,7 +714,7 @@ const PatientProfile = () => {
                         {displayValue(formData.emergency_contact_name)}
                       </div>
                     ) : (
-                      <input 
+                      <input
                         type="text"
                         name="emergency_contact_name"
                         value={formData.emergency_contact_name}
@@ -732,7 +732,7 @@ const PatientProfile = () => {
                         {displayValue(formData.emergency_contact_number)}
                       </div>
                     ) : (
-                      <input 
+                      <input
                         type="tel"
                         name="emergency_contact_number"
                         value={formData.emergency_contact_number}
@@ -745,7 +745,7 @@ const PatientProfile = () => {
                 </div>
               </div>
 
-              {/* Physical Metrics Card */}
+              {}
               <div className="bg-white rounded-3xl border border-gray-200/70 p-6 shadow-sm space-y-4">
                 <h3 className="text-sm font-extrabold text-gray-900 tracking-tight flex items-center gap-2 border-b border-gray-100 pb-3">
                   <FaRuler className="text-green-600" /> Physical Vitals
@@ -759,7 +759,7 @@ const PatientProfile = () => {
                         {formData.height ? `${formData.height} cm` : 'Not provided'}
                       </div>
                     ) : (
-                      <input 
+                      <input
                         type="number"
                         name="height"
                         value={formData.height}
@@ -779,7 +779,7 @@ const PatientProfile = () => {
                         {formData.weight ? `${formData.weight} kg` : 'Not provided'}
                       </div>
                     ) : (
-                      <input 
+                      <input
                         type="number"
                         name="weight"
                         value={formData.weight}
@@ -804,7 +804,7 @@ const PatientProfile = () => {
               </div>
             </div>
 
-            {/* Medical history & conditions card */}
+            {}
             <div className="bg-white rounded-3xl border border-gray-200/70 shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-100 bg-gray-50/50">
                 <h3 className="font-extrabold text-gray-900 text-sm tracking-tight flex items-center gap-2">
@@ -813,8 +813,8 @@ const PatientProfile = () => {
               </div>
 
               <div className="p-6 space-y-6">
-                
-                {/* Allergies */}
+
+                {}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
                     <FaAllergies className="text-rose-500" /> Allergies
@@ -824,7 +824,7 @@ const PatientProfile = () => {
                       {displayValue(formData.allergies) === 'Not provided' ? 'No known allergies reported' : formData.allergies}
                     </p>
                   ) : (
-                    <textarea 
+                    <textarea
                       name="allergies"
                       value={formData.allergies}
                       onChange={handleInputChange}
@@ -835,7 +835,7 @@ const PatientProfile = () => {
                   )}
                 </div>
 
-                {/* Chronic Conditions */}
+                {}
                 <div className="space-y-2 pt-2 border-t border-gray-100">
                   <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
                     <FaUserInjured className="text-amber-500" /> Chronic Conditions
@@ -845,7 +845,7 @@ const PatientProfile = () => {
                       {displayValue(formData.chronic_conditions) === 'Not provided' ? 'No chronic medical conditions listed' : formData.chronic_conditions}
                     </p>
                   ) : (
-                    <textarea 
+                    <textarea
                       name="chronic_conditions"
                       value={formData.chronic_conditions}
                       onChange={handleInputChange}
@@ -856,7 +856,7 @@ const PatientProfile = () => {
                   )}
                 </div>
 
-                {/* Medications */}
+                {}
                 <div className="space-y-2 pt-2 border-t border-gray-100">
                   <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
                     <FaPills className="text-green-600" /> Current Medications
@@ -866,7 +866,7 @@ const PatientProfile = () => {
                       {displayValue(formData.current_medications) === 'Not provided' ? 'No active regular medications logged' : formData.current_medications}
                     </p>
                   ) : (
-                    <textarea 
+                    <textarea
                       name="current_medications"
                       value={formData.current_medications}
                       onChange={handleInputChange}
@@ -877,7 +877,7 @@ const PatientProfile = () => {
                   )}
                 </div>
 
-                {/* Medical History */}
+                {}
                 <div className="space-y-2 pt-2 border-t border-gray-100">
                   <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
                     <FaNotesMedical className="text-blue-500" /> Past Medical History
@@ -887,7 +887,7 @@ const PatientProfile = () => {
                       {displayValue(formData.medical_history) === 'Not provided' ? 'No historical operations or medical files uploaded' : formData.medical_history}
                     </p>
                   ) : (
-                    <textarea 
+                    <textarea
                       name="medical_history"
                       value={formData.medical_history}
                       onChange={handleInputChange}
@@ -905,17 +905,17 @@ const PatientProfile = () => {
         </div>
       </main>
 
-      {/* FULL PREVIEW MODAL */}
+      {}
       {showImageModal && profilePictureUrl && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-fade-in-modal"
           onClick={() => setShowImageModal(false)}
         >
-          <div 
+          <div
             className="relative max-w-2xl w-full flex flex-col items-center animate-zoom-in"
             onClick={e => e.stopPropagation()}
           >
-            <button 
+            <button
               onClick={() => setShowImageModal(false)}
               className="absolute -top-12 right-0 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-colors focus:outline-none"
             >
@@ -925,9 +925,9 @@ const PatientProfile = () => {
               <h3 className="text-sm font-bold text-white tracking-tight">{formData.first_name} {formData.last_name}</h3>
             </div>
             <div className="bg-gray-900 p-2 rounded-b-2xl w-full flex items-center justify-center border-x border-b border-gray-800">
-              <img 
-                src={profilePictureUrl} 
-                alt="Profile View" 
+              <img
+                src={profilePictureUrl}
+                alt="Profile View"
                 className="max-h-[70vh] max-w-full object-contain rounded-lg shadow-2xl"
               />
             </div>

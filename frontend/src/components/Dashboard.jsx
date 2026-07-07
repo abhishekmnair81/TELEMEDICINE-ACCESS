@@ -46,6 +46,7 @@ import {
 
 import { doctorsAPI, pharmacyAPI } from "../services/api"
 import LanguageSelector from './common/LanguageSelector'
+import LoadingScreen from './common/LoadingScreen'
 import Footer from "./Footer"
 import "./Dashboard.css"
 
@@ -192,7 +193,7 @@ const Dashboard = () => {
   const [user, setUser] = useState(null)
   const [isLoadingUser, setIsLoadingUser] = useState(true)
 
-  // Interactive Carousel State and Timer for Hero Visual Banner
+
   const [currentSlide, setCurrentSlide] = useState(0)
   useEffect(() => {
     const timer = setInterval(() => {
@@ -235,19 +236,19 @@ const Dashboard = () => {
   const leafletMapInstance = useRef(null)
   const markerInstance = useRef(null)
 
-  // Smart Health Tools State
-  const [activeTool, setActiveTool] = useState('bmi') // 'bmi' | 'water'
-  
-  // BMI Calculator State
-  const [weight, setWeight] = useState(70) // kg
-  const [height, setHeight] = useState(170) // cm
-  
-  // Water Calculator State
-  const [userWeight, setUserWeight] = useState(70) // kg
-  const [activityLevel, setActivityLevel] = useState('moderate') // 'sedentary' | 'moderate' | 'active'
-  const [waterLogged, setWaterLogged] = useState(0) // ml
 
-  // Close mobile actions and user dropdown on outside click
+  const [activeTool, setActiveTool] = useState('bmi')
+
+
+  const [weight, setWeight] = useState(70)
+  const [height, setHeight] = useState(170)
+
+
+  const [userWeight, setUserWeight] = useState(70)
+  const [activityLevel, setActivityLevel] = useState('moderate')
+  const [waterLogged, setWaterLogged] = useState(0)
+
+
   useEffect(() => {
     const handleOutsideClick = () => {
       setShowUserDropdown(false)
@@ -257,7 +258,7 @@ const Dashboard = () => {
     return () => window.removeEventListener('click', handleOutsideClick)
   }, [])
 
-  // Dynamically load Leaflet script & styling
+
   useEffect(() => {
     if (!document.querySelector('link[href*="leaflet.css"]')) {
       const link = document.createElement('link')
@@ -274,7 +275,7 @@ const Dashboard = () => {
     }
   }, [])
 
-  // Geocoding helper — uses Nominatim to get full detailed address for given coords
+
   const reverseGeocode = async (lat, lng) => {
     try {
       const res = await fetch(
@@ -284,7 +285,7 @@ const Dashboard = () => {
       if (res.ok) {
         const data = await res.json()
         const addr = data.address || {}
-        // Build address from granular components for maximum detail
+
         const parts = [
           addr.house_number,
           addr.road || addr.pedestrian || addr.footway || addr.path,
@@ -303,7 +304,7 @@ const Dashboard = () => {
     }
   }
 
-  // Location search helper
+
   const handleMapSearch = async () => {
     if (!mapSearchQuery.trim()) return
     setSearchingMap(true)
@@ -324,13 +325,13 @@ const Dashboard = () => {
     const lat = parseFloat(result.lat)
     const lon = parseFloat(result.lon)
     const name = result.display_name
-    
-    // Clean up trailing ", India"
+
+
     const cleanedName = name.replace(/, India$/, '').trim()
     setTempAddress(cleanedName)
     setMapSearchResults([])
     setMapSearchQuery('')
-    
+
     if (leafletMapInstance.current && window.L) {
       leafletMapInstance.current.setView([lat, lon], 19)
       if (markerInstance.current) {
@@ -347,7 +348,7 @@ const Dashboard = () => {
         const ipData = await res.json()
         if (ipData && ipData.status === 'success') {
           const { lat, lon } = ipData
-          
+
           if (leafletMapInstance.current && window.L) {
             leafletMapInstance.current.setView([lat, lon], 19)
             if (markerInstance.current) {
@@ -367,15 +368,15 @@ const Dashboard = () => {
     showToast("Unable to retrieve location. Please select on the map or search manually.", "error")
   }
 
-  // ─── Core location engine ─────────────────────────────────────────────────
-  // Stage 1: Try browser GPS (8s). Stage 2: fall back to IP immediately.
-  // Always updates the map — no accuracy threshold blocking.
+
+
+
   const locateAndUpdate = (onSuccess) => {
     if (!navigator.geolocation) {
       fallbackToIP()
       return
     }
-    // Stage 1 — browser GPS (fast, 8-second timeout)
+
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude, accuracy } = pos.coords
@@ -392,28 +393,28 @@ const Dashboard = () => {
       async (err) => {
         console.warn('GPS failed, code:', err.code, err.message)
         if (err.code === 1) {
-          // Permission denied — tell user explicitly
+
           showToast('🚫 Location blocked. Click the lock icon in your browser address bar and allow location.', 'error')
           setIsLocating(false)
         } else {
-          // Timeout / unavailable — IP fallback immediately
+
           showToast('📡 GPS unavailable, using network location...', 'success')
           await fallbackToIP()
         }
       },
-      // enableHighAccuracy:false gives a faster Wi-Fi/network fix on desktops
+
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
     )
   }
 
-  // Button handler — "Use My Location"
+
   const handleDetectLocation = () => {
     setIsLocating(true)
     showToast('🔍 Getting your location...', 'success')
     locateAndUpdate(() => setIsLocating(false))
   }
 
-  // Initialize/Teardown Leaflet Map on modal open/close
+
   useEffect(() => {
     if (!showAddressModal) {
       if (leafletMapInstance.current) {
@@ -429,11 +430,11 @@ const Dashboard = () => {
 
       const L = window.L
 
-      // Default center: Thrissur area
+
       const lat = 10.5276
       const lng = 76.2144
 
-      // --- Map init with zoom controls on bottom-right (like Google Maps) ---
+
       const map = L.map('rural-modal-map', {
         zoomControl: false,
         attributionControl: true,
@@ -443,7 +444,7 @@ const Dashboard = () => {
 
       leafletMapInstance.current = map
 
-      // --- OpenStreetMap (reliable, no API key, works at all zoom levels) ---
+
       const streetLayer = L.tileLayer(
         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
@@ -456,7 +457,7 @@ const Dashboard = () => {
         }
       ).addTo(map)
 
-      // --- ESRI World Imagery (Satellite — reliable, high zoom, no key required) ---
+
       const satelliteLayer = L.tileLayer(
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         {
@@ -468,7 +469,7 @@ const Dashboard = () => {
       )
 
       let isSatellite = false
-      // --- Layer toggle control (Street / Satellite) ---
+
       const layerToggle = L.control({ position: 'topright' })
       layerToggle.onAdd = () => {
         const btn = L.DomUtil.create('button', 'map-layer-toggle-btn')
@@ -491,10 +492,10 @@ const Dashboard = () => {
       }
       layerToggle.addTo(map)
 
-      // --- Zoom control — bottom right ---
+
       L.control.zoom({ position: 'bottomright' }).addTo(map)
 
-      // --- Google Maps-style drop-pin (red teardrop) ---
+
       const dropPinIcon = L.divIcon({
         html: `
           <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -513,22 +514,22 @@ const Dashboard = () => {
       }).addTo(map)
       markerInstance.current = marker
 
-      // --- Drag to update address ---
+
       marker.on('dragend', async () => {
         const pos = marker.getLatLng()
         map.panTo(pos)
         await reverseGeocode(pos.lat, pos.lng)
       })
 
-      // --- Click map to drop pin ---
+
       map.on('click', async (e) => {
         marker.setLatLng(e.latlng)
         map.panTo(e.latlng)
         await reverseGeocode(e.latlng.lat, e.latlng.lng)
       })
 
-      // --- Auto-locate when modal opens ---
-      // Uses the same reliable 2-stage engine: GPS → IP fallback
+
+
       navigator.geolocation?.getCurrentPosition(
         async (pos) => {
           const { latitude, longitude, accuracy } = pos.coords
@@ -536,7 +537,7 @@ const Dashboard = () => {
           map.setView([latitude, longitude], zoom)
           marker.setLatLng([latitude, longitude])
 
-          // Blue dot = device location indicator
+
           L.circle([latitude, longitude], {
             radius: Math.min(accuracy, 3000),
             color: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.1, weight: 1.5,
@@ -550,18 +551,18 @@ const Dashboard = () => {
           await reverseGeocode(latitude, longitude)
         },
         async () => {
-          // GPS failed — silently try IP to set a reasonable map center
+
           try {
             const res = await fetch('https://ip-api.com/json/')
             if (res.ok) {
               const d = await res.json()
               if (d?.status === 'success') {
                 map.setView([d.lat, d.lon], 12)
-                // Don't move red pin on IP fallback — too inaccurate for delivery address
-                // User can drag the pin or search manually
+
+
               }
             }
-          } catch (e) { /* silent */ }
+          } catch (e) {  }
         },
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
       )
@@ -622,7 +623,7 @@ const Dashboard = () => {
     }
   }, [])
 
-  // Simulated chat messages for the AI preview
+
   const [chatMessages, setChatMessages] = useState([
     { sender: 'user', text: "Hello! I have a sore throat and fever." },
     { sender: 'bot', text: "Hi! I can help you evaluate your symptoms. How long have you had the fever, and do you have any difficulty swallowing?" }
@@ -676,7 +677,9 @@ const Dashboard = () => {
       } catch (error) {
         setUser(null)
       } finally {
-        setIsLoadingUser(false)
+        setTimeout(() => {
+          setIsLoadingUser(false)
+        }, 1800)
       }
     }
 
@@ -752,7 +755,7 @@ const Dashboard = () => {
     fetchFeaturedProducts()
   }, [])
 
-  // Search Products
+
   useEffect(() => {
     const searchProducts = async () => {
       if (searchQuery.trim().length < 2) {
@@ -878,8 +881,8 @@ const Dashboard = () => {
       title: "My Prescriptions",
       description: "View all your prescriptions securely — only visible to you",
       path: "/patient/prescriptions",
-      patientOnly: true,      //  visible ONLY for patients
-      hideForDoctor: true,    //  hidden from doctors
+      patientOnly: true,
+      hideForDoctor: true,
       hideForPatient: false,
     },
     {
@@ -992,22 +995,17 @@ const Dashboard = () => {
   }
 
   if (isLoadingUser) {
-    return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
-        <div className="w-12 h-12 border-4 border-slate-200 border-t-green-600 rounded-full animate-spin"></div>
-        <p className="text-slate-600 font-semibold text-sm">Loading...</p>
-      </div>
-    )
+    return <LoadingScreen message="Loading Rural HealthCare..." />
   }
 
-  // Smart Health calculations
+
   const heightInMeters = height / 100
   const bmiScore = (weight / (heightInMeters * heightInMeters)).toFixed(1)
-  
+
   let bmiCategory = ''
   let bmiColor = ''
   let bmiRecommendations = ''
-  
+
   if (bmiScore < 18.5) {
     bmiCategory = 'Underweight'
     bmiColor = 'text-blue-650 bg-blue-50 border-blue-200'
@@ -1055,7 +1053,7 @@ const Dashboard = () => {
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <nav className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 md:gap-6">
 
-              {/* Logo & Mobile Actions wrapper */}
+              {}
               <div className="flex items-center justify-between w-full md:w-auto">
                 <div className="flex items-center gap-1.5 sm:gap-3 cursor-pointer select-none" onClick={() => navigate("/")}>
                   <div className="bg-green-600 text-white p-2 sm:p-2.5 rounded-xl sm:rounded-2xl shadow-lg shadow-green-600/20 flex items-center justify-center flex-shrink-0">
@@ -1064,9 +1062,9 @@ const Dashboard = () => {
                   <span className="text-[10px] min-[375px]:text-xs sm:text-lg md:text-xl font-bold tracking-tight text-gray-800 notranslate whitespace-nowrap" translate="no">Rural HealthCare</span>
                 </div>
 
-                {/* Mobile & Tablet Actions (hidden on desktop) */}
+                {}
                 <div className="flex md:hidden items-center gap-2 sm:gap-3 justify-end">
-                  {/* Mobile Search Icon */}
+                  {}
                   <div
                     className="p-2 hover:bg-gray-100 rounded-full cursor-pointer flex items-center justify-center text-gray-650 hover:text-green-600 transition-all duration-200"
                     onClick={() => {
@@ -1078,7 +1076,7 @@ const Dashboard = () => {
                     <FaSearch size={18} />
                   </div>
 
-                  {/* Profile Dropdown */}
+                  {}
                   <div
                     className="relative"
                     onClick={(e) => {
@@ -1229,7 +1227,7 @@ const Dashboard = () => {
                     )}
                   </div>
 
-                  {/* Mobile Menu Icon (Hamburger) for other actions */}
+                  {}
                   <div className="relative">
                     <div
                       className="p-2 hover:bg-gray-100 rounded-full cursor-pointer flex items-center justify-center text-gray-650 hover:text-green-600 transition-all duration-200"
@@ -1305,7 +1303,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Desktop Delivery Location Selector (hidden on mobile/tablet) */}
+              {}
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-green-100 bg-green-50/50 hover:bg-green-50 cursor-pointer transition-all duration-200" onClick={() => setShowAddressModal(true)}>
                 <FaMapMarkerAlt className="text-green-600" size={16} />
                 <span className="text-xs font-semibold text-green-950 truncate max-w-[200px] flex items-center gap-1">
@@ -1313,7 +1311,7 @@ const Dashboard = () => {
                 </span>
               </div>
 
-              {/* Desktop Search Bar (hidden on mobile/tablet) */}
+              {}
               <div className="hidden md:block relative flex-1 max-w-md my-0">
                 <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-4 py-2 hover:border-green-300 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-100 transition-all duration-200">
                   <FaSearch className="text-gray-400" />
@@ -1400,9 +1398,9 @@ const Dashboard = () => {
                 )}
               </div>
 
-              {/* Desktop Actions (hidden on mobile/tablet) */}
+              {}
               <div className="hidden md:flex items-center gap-3 sm:gap-4 md:gap-5 justify-end">
-                {/* Cart Trigger with Badge Count */}
+                {}
                 <div className="p-2 hover:bg-green-50 rounded-full cursor-pointer flex items-center justify-center text-gray-700 hover:text-green-600 transition-all duration-200" onClick={() => navigate('/cart')} title="View Cart">
                   <div className="relative flex items-center justify-center">
                     <FaShoppingCart size={22} />
@@ -1414,7 +1412,7 @@ const Dashboard = () => {
                   <FaBox size={20} />
                 </a>
 
-                {/* Language Selector — next to profile */}
+                {}
                 <div className="flex items-center justify-center">
                   <LanguageSelector />
                 </div>
@@ -1575,7 +1573,7 @@ const Dashboard = () => {
 
             </nav>
 
-            {/* Custom Mobile Search Overlay (slides in/out or absolute covers navbar) */}
+            {}
             {isMobileSearchOpen && (
               <div className="absolute inset-0 bg-white z-50 flex items-center px-4 py-2 animate-dropdown-fade md:hidden">
                 <button
@@ -1677,7 +1675,7 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Primary Navigation strip */}
+      {}
       <div className="rural-primary-nav-strip bg-gray-50 border-b border-gray-100 overflow-x-auto whitespace-nowrap scrollbar-none py-1 md:py-2">
         <div className="rural-wrapper max-w-7xl mx-auto px-4 md:px-8">
           <ul className="primary-nav-links flex items-center gap-4 md:gap-6 text-xs md:text-sm font-semibold text-gray-600">
@@ -1693,22 +1691,22 @@ const Dashboard = () => {
 
 
       <section className="rural-banner bg-gradient-to-b from-green-50/10 via-white to-white py-12 md:py-16 lg:py-24 overflow-hidden relative">
-        {/* Background Decorative Blobs */}
+        {}
         <div className="absolute top-1/4 -left-20 w-72 h-72 bg-green-200/10 rounded-full blur-3xl pointer-events-none z-0 animate-blob-float-left" />
         <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-emerald-100/20 rounded-full blur-3xl pointer-events-none z-0 animate-blob-float-right" />
 
         <div className="rural-wrapper max-w-7xl mx-auto px-4 md:px-8 relative z-10">
           <div className="rural-banner-grid grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-16">
-            
-            {/* Right Side (Image Slides Container): Positioned first on mobile, second on desktop */}
+
+            {}
             <div className="rural-banner-visual-wrapper relative order-1 lg:order-2 flex items-center justify-center min-h-[260px] sm:min-h-[340px] lg:min-h-[440px] w-full">
-              
-              {/* Premium Clean Rounded Image Container with Soft Shadow */}
+
+              {}
               <div className="relative z-10 w-full max-w-[480px] aspect-[4/3] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-gray-100 bg-white hover:scale-[1.01] transition-transform duration-500">
-                
-                {/* Images Slides Container */}
-                <div 
-                  className="w-full h-full cursor-pointer" 
+
+                {}
+                <div
+                  className="w-full h-full cursor-pointer"
                   onClick={() => {
                     const action = HERO_SLIDES[currentSlide].action;
                     if (action.startsWith('#')) {
@@ -1720,10 +1718,10 @@ const Dashboard = () => {
                   }}
                 >
                   {HERO_SLIDES.map((slide, index) => (
-                    <img 
+                    <img
                       key={index}
-                      src={slide.image} 
-                      alt={slide.alt} 
+                      src={slide.image}
+                      alt={slide.alt}
                       className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
                         index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
                       }`}
@@ -1732,7 +1730,7 @@ const Dashboard = () => {
                   ))}
                 </div>
 
-                {/* Floating Top Badge */}
+                {}
                 <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md border border-gray-100 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 z-20">
                   <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                   <span className="text-[10px] font-extrabold text-gray-800 uppercase tracking-wider">
@@ -1740,7 +1738,7 @@ const Dashboard = () => {
                   </span>
                 </div>
 
-                {/* Floating Bottom Badge */}
+                {}
                 <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-md border border-gray-100 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1 z-20">
                   <span className="text-[10px] font-extrabold text-green-700 uppercase tracking-wider">
                     ★ {HERO_SLIDES[currentSlide].badgeBottom}
@@ -1750,17 +1748,17 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Left Side (Animating Text Column): Positioned second on mobile, first on desktop */}
+            {}
             <div key={currentSlide} className="rural-banner-content order-2 lg:order-1 space-y-6 text-center lg:text-left animate-hero-text">
               <div className="banner-tag inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold border border-green-100 shadow-sm mx-auto lg:mx-0">
                 <span className="pulse-dot-green w-2.5 h-2.5 bg-green-500 rounded-full"></span> {HERO_SLIDES[currentSlide].tag}
               </div>
-              
-              {/* Dynamic word-level highlight heading */}
+
+              {}
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gray-950 tracking-tight leading-[1.08]">
                 {HERO_SLIDES[currentSlide].titleParts.map((part, pIdx) => (
-                  <span 
-                    key={pIdx} 
+                  <span
+                    key={pIdx}
                     className={`${part.highlight ? 'text-green-600' : 'text-gray-950'} ${part.block ? 'block mt-1' : ''}`}
                   >
                     {part.text}
@@ -1772,8 +1770,8 @@ const Dashboard = () => {
                 {HERO_SLIDES[currentSlide].subtitle}
               </p>
               <div className="rural-action-btns flex flex-col sm:flex-row gap-4 justify-center lg:justify-start max-w-md mx-auto lg:mx-0">
-                <button 
-                  className="rural-primary-btn shine-button flex items-center justify-center gap-2 px-6 py-3.5 bg-green-600 text-white font-bold rounded-2xl hover:bg-green-700 hover:-translate-y-0.5 transition-all duration-200 shadow-lg shadow-green-600/20 text-sm w-full sm:w-auto" 
+                <button
+                  className="rural-primary-btn shine-button flex items-center justify-center gap-2 px-6 py-3.5 bg-green-600 text-white font-bold rounded-2xl hover:bg-green-700 hover:-translate-y-0.5 transition-all duration-200 shadow-lg shadow-green-600/20 text-sm w-full sm:w-auto"
                   onClick={() => {
                     const action = HERO_SLIDES[currentSlide].action;
                     if (action.startsWith('#')) {
@@ -1794,20 +1792,20 @@ const Dashboard = () => {
 
           </div>
 
-          {/* Continuous Tab separator lines & tab controller */}
+          {}
           <div className="relative border-t border-gray-200/60 pt-4 mt-8">
             <div className="flex lg:grid lg:grid-cols-3 overflow-x-auto no-scrollbar scroll-smooth gap-4 md:gap-10">
               {HERO_SLIDES.map((slide, index) => (
-                <div 
+                <div
                   key={index}
                   onClick={() => setCurrentSlide(index)}
                   className="flex-shrink-0 min-w-[170px] sm:min-w-[200px] lg:min-w-0 flex flex-col pt-3 pb-3 px-3 cursor-pointer select-none text-left flex-1 relative group"
                 >
-                  {/* Active Indicator progress bar sitting perfectly on the continuous line */}
+                  {}
                   {index === currentSlide && (
                     <div className="absolute -top-[18px] left-0 right-0 h-[3px] bg-green-600 animate-hero-progress z-10" />
                   )}
-                  
+
                   <span className={`text-[10px] font-extrabold uppercase tracking-wider transition-colors duration-200 ${
                     index === currentSlide ? 'text-green-700 font-extrabold' : 'text-gray-400 group-hover:text-gray-600'
                   }`}>
@@ -1853,7 +1851,7 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* Our Healthcare Services Section */}
+      {}
       <section className="py-16 bg-gray-50/40 border-y border-gray-100" id="features">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -1878,7 +1876,7 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* Four Quick Promo Cards Section */}
+      {}
       <section className="py-8 bg-white">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1935,7 +1933,7 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* Browse by Health Conditions Section */}
+      {}
       <section className="py-12 bg-gray-50/50 border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="mb-8 text-center lg:text-left">
@@ -1953,7 +1951,7 @@ const Dashboard = () => {
                   showToast(`🔍 Showing medicines for ${condition.name}`, 'success')
                 }}
               >
-                <div 
+                <div
                   className="w-14 h-14 rounded-full flex items-center justify-center text-2xl text-green-600 transition-all duration-300 group-hover:scale-110 group-hover:bg-green-600 group-hover:text-white"
                   style={{ backgroundColor: condition.color }}
                 >
@@ -1973,7 +1971,7 @@ const Dashboard = () => {
             <p className="text-sm md:text-base text-gray-500 mt-2">Quality healthcare products at your fingertips</p>
           </div>
 
-          {/* Quick-filter Category Pills strip */}
+          {}
           <div className="mb-10 overflow-x-auto whitespace-nowrap scrollbar-none py-1 border-y border-gray-100">
             <ul className="flex items-center justify-start lg:justify-center gap-2.5 text-xs font-semibold py-2">
               <li><button className="px-4 py-2 bg-gray-50 hover:bg-green-50 hover:text-green-600 rounded-full border border-gray-200 transition-all duration-150" onClick={() => setSearchQuery('')}>All Medicines</button></li>
@@ -2238,7 +2236,7 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* Smart Health Tools Section */}
+      {}
       <section className="py-16 bg-white" id="health-tools">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -2249,7 +2247,7 @@ const Dashboard = () => {
           </div>
 
           <div className="max-w-4xl mx-auto bg-gray-50/50 border border-gray-150 rounded-3xl p-6 md:p-8 shadow-sm">
-            {/* Tool Selector Tabs */}
+            {}
             <div className="flex justify-center gap-4 mb-8">
               <button
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all duration-300 ${
@@ -2273,15 +2271,15 @@ const Dashboard = () => {
               </button>
             </div>
 
-            {/* BMI Calculator Interface */}
+            {}
             {activeTool === 'bmi' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                {/* Inputs Column */}
+                {}
                 <div className="bg-white border border-gray-150 rounded-2xl p-6 flex flex-col justify-between gap-6">
                   <div>
                     <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2"><FaCalculator className="text-green-600" /> Enter Your Parameters</h3>
-                    
-                    {/* Weight Input & Slider */}
+
+                    {}
                     <div className="space-y-2 mb-6">
                       <div className="flex justify-between items-center text-xs font-bold">
                         <span className="text-gray-500">Weight</span>
@@ -2301,7 +2299,7 @@ const Dashboard = () => {
                       </div>
                     </div>
 
-                    {/* Height Input & Slider */}
+                    {}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center text-xs font-bold">
                         <span className="text-gray-500">Height</span>
@@ -2323,20 +2321,20 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                {/* Results Column */}
+                {}
                 <div className="bg-white border border-gray-150 rounded-2xl p-6 flex flex-col justify-between gap-6">
                   <div className="text-center">
                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Your Body Mass Index (BMI)</h4>
                     <div className="text-5xl font-black text-gray-950 mt-4 tracking-tight">{bmiScore}</div>
-                    
-                    {/* Category Badge */}
+
+                    {}
                     <div className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold border mt-3 ${bmiColor}`}>
                       <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
                       {bmiCategory}
                     </div>
                   </div>
 
-                  {/* BMI Progress bar visual representation */}
+                  {}
                   <div className="space-y-1">
                     <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden flex">
                       <div className="h-full bg-blue-400" style={{ width: '18.5%' }}></div>
@@ -2344,13 +2342,13 @@ const Dashboard = () => {
                       <div className="h-full bg-orange-400" style={{ width: '15%' }}></div>
                       <div className="h-full bg-red-500" style={{ width: '41.5%' }}></div>
                     </div>
-                    {/* Marker overlay */}
+                    {}
                     <div className="relative w-full h-4">
                       {(() => {
                         const scoreVal = parseFloat(bmiScore);
                         const percentage = Math.min(Math.max(((scoreVal - 15) / 25) * 100, 2), 98);
                         return (
-                          <div 
+                          <div
                             className="absolute -top-1 w-2.5 h-2.5 bg-gray-950 border border-white rounded-full -translate-x-1/2 transition-all duration-300"
                             style={{ left: `${percentage}%` }}
                           ></div>
@@ -2366,7 +2364,7 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* Recommendation Card */}
+                  {}
                   <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
                     <span className="text-[10px] font-extrabold tracking-widest text-green-700 uppercase block mb-1">Dietary & lifestyle tip</span>
                     <p className="text-xs text-gray-500 font-semibold leading-relaxed">{bmiRecommendations}</p>
@@ -2375,15 +2373,15 @@ const Dashboard = () => {
               </div>
             )}
 
-            {/* Water Tracker Interface */}
+            {}
             {activeTool === 'water' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                {/* Inputs Column */}
+                {}
                 <div className="bg-white border border-gray-150 rounded-2xl p-6 flex flex-col justify-between gap-6">
                   <div>
                     <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2"><FaRunning className="text-green-600" /> Adjust Body Parameters</h3>
-                    
-                    {/* Weight Input */}
+
+                    {}
                     <div className="space-y-2 mb-6">
                       <div className="flex justify-between items-center text-xs font-bold">
                         <span className="text-gray-500">Weight</span>
@@ -2399,7 +2397,7 @@ const Dashboard = () => {
                       />
                     </div>
 
-                    {/* Activity Level Selector */}
+                    {}
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500">Daily Activity Level</label>
                       <div className="grid grid-cols-3 gap-2">
@@ -2420,21 +2418,21 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* Water logging action buttons */}
+                  {}
                   <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
-                    <button 
+                    <button
                       className="flex-grow flex items-center justify-center gap-1.5 bg-green-600 hover:bg-green-750 text-white font-bold py-3 rounded-2xl shadow-sm text-xs transition-colors"
                       onClick={() => setWaterLogged(prev => prev + 250)}
                     >
                       + 250ml Glass
                     </button>
-                    <button 
+                    <button
                       className="flex-grow flex items-center justify-center gap-1.5 bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded-2xl shadow-sm text-xs transition-colors"
                       onClick={() => setWaterLogged(prev => prev + 500)}
                     >
                       + 500ml Bottle
                     </button>
-                    <button 
+                    <button
                       className="w-10 h-10 border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 rounded-2xl flex items-center justify-center transition-colors flex-shrink-0"
                       title="Reset Log"
                       onClick={() => setWaterLogged(0)}
@@ -2444,7 +2442,7 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                {/* Results Visual Representation Column */}
+                {}
                 <div className="bg-white border border-gray-150 rounded-2xl p-6 flex flex-col items-center justify-between gap-4">
                   <div className="text-center w-full">
                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Hydration Progress</h4>
@@ -2454,27 +2452,27 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* visual Glass Cup that fills with blue water! */}
+                  {}
                   <div className="relative w-24 h-40 border-4 border-gray-300/80 rounded-b-2xl rounded-t-sm bg-gray-50/50 shadow-inner overflow-hidden flex items-end">
-                    {/* blue water fill element */}
-                    <div 
+                    {}
+                    <div
                       className="w-full bg-gradient-to-t from-blue-600 to-blue-400 transition-all duration-500 relative"
                       style={{ height: `${waterProgress}%` }}
                     >
-                      {/* Animated wave effect on top of water */}
+                      {}
                       {waterProgress > 0 && waterProgress < 100 && (
                         <div className="absolute top-0 left-0 w-[200%] h-2 bg-blue-300/60 -translate-y-1 animate-pulse"></div>
                       )}
                     </div>
-                    {/* glass reflection glare line */}
+                    {}
                     <div className="absolute top-0 right-1 w-2 h-full bg-white/10 rounded-full"></div>
-                    {/* text overlay showing percentage */}
+                    {}
                     <div className="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-gray-800 drop-shadow-sm select-none">
                       {Math.round(waterProgress)}%
                     </div>
                   </div>
 
-                  {/* Glasses Indicator */}
+                  {}
                   <div className="text-xs font-bold text-gray-500 text-center w-full">
                     {waterLogged >= waterTarget ? (
                       <span className="text-green-600 font-extrabold">🎉 Hydration target achieved for today!</span>
@@ -2503,10 +2501,10 @@ const Dashboard = () => {
         <div className="loc-backdrop">
           <div className="loc-panel">
 
-            {/* ── FULL MAP LAYER ── */}
+            {}
             <div id="rural-modal-map" className="loc-map"></div>
 
-            {/* ── GPS PULSE CENTER DOT ── */}
+            {}
             {isLocating && (
               <div className="loc-gps-pulse">
                 <div className="pulse-ring"></div>
@@ -2515,7 +2513,7 @@ const Dashboard = () => {
               </div>
             )}
 
-            {/* ── TOP SEARCH FLOATING CARD ── */}
+            {}
             <div className="loc-search-card">
               <div className="loc-search-header">
                 <button className="loc-back-btn" onClick={() => setShowAddressModal(false)}>
@@ -2538,7 +2536,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Search Results Dropdown */}
+              {}
               {mapSearchResults.length > 0 && (
                 <div className="loc-results-list">
                   {mapSearchResults.map((res, i) => (
@@ -2556,7 +2554,7 @@ const Dashboard = () => {
               )}
             </div>
 
-            {/* ── GPS BUTTON FLOATING ── */}
+            {}
             <button
               className={`loc-gps-btn ${isLocating ? 'locating' : ''}`}
               onClick={handleDetectLocation}
@@ -2574,7 +2572,7 @@ const Dashboard = () => {
               )}
             </button>
 
-            {/* ── BOTTOM CONFIRM CARD ── */}
+            {}
             <div className="loc-confirm-card">
               <div className="loc-confirm-marker-row">
                 <div className="loc-confirm-pin-icon">
@@ -2592,7 +2590,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Quick City Chips */}
+              {}
               <div className="loc-quick-cities">
                 <span className="loc-quick-label">Quick select:</span>
                 <div className="loc-chip-row">

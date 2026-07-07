@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
@@ -23,12 +23,12 @@ module.exports = {
         sans: ['DM Sans', 'sans-serif'],
       },
       screens: {
-        'xs': '480px',      // Small mobile devices
-        'sm': '640px',      // Large mobile / small tablets
-        'md': '768px',      // Tablets
-        'lg': '1024px',     // Laptops
-        'xl': '1280px',     // Desktops
-        '2xl': '1536px',    // Large monitors
+        'xs': '480px',
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px',
       },
     },
   },

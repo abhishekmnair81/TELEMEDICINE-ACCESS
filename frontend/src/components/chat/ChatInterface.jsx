@@ -31,9 +31,9 @@ const VoiceMessageBubble = ({ audioUrl, duration, text }) => {
   const audioRef = useRef(null)
 
   useEffect(() => {
-    // We intentionally DO NOT revoke the audioUrl here.
-    // The parent component created it and React StrictMode or list re-renders 
-    // can cause premature unmounting, leading to ERR_FILE_NOT_FOUND if revoked here.
+
+
+
   }, [audioUrl])
 
   const togglePlay = () => {
@@ -74,7 +74,7 @@ const VoiceMessageBubble = ({ audioUrl, duration, text }) => {
             </button>
 
             <div className="flex-1 flex flex-col gap-1">
-              {/* Waveform bars */}
+              {}
               <div className="flex items-center gap-[2px] h-6 relative flex-shrink-0">
                 {Array.from({ length: 28 }, (_, i) => {
                   const heights = [4, 8, 14, 10, 18, 12, 6, 16, 10, 20, 8, 14, 18, 6, 12, 16, 10, 20, 8, 14, 18, 10, 6, 16, 12, 8, 14, 4]
@@ -91,7 +91,7 @@ const VoiceMessageBubble = ({ audioUrl, duration, text }) => {
                 })}
               </div>
 
-              {/* Time */}
+              {}
               <div className="text-[10px] text-white/80 font-medium tracking-wide tabular-nums">
                 {formatTime(currentTime)} / {formatTime(totalDuration)}
               </div>
@@ -100,7 +100,7 @@ const VoiceMessageBubble = ({ audioUrl, duration, text }) => {
         </>
       )}
 
-      {/* Transcribed text below the player */}
+      {}
       {text && (
         <div className="text-xs md:text-sm text-white/90 mt-1 border-t border-white/20 pt-1.5 leading-relaxed">
           🎤 {text}
@@ -133,13 +133,13 @@ const renderMessageContent = (content) => {
   const cleanText = stripSuggestions(content);
   if (!cleanText) return null;
 
-  // Clean raw bullet markers (*, -, •) that clutter output or appear outside/inside tags
+
   let cleanContent = cleanText;
-  // 1. Remove markdown bullets followed by [BULLET]
+
   cleanContent = cleanContent.replace(/(?:^|\n)\s*(?:[\-•\u2022]|\*(?!\*))\s*(\[BULLET\])/g, '\n$1');
-  // 2. Remove [BULLET] followed by markdown bullets inside the tag (avoid swallowing first char of bold **)
+
   cleanContent = cleanContent.replace(/\[BULLET\]\s*(?:[\-•\u2022]|\*(?!\*))\s*/g, '[BULLET]');
-  // 3. Remove standalone bullet lines
+
   cleanContent = cleanContent.split('\n')
     .filter(line => {
       const trimmed = line.trim();
@@ -147,7 +147,7 @@ const renderMessageContent = (content) => {
     })
     .join('\n');
 
-  // Split content by disclaimer and bullet tag pairs
+
   const regex = /(\[DISCLAIMER\][\s\S]*?\[\/DISCLAIMER\]|\[BULLET\][\s\S]*?\[\/BULLET\])/g;
   const parts = cleanContent.split(regex);
 
@@ -175,7 +175,7 @@ const renderMessageContent = (content) => {
         </div>
       );
     } else {
-      // Handle half-open tags during streaming to avoid displaying raw bracket tags
+
       let textToRender = part;
       let isHalfOpenDisclaimer = false;
       let isHalfOpenBullet = false;
@@ -236,42 +236,42 @@ const renderMessageContent = (content) => {
 
 const StreamingMessage = ({ content, streaming, onComplete }) => {
   const [displayedWords, setDisplayedWords] = useState([]);
-  const wordQueueRef    = useRef([]);   // words waiting to be shown
+  const wordQueueRef    = useRef([]);
   const streamingRef    = useRef(streaming);
   const onCompleteRef   = useRef(onComplete);
   const prevContentRef  = useRef('');
 
-  // Keep refs in sync with latest props
+
   streamingRef.current  = streaming;
   onCompleteRef.current = onComplete;
 
-  // Whenever the parent appends new content, split the diff into words
-  // and push them onto the queue — the interval drains the queue one
-  // word per tick regardless of how fast new content arrives.
+
+
+
   useEffect(() => {
     const prev = prevContentRef.current;
     const curr = content || '';
     if (curr.length > prev.length) {
       const newText = curr.slice(prev.length);
-      // Split on whitespace, keep separators so spacing is preserved
+
       const tokens = newText.split(/(\s+)/).filter(Boolean);
       wordQueueRef.current.push(...tokens);
     }
     prevContentRef.current = curr;
   }, [content]);
 
-  // Drain one token per tick at a fixed Gemini-like rhythm (55 ms / word)
+
   useEffect(() => {
     const id = setInterval(() => {
       if (wordQueueRef.current.length > 0) {
         const next = wordQueueRef.current.shift();
         setDisplayedWords(prev => [...prev, next]);
       } else if (!streamingRef.current) {
-        // Queue empty + stream finished → done
+
         clearInterval(id);
         if (onCompleteRef.current) onCompleteRef.current();
       }
-    }, 15);  // ← 15ms/word ≈ 0.9-1.5 s for a typical reply
+    }, 15);
     return () => clearInterval(id);
   }, []);
 
@@ -383,8 +383,8 @@ const ChatInterface = () => {
   const [isListening, setIsListening] = useState(false)
   const [voiceSupported, setVoiceSupported] = useState(true)
   const [voiceError, setVoiceError] = useState(null)
-  const [voiceRecordingTime, setVoiceRecordingTime] = useState(0)  // seconds
-  const [isTranscribing, setIsTranscribing] = useState(false)      // waiting for server
+  const [voiceRecordingTime, setVoiceRecordingTime] = useState(0)
+  const [isTranscribing, setIsTranscribing] = useState(false)
   const [audioVolume, setAudioVolume] = useState(0)
   const audioContextRef = useRef(null)
   const analyserRef = useRef(null)
@@ -395,11 +395,11 @@ const ChatInterface = () => {
   const [showDeviceSelector, setShowDeviceSelector] = useState(false)
   const micSettingsDropdownRef = useRef(null)
 
-  // Hospital Finder State
+
   const [showHospitalFinder, setShowHospitalFinder] = useState(false)
   const [hospitalEmergencyLevel, setHospitalEmergencyLevel] = useState(null)
 
-  // Conversation management state
+
   const [currentConversationId, setCurrentConversationId] = useState(null)
   const [currentUser, setCurrentUser] = useState(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -425,7 +425,7 @@ const ChatInterface = () => {
       const audioInputs = devices.filter(d => d.kind === 'audioinput')
       setAudioDevices(audioInputs)
 
-      // If we don't have a selected device yet, pick the first one with a valid ID
+
       if (audioInputs.length > 0 && !localStorage.getItem('rural_mic_device_id')) {
         const defaultDev = audioInputs.find(d => d.deviceId === 'default') || audioInputs[0]
         setSelectedDeviceId(defaultDev.deviceId)
@@ -468,11 +468,11 @@ const ChatInterface = () => {
   const docFileInputRef = useRef(null)
   const [selectedDocument, setSelectedDocument] = useState(null)
   const hasLoadedInitialConversation = useRef(false)
-  const timerRef = useRef(null)    // interval for recording timer
+  const timerRef = useRef(null)
   const cameraVideoRef = useRef(null)
   const cameraStreamRef = useRef(null)
 
-  // ✅ Voice Recording Ref
+
   const mediaRecorderRef = useRef(null)
   const utteranceRef = useRef(null)
 
@@ -526,10 +526,10 @@ const ChatInterface = () => {
       }
       stream = await navigator.mediaDevices.getUserMedia(constraints)
 
-      // Enumerate devices again to obtain labels (since permissions are now granted)
+
       loadAudioDevices()
 
-      // Start Volume Visualizer
+
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
         const analyser = audioCtx.createAnalyser()
@@ -689,7 +689,7 @@ const ChatInterface = () => {
 
     mediaRecorderRef.current = mediaRecorder
 
-    // Start recording without timeslice to ensure a single, valid Blob
+
     mediaRecorder.start()
     setIsListening(true)
     setVoiceRecordingTime(0)
@@ -712,7 +712,7 @@ const ChatInterface = () => {
 
     const userMsgId = Date.now()
 
-    // Create local audio URL for playback
+
     let localAudioUrl = null
     if (audioBlob) {
       localAudioUrl = URL.createObjectURL(audioBlob)
@@ -837,17 +837,17 @@ const ChatInterface = () => {
     if (!rawText) return "";
     let clean = rawText;
 
-    // Remove tags
+
     clean = clean.replace(/\[\/?BULLET\]/gi, "");
     clean = clean.replace(/\[\/?DISCLAIMER\]/gi, "");
 
-    // Remove markdown bold/italic formatting symbols
+
     clean = clean.replace(/\*\*|__|\*|_/g, "");
 
-    // Remove leading bullets/symbols (•, -, *) at the start of lines/sentences
+
     clean = clean.replace(/(?:^|\n)\s*[•\-\*\u2022]\s*/g, "\n");
 
-    // Clean up any remaining double spaces or trailing whitespace
+
     clean = clean.replace(/ {2,}/g, " ").trim();
 
     return clean;
@@ -858,7 +858,7 @@ const ChatInterface = () => {
       const cleanText = cleanTextForSpeech(text);
       if (!cleanText) return;
 
-      // Stop existing speech
+
       if (speakingId === id) {
         stopSpeaking();
         return;
@@ -872,7 +872,7 @@ const ChatInterface = () => {
       setTtsLoadingId(id);
       setSpeakingId(null);
 
-      // Detect language on-the-fly based on text characters to be 100% correct across all languages
+
       let ttsLanguage = detectedLanguage || language;
       if (cleanText) {
         if (/[\u0900-\u097F]/.test(cleanText)) {
@@ -889,32 +889,32 @@ const ChatInterface = () => {
       }
       console.log("[Voice] Speaking text language detected/mapped:", ttsLanguage);
 
-      // ✅ TRY WEB SPEECH SYNTHESIS FIRST (For English and Hindi only to guarantee performance, fall back to server gTTS for other languages to ensure high-quality pronunciation and full reading)
+
       if ('speechSynthesis' in window) {
         try {
-          // Force server-side TTS fallback for Kannada, Tamil, Telugu, and Malayalam
+
           if (ttsLanguage !== 'English' && ttsLanguage !== 'Hindi') {
             throw new Error(`Force server-side high-quality TTS for ${ttsLanguage}`);
           }
 
-          // Stop any existing speech
+
           window.speechSynthesis.cancel();
 
           const utterance = new SpeechSynthesisUtterance(cleanText);
           utteranceRef.current = utterance;
 
-          // Map language to voice
+
           const langMap = {
             'English': 'en-US',
             'Hindi': 'hi-IN'
           };
 
           utterance.lang = langMap[ttsLanguage] || 'en-US';
-          utterance.rate = 0.9; // Slightly slower for better clarity
+          utterance.rate = 0.9;
           utterance.pitch = 1.0;
           utterance.volume = 1.0;
 
-          // Select best voice for language
+
           const voices = window.speechSynthesis.getVoices();
           const preferredVoice = voices.find(voice =>
             voice.lang.startsWith(utterance.lang.split('-')[0])
@@ -923,7 +923,7 @@ const ChatInterface = () => {
             utterance.voice = preferredVoice;
           }
 
-          // Chrome SpeechSynthesis garbage collection and 15s timeout workaround
+
           const resumeInterval = setInterval(() => {
             if (window.speechSynthesis.speaking && utteranceRef.current === utterance) {
               window.speechSynthesis.pause();
@@ -964,7 +964,7 @@ const ChatInterface = () => {
         }
       }
 
-      // ✅ FALLBACK: Server-based TTS (gTTS)
+
       const response = await voiceAPI.textToSpeech(cleanText, ttsLanguage);
 
       if (!response?.success || !response?.audio) {
@@ -1007,7 +1007,7 @@ const ChatInterface = () => {
     }
   };
 
-  // PERSISTENCE - Save/Load current conversation
+
   const STORAGE_KEY = 'rural_current_conversation'
 
   useEffect(() => {
@@ -1023,7 +1023,7 @@ const ChatInterface = () => {
     }
   }, [voiceError])
 
-  // Check authentication on mount
+
   useEffect(() => {
     const user = authAPI.getCurrentUser()
     if (user) {
@@ -1121,7 +1121,7 @@ const ChatInterface = () => {
     setMessages([])
     setDetectedLanguage(null)
     setIsLoadingConversation(true)
-    
+
     if (window.innerWidth < 1024) {
       setIsSidebarCollapsed(true)
     }
@@ -1155,8 +1155,8 @@ const ChatInterface = () => {
         const loadedMessages = data.messages.map(msg => {
           let imageUrl = null
           if (msg.has_image && msg.image_description) {
-            imageUrl = msg.image_description.startsWith('http') 
-              ? msg.image_description 
+            imageUrl = msg.image_description.startsWith('http')
+              ? msg.image_description
               : `http://localhost:8000${msg.image_description}`
           }
           return {
@@ -1296,7 +1296,7 @@ const ChatInterface = () => {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" }
       });
-      
+
       setCameraStream(stream);
       setIsCameraActive(true);
 
@@ -1345,10 +1345,10 @@ const ChatInterface = () => {
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth || 640;
       canvas.height = video.videoHeight || 480;
-      
+
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      
+
       canvas.toBlob((blob) => {
         if (blob) {
           const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
@@ -1380,7 +1380,7 @@ const ChatInterface = () => {
     const isCustomText = customText && typeof customText === 'string';
     const textToSend = isCustomText ? customText : inputMessage.trim();
     if ((!textToSend && !selectedImage && !selectedDocument) || isLoading) return
-    // Block new messages while the animation is still playing
+
     if (messages.some(m => m.displayed === false)) return
 
     const userMessage = textToSend || (selectedDocument ? `Please analyze the uploaded document: ${selectedDocument.name}` : "Please analyze this medical image")
@@ -1389,12 +1389,12 @@ const ChatInterface = () => {
     }
     setIsLoading(true)
 
-    // Capture file states to local variables
+
     const imageToSend = selectedImage
     const imagePreviewToSend = imagePreview
     const documentToSend = selectedDocument
 
-    // Clear UI state immediately so the preview thumbnail collapses/disappears instantly
+
     setImagePreview(null)
     setSelectedImage(null)
     setSelectedDocument(null)
@@ -1421,7 +1421,7 @@ const ChatInterface = () => {
       },
     ])
 
-    // ── UPLOAD: Show instant acknowledgement before the fetch ──
+
     if (imageToSend || documentToSend) {
       setMessages((prev) => [
         ...prev,
@@ -1431,8 +1431,8 @@ const ChatInterface = () => {
           content: "",
           timestamp: new Date(),
           streaming: true,
-          sseComplete: false,   // network stream done?
-          displayed: false,     // animation done?
+          sseComplete: false,
+          displayed: false,
           isImageAnalysis: !!imageToSend,
           isDocumentAnalysis: !!documentToSend,
         },
@@ -1495,7 +1495,7 @@ const ChatInterface = () => {
 
       let assistantMessage = ""
 
-      // For text-only messages, inject the assistant bubble now
+
       if (!imageToSend && !documentToSend) {
         setMessages((prev) => [
           ...prev,
@@ -1505,8 +1505,8 @@ const ChatInterface = () => {
             content: "",
             timestamp: new Date(),
             streaming: true,
-            sseComplete: false,   // network stream done?
-            displayed: false,     // animation done?
+            sseComplete: false,
+            displayed: false,
           },
         ])
       }
@@ -1560,9 +1560,9 @@ const ChatInterface = () => {
             }
 
             if (data.done) {
-              // Mark SSE network as complete — StreamingMessage will keep
-              // draining its word queue at 130ms/word, then call onComplete
-              // which sets displayed:true and switches to static render.
+
+
+
               setMessages((prev) =>
                 prev.map((msg) =>
                   msg.id === assistantMsgId
@@ -1587,7 +1587,7 @@ const ChatInterface = () => {
         reader.releaseLock()
       } catch (e) { }
 
-      // For file upload endpoint: mark SSE complete after reading full body
+
       if ((imageToSend || documentToSend) && assistantMessage) {
         setMessages((prev) =>
           prev.map((msg) =>
@@ -1608,7 +1608,7 @@ const ChatInterface = () => {
                 content: "Sorry, I couldn't generate a response. Please try again.",
                 error: true,
                 sseComplete: true,
-                displayed: true,   // show immediately, no animation
+                displayed: true,
               }
               : msg
           )
@@ -1622,7 +1622,7 @@ const ChatInterface = () => {
         return
       }
 
-      // Remove the analysis placeholder on error and show error message
+
       setMessages((prev) => [
         ...prev.filter(msg => msg.id !== assistantMsgId),
         {
@@ -1631,7 +1631,7 @@ const ChatInterface = () => {
           content: "Sorry, I encountered an error. Please try again.",
           timestamp: new Date(),
           error: true,
-          displayed: true,   // show immediately, no animation
+          displayed: true,
         },
       ])
     } finally {
@@ -1646,7 +1646,7 @@ const ChatInterface = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
-      // Don't send while the bot is still typing out its reply
+
       if (!isLoading && !messages.some(m => m.displayed === false)) {
         handleSendMessage()
       }
@@ -1674,8 +1674,8 @@ const ChatInterface = () => {
     return true
   }
 
-  // True while any assistant message is still typing out word-by-word.
-  // Used to lock the input until the animation fully completes.
+
+
   const isAnimating = messages.some(m => m.displayed === false)
 
   return (
@@ -1722,7 +1722,7 @@ const ChatInterface = () => {
               <p className="text-[10px] md:text-xs text-gray-500 leading-none">Always here to help</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 flex-shrink-0">
             {detectedLanguage && detectedLanguage !== language && (
               <div className="bg-green-50 text-green-700 px-2 py-1 rounded-lg text-[10px] md:text-xs font-semibold flex items-center gap-1.5 animate-slideInLanguage whitespace-nowrap">
@@ -1779,13 +1779,13 @@ const ChatInterface = () => {
                 Ask questions about symptoms, medications, or wellness. Upload scans or medical images for instant AI analysis.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-md">
-                <button 
+                <button
                   onClick={() => handleSendMessage("What are common symptoms of seasonal allergies?")}
                   className="px-4 py-3 bg-white hover:bg-green-50/50 border border-slate-100 hover:border-green-200 text-slate-700 hover:text-green-700 rounded-xl text-xs md:text-sm font-medium transition-all duration-250 shadow-sm text-left flex items-start gap-2.5"
                 >
                   <span className="text-green-600">💡</span> Seasonal allergy symptoms?
                 </button>
-                <button 
+                <button
                   onClick={() => handleSendMessage("How can I improve my daily water intake and hydration?")}
                   className="px-4 py-3 bg-white hover:bg-green-50/50 border border-slate-100 hover:border-green-200 text-slate-700 hover:text-green-700 rounded-xl text-xs md:text-sm font-medium transition-all duration-250 shadow-sm text-left flex items-start gap-2.5"
                 >
@@ -1796,7 +1796,7 @@ const ChatInterface = () => {
           ) : (
             messages.map((msg, index) => (
               msg.role === "user" ? (
-                // ── USER bubble (no avatar, pill-shaped) ──
+
                 <div
                   key={msg.id}
                   className={`w-full max-w-3xl flex gap-3 md:gap-4 mb-2 justify-end animate-[fadeInUp_0.3s_ease-out] ${msg.error ? 'message-error' : ''}`}
@@ -1839,7 +1839,7 @@ const ChatInterface = () => {
                   key={msg.id}
                   className={`w-full max-w-3xl flex flex-col mb-6 pb-6 border-b border-slate-100 last:border-b-0 animate-[fadeInUp_0.3s_ease-out] ${msg.error ? 'bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600' : ''}`}
                 >
-                  {/* ── Assistant content: no card, raw text ── */}
+                  {}
                   <div className="assistant-message-content text-gray-800 text-sm md:text-[15px] leading-relaxed break-words w-full">
                     {msg.streaming && !msg.content ? (
                       <div className="streaming-loader-container flex items-center gap-2.5 py-1">
@@ -1881,7 +1881,7 @@ const ChatInterface = () => {
                     )}
                   </div>
 
-                  {/* ── Action buttons: Copy + Read — always below content ── */}
+                  {}
                   {msg.content && msg.displayed && (
                     <>
                       <div className="message-actions flex gap-1 mt-3">
@@ -1925,7 +1925,7 @@ const ChatInterface = () => {
             ))
           )}
 
-          {/* Standalone loader: only when no streaming animation is already visible */}
+          {}
           {isLoading && !messages.some(m => m.role === 'assistant' && !m.displayed) && (
             <div className="typing-indicator flex w-full max-w-3xl items-center py-1 mb-4">
               <MedicalLoader />
@@ -1979,7 +1979,7 @@ const ChatInterface = () => {
               style={{ display: 'none' }}
             />
 
-            {/* + Attachment Button and Dropdown */}
+            {}
             <div className="attachment-container relative flex items-center" ref={attachmentMenuRef}>
               <button
                 className={`attachment-toggle-btn bg-transparent border border-gray-200 hover:border-green-600 hover:bg-green-50 text-gray-500 hover:text-green-600 w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 p-0 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${showAttachmentMenu ? 'active bg-white text-green-600 border-green-600' : ''}`}
@@ -2029,7 +2029,7 @@ const ChatInterface = () => {
               )}
             </div>
 
-            {/* Recording overlay shown above the input bar */}
+            {}
             {(isListening || isTranscribing) && (
               <div className="voice-recording-overlay absolute bottom-[calc(100%+8px)] left-1/2 -translate-x-1/2 flex items-center gap-3 bg-slate-900/95 backdrop-blur-md border border-red-500/40 rounded-full px-4 py-2 whitespace-nowrap z-50 shadow-lg shadow-red-500/10 animate-[overlay-pop_0.2s_ease]">
                 <div className="voice-waveform flex items-center gap-0.5 h-5">
@@ -2092,7 +2092,7 @@ const ChatInterface = () => {
               className={`message-field flex-1 py-2 px-1 border-none bg-transparent text-sm md:text-base text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-70 ${voiceError ? 'message-field-error border-red-600 placeholder-red-600 font-semibold' : ''}`}
             />
 
-            {/* Combined Voice, Send, or Stop Button */}
+            {}
             {(isLoading || isAnimating) ? (
               <button
                 className="send-btn stop-btn animate-pulse w-10 h-10 md:w-11 md:h-11 bg-red-500 text-white border-none rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
@@ -2202,7 +2202,7 @@ const ChatInterface = () => {
             </div>
             <div className="p-4 flex justify-between items-center gap-3 bg-slate-900">
               {cameraDevices.length > 1 && (
-                <select 
+                <select
                   value={selectedCameraDeviceId}
                   onChange={(e) => switchCamera(e.target.value)}
                   className="bg-slate-800 border border-slate-700 text-slate-100 rounded-lg py-2 px-3 text-xs md:text-sm outline-none cursor-pointer max-w-[180px]"

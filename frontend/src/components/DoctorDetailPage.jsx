@@ -26,13 +26,13 @@ import Footer from './Footer';
 const DoctorDetailPage = () => {
   const { doctorId } = useParams();
   const navigate = useNavigate();
-  
+
   const [doctor, setDoctor] = useState(null);
   const [ratings, setRatings] = useState([]);
   const [ratingSummary, setRatingSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('about'); // about, reviews, availability
+  const [activeTab, setActiveTab] = useState('about');
 
   useEffect(() => {
     loadDoctorDetails();
@@ -43,17 +43,17 @@ const DoctorDetailPage = () => {
       setLoading(true);
       console.log('[DoctorDetail] Loading details for doctor:', doctorId);
 
-      // Load doctor profile
+
       const doctorResponse = await doctorsAPI.getDoctorById(doctorId);
       console.log('[DoctorDetail] Doctor response:', doctorResponse);
       setDoctor(doctorResponse);
 
-      // Load ratings (use DoctorProfile ID from response)
+
       const profileId = doctorResponse.id;
       try {
         const ratingsResponse = await doctorsAPI.getDoctorRatings(profileId);
         console.log('[DoctorDetail] Ratings response:', ratingsResponse);
-        
+
         if (ratingsResponse.success) {
           setRatings(ratingsResponse.ratings || []);
           setRatingSummary(ratingsResponse.summary || null);
@@ -76,7 +76,7 @@ const DoctorDetailPage = () => {
     const numericRating = parseFloat(rating || 0);
     const fullStars = Math.floor(numericRating);
     const hasHalfStar = numericRating % 1 >= 0.5;
-    
+
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
         stars.push(<FaStar key={i} className="text-yellow-400" />);
@@ -114,8 +114,8 @@ const DoctorDetailPage = () => {
         </div>
         <h2 className="text-xl font-extrabold text-slate-850">Doctor Not Found</h2>
         <p className="text-sm text-slate-500 max-w-sm">{error || 'Unable to load doctor details'}</p>
-        <button 
-          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors mt-2" 
+        <button
+          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors mt-2"
           onClick={() => navigate('/')}
         >
           <FaArrowLeft /> Back to Home
@@ -126,11 +126,11 @@ const DoctorDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
-      
-      {/* Header back bar */}
+
+      {}
       <div className="bg-white border-b border-slate-100 py-4 shadow-sm">
         <div className="max-w-6xl mx-auto px-4">
-          <button 
+          <button
             className="inline-flex items-center gap-2 text-slate-600 hover:text-green-600 font-bold text-xs bg-slate-100 hover:bg-green-50 px-3.5 py-1.5 rounded-xl transition-all"
             onClick={() => navigate(-1)}
           >
@@ -139,17 +139,17 @@ const DoctorDetailPage = () => {
         </div>
       </div>
 
-      {/* Main Profile Info Section */}
+      {}
       <section className="py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-md">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-              
-              {/* Doctor Avatar */}
+
+              {}
               <div className="w-32 h-32 rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 flex items-center justify-center flex-shrink-0">
                 {doctor.user?.profile_picture_url ? (
-                  <img 
-                    src={doctor.user.profile_picture_url} 
+                  <img
+                    src={doctor.user.profile_picture_url}
                     alt={`Dr. ${doctor.user.first_name} ${doctor.user.last_name}`}
                     className="w-full h-full object-cover"
                   />
@@ -160,7 +160,7 @@ const DoctorDetailPage = () => {
                 )}
               </div>
 
-              {/* Profile Details text */}
+              {}
               <div className="flex-1 text-center md:text-left space-y-4">
                 <div>
                   <h1 className="text-2xl font-extrabold text-slate-850">Dr. {doctor.user?.first_name} {doctor.user?.last_name}</h1>
@@ -168,8 +168,8 @@ const DoctorDetailPage = () => {
                     {doctor.specialization_display}
                   </p>
                 </div>
-                
-                {/* Ratings block */}
+
+                {}
                 <div className="flex items-center justify-center md:justify-start gap-2">
                   <div className="flex gap-0.5 text-yellow-405">
                     {renderStars(doctor.average_rating || 0)}
@@ -180,7 +180,7 @@ const DoctorDetailPage = () => {
                   </span>
                 </div>
 
-                {/* Stat Badges */}
+                {}
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs font-bold text-slate-600">
                   <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl">
                     <FaGraduationCap className="text-green-600" />
@@ -196,16 +196,16 @@ const DoctorDetailPage = () => {
                   </div>
                 </div>
 
-                {/* Actions */}
+                {}
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
-                  <button 
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-705 text-white font-bold text-xs rounded-xl shadow-md shadow-green-600/10 transition-all hover:-translate-y-0.5" 
+                  <button
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-705 text-white font-bold text-xs rounded-xl shadow-md shadow-green-600/10 transition-all hover:-translate-y-0.5"
                     onClick={handleBookAppointment}
                   >
                     <FaCalendarAlt /> Book Appointment
                   </button>
-                  <button 
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-650 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-600/10 transition-all hover:-translate-y-0.5" 
+                  <button
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-650 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-600/10 transition-all hover:-translate-y-0.5"
                     onClick={handleVideoConsult}
                   >
                     <FaVideo /> Video Consult
@@ -219,23 +219,23 @@ const DoctorDetailPage = () => {
         </div>
       </section>
 
-      {/* Tabs Navigation */}
+      {}
       <section className="bg-white border-y border-slate-100">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex gap-6 overflow-x-auto">
-            <button 
+            <button
               className={`px-2 py-4 border-b-2 font-bold text-sm transition-all whitespace-nowrap ${activeTab === 'about' ? 'border-green-600 text-green-600 font-extrabold' : 'border-transparent text-slate-505 hover:text-green-600'}`}
               onClick={() => setActiveTab('about')}
             >
               About
             </button>
-            <button 
+            <button
               className={`px-2 py-4 border-b-2 font-bold text-sm transition-all whitespace-nowrap ${activeTab === 'reviews' ? 'border-green-600 text-green-600 font-extrabold' : 'border-transparent text-slate-505 hover:text-green-600'}`}
               onClick={() => setActiveTab('reviews')}
             >
               Reviews ({ratingSummary?.total_ratings || 0})
             </button>
-            <button 
+            <button
               className={`px-2 py-4 border-b-2 font-bold text-sm transition-all whitespace-nowrap ${activeTab === 'availability' ? 'border-green-600 text-green-600 font-extrabold' : 'border-transparent text-slate-505 hover:text-green-600'}`}
               onClick={() => setActiveTab('availability')}
             >
@@ -245,14 +245,14 @@ const DoctorDetailPage = () => {
         </div>
       </section>
 
-      {/* Tab Content Section */}
+      {}
       <section className="py-8 flex-1">
         <div className="max-w-6xl mx-auto px-4">
-          
-          {/* Main Content card container which hosts all tab information */}
+
+          {}
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-md">
-            
-            {/* About Tab */}
+
+            {}
             {activeTab === 'about' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
@@ -287,10 +287,10 @@ const DoctorDetailPage = () => {
                   </div>
                 </div>
 
-                {/* Sidebar Info - Unified box rather than multiple individual cards */}
+                {}
                 <div className="bg-slate-50/70 border border-slate-150/60 rounded-2xl p-6 space-y-5">
                   <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider border-b border-slate-200/60 pb-3">Consultation Overview</h4>
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Consultation Fee</span>
@@ -324,13 +324,13 @@ const DoctorDetailPage = () => {
                   )}
 
                   <div className="pt-2 border-t border-slate-200/60 space-y-2">
-                    <button 
+                    <button
                       className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-705 text-white font-bold text-xs rounded-xl shadow shadow-green-600/15 transition-all hover:-translate-y-0.5 cursor-pointer"
                       onClick={handleBookAppointment}
                     >
                       <FaCalendarAlt size={12} /> Book Appointment
                     </button>
-                    <button 
+                    <button
                       className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-650 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow shadow-indigo-600/15 transition-all hover:-translate-y-0.5 cursor-pointer"
                       onClick={handleVideoConsult}
                     >
@@ -341,7 +341,7 @@ const DoctorDetailPage = () => {
               </div>
             )}
 
-            {/* Reviews Tab */}
+            {}
             {activeTab === 'reviews' && (
               <div className="space-y-8">
                 {ratingSummary && (
@@ -362,18 +362,18 @@ const DoctorDetailPage = () => {
                       <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider mb-2">Rating Distribution</h4>
                       {[5, 4, 3, 2, 1].map(star => {
                         const count = ratingSummary.rating_distribution?.[star] || 0;
-                        const percentage = ratingSummary.total_ratings > 0 
+                        const percentage = ratingSummary.total_ratings > 0
                           ? (count / ratingSummary.total_ratings * 100).toFixed(0)
                           : 0;
-                        
+
                         return (
                           <div key={star} className="flex items-center gap-4 text-xs font-semibold text-slate-705">
                             <span className="w-8 flex items-center gap-1">
                               {star} <FaStar size={10} color="#fbbf24" />
                             </span>
                             <div className="flex-1 h-2 bg-slate-200/80 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-yellow-405 rounded-full" 
+                              <div
+                                className="h-full bg-yellow-405 rounded-full"
                                 style={{ width: `${percentage}%` }}
                               ></div>
                             </div>
@@ -385,10 +385,10 @@ const DoctorDetailPage = () => {
                   </div>
                 )}
 
-                {/* Reviews List styled as a clean timeline thread without individual cards */}
+                {}
                 <div className="space-y-6 mt-6">
                   <h3 className="text-base font-bold text-slate-800">Patient Reviews</h3>
-                  
+
                   {ratings.length === 0 ? (
                     <div className="p-12 text-center text-slate-400">
                       <FaStar size={48} className="mx-auto mb-3 text-slate-350" />
@@ -451,11 +451,11 @@ const DoctorDetailPage = () => {
               </div>
             )}
 
-            {/* Availability Tab */}
+            {}
             {activeTab === 'availability' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                
-                {/* Available Days */}
+
+                {}
                 <div className="space-y-4">
                   <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Available Days</h3>
                   <div className="flex flex-wrap gap-2">
@@ -471,7 +471,7 @@ const DoctorDetailPage = () => {
                   </div>
                 </div>
 
-                {/* Time Slots */}
+                {}
                 <div className="space-y-4">
                   <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Available Time Slots</h3>
                   <div className="flex flex-col gap-2">
@@ -487,7 +487,7 @@ const DoctorDetailPage = () => {
                   </div>
                 </div>
 
-                {/* Booking Call to Action */}
+                {}
                 <div className="bg-green-50/30 border border-green-200/50 p-6 rounded-2xl flex flex-col justify-between space-y-4">
                   <div>
                     <h3 className="text-sm font-extrabold text-green-950">Book Your Appointment</h3>
@@ -495,7 +495,7 @@ const DoctorDetailPage = () => {
                       Choose your preferred date and time to consult with Dr. {doctor.user?.last_name}
                     </p>
                   </div>
-                  <button 
+                  <button
                     className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-705 text-white font-bold text-xs rounded-xl shadow shadow-green-600/10 transition-all hover:-translate-y-0.5 cursor-pointer"
                     onClick={handleBookAppointment}
                   >
@@ -505,7 +505,7 @@ const DoctorDetailPage = () => {
 
               </div>
             )}
-            
+
           </div>
 
         </div>

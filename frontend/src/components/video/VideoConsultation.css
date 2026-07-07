@@ -1,8 +1,6 @@
-/* ============================================================
-   VideoConsultation.css  –  Patient Video Call Styles
-   ============================================================ */
 
-/* ── Scrollbar ── */
+
+
 .vc-scrollbar::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -17,27 +15,27 @@
 .vc-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
-/* keep backwards-compat alias */
+
 .custom-scrollbar::-webkit-scrollbar        { width: 4px; height: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track  { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb  { background: rgba(255,255,255,.15); border-radius: 9999px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.3); }
 
-/* ── Local PIP feed – mirrored ── */
+
 .mirror-feed {
   transform: scaleX(-1);
 }
 
-/* ── Video call root layout ── */
+
 .vc-root {
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  background: #0f172a;  /* slate-900 */
+  background: #0f172a;
   color: #f8fafc;
 }
 
-/* ── Active call wrapper fills below header ── */
+
 .vc-call-grid {
   display: flex;
   flex: 1;
@@ -45,7 +43,7 @@
   background: #0f172a;
 }
 
-/* ── Video column ── */
+
 .vc-video-col {
   flex: 1;
   position: relative;
@@ -54,17 +52,17 @@
   background: #0f172a;
 }
 
-/* ── Remote / main video tile ── */
+
 .vc-remote-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* ── Local PIP overlay ── */
+
 .vc-pip {
   position: absolute;
-  bottom: 6rem;          /* above the control pill */
+  bottom: 6rem;
   right: 1rem;
   width: 144px;
   height: 96px;
@@ -81,7 +79,7 @@
   .vc-pip { width: 192px; height: 128px; }
 }
 
-/* ── Floating control bar ── */
+
 .vc-controls {
   position: absolute;
   bottom: 1rem;
@@ -100,7 +98,7 @@
   max-width: 96vw;
 }
 
-/* ── Control buttons ── */
+
 .vc-btn {
   width: 2.5rem;
   height: 2.5rem;
@@ -120,7 +118,7 @@
 .vc-btn--active-green { background: #16a34a !important; border-color: transparent !important; }
 .vc-btn--danger      { background: #dc2626 !important; border-color: transparent !important; }
 
-/* ── Leave button ── */
+
 .vc-leave-btn {
   display: flex;
   align-items: center;
@@ -139,7 +137,7 @@
 }
 .vc-leave-btn:hover { background: #b91c1c; }
 
-/* ── Chat sidebar ── */
+
 .vc-chat-sidebar {
   width: 20rem;
   flex-shrink: 0;
@@ -150,7 +148,7 @@
   border-left: 1px solid rgba(255,255,255,0.08);
 }
 
-/* ── Chat message bubbles ── */
+
 .vc-msg {
   padding: 0.5rem 0.75rem;
   border-radius: 0.75rem;
@@ -179,14 +177,14 @@
   border: none;
 }
 
-/* ── Chat message animation ── */
+
 @keyframes vc-msg-in {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .vc-msg { animation: vc-msg-in 0.18s cubic-bezier(0.16,1,0.3,1) both; }
 
-/* ── Avatar initials circle (no video) ── */
+
 .vc-avatar {
   width: 5rem;
   height: 5rem;
@@ -202,7 +200,7 @@
   text-transform: uppercase;
 }
 
-/* ── Status badge ── */
+
 .vc-status-badge {
   display: inline-flex;
   align-items: center;
@@ -229,7 +227,7 @@
   50%       { opacity: 0.4; }
 }
 
-/* ── Name label overlay on video ── */
+
 .vc-name-label {
   position: absolute;
   bottom: 1rem;
@@ -244,7 +242,7 @@
   color: #f8fafc;
 }
 
-/* ── PIP "You" tag ── */
+
 .vc-pip-label {
   position: absolute;
   bottom: 0.4rem;
@@ -257,7 +255,7 @@
   color: #f8fafc;
 }
 
-/* ── Lobby card ── */
+
 .vc-lobby-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -269,7 +267,7 @@
   box-shadow: 0 4px 24px rgba(0,0,0,0.07);
 }
 
-/* ── Prescription badge ── */
+
 .vc-rx-badge {
   width: 1.5rem;
   height: 1.5rem;
@@ -286,7 +284,7 @@
   right: -0.3rem;
 }
 
-/* ── Divider in control bar ── */
+
 .vc-divider {
   width: 1px;
   height: 1.5rem;
@@ -294,7 +292,7 @@
   margin: 0 0.25rem;
 }
 
-/* ── E2E encrypted badge ── */
+
 .vc-e2e-badge {
   display: inline-flex;
   align-items: center;

@@ -1,4 +1,4 @@
-/* ===== PHARMACIST HOMEPAGE - COMPACT ANIMATIONS ===== */
+
 
 @keyframes modalIn {
   from {
@@ -15,7 +15,7 @@
   animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Custom scrollbars */
+
 .nms-stores-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;

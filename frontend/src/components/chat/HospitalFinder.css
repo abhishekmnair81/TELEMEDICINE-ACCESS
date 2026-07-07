@@ -1,4 +1,4 @@
-/* HospitalFinder.css - Premium, Modern, and Minimalistic design */
+
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
@@ -29,15 +29,15 @@
 
 .hospital-finder-modal {
   background: var(--rural-white, #ffffff);
-  
+
   border-radius: 20px;
   max-width: 480px;
   width: 90%;
   max-height: 95vh;
   overflow-y: auto;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-  box-shadow: 
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  box-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.05),
     0 20px 48px -10px rgba(15, 23, 42, 0.15),
     0 0 1px 1px rgba(0, 0, 0, 0.02);
@@ -49,7 +49,7 @@
 }
 
 .hospital-finder-modal::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+  display: none;
 }
 
 @keyframes modalSlideUp {
@@ -87,7 +87,7 @@
   transform: rotate(90deg);
 }
 
-/* Emergency Alerts */
+
 .emergency-alert {
   display: flex;
   align-items: flex-start;
@@ -135,7 +135,7 @@
   color: #f59e0b;
 }
 
-/* Content Area */
+
 .hospital-finder-content {
   padding: 16px 20px;
   display: flex;
@@ -156,7 +156,7 @@
   color: var(--rural-green-primary, #00B38E);
 }
 
-/* Emergency Call Button */
+
 .emergency-call-btn {
   width: 100%;
   padding: 10px 16px;
@@ -186,7 +186,7 @@
   transform: translateY(0);
 }
 
-/* Action Buttons (Get Location, maps etc) */
+
 .get-location-btn, .show-hospitals-btn, .manual-search-btn {
   width: 100%;
   padding: 10px 16px;
@@ -222,7 +222,7 @@
   box-shadow: none;
 }
 
-/* Location success box */
+
 .location-success {
   background: #f0fdf4;
   border: 1px solid #dcfce7;
@@ -263,7 +263,7 @@
   box-shadow: 0 6px 20px rgba(22, 163, 74, 0.25);
 }
 
-/* Error message block */
+
 .error-message {
   background: #fef2f2;
   border: 1px solid #fee2e2;
@@ -299,7 +299,7 @@
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.25);
 }
 
-/* Emergency contact numbers list */
+
 .emergency-numbers {
   background: var(--rural-gray-50, #f8fafc);
   border: 1px solid var(--rural-gray-200, #e2e8f0);
@@ -364,7 +364,7 @@
   font-size: 13px;
 }
 
-/* Disclaimer text block */
+
 .disclaimer {
   background: #fffbeb;
   border-left: 3px solid #f59e0b;
@@ -384,7 +384,7 @@
   font-weight: 600;
 }
 
-/* Custom Spinner */
+
 .loading-spinner {
   display: inline-block;
   width: 16px;
@@ -401,7 +401,7 @@
   }
 }
 
-/* Media Queries */
+
 @media (max-width: 767px) {
   .hospital-finder-modal {
     width: 92%;
