@@ -334,7 +334,6 @@ def send_otp_for_login(request):
             'phone_number': phone_number,
             'user_type': user.user_type,
             'expires_in': 600,
-            'otp': otp if settings.DEBUG else None,
             'email_sent': True
         })
         
@@ -498,8 +497,7 @@ def send_otp_for_registration(request):
             'success': True,
             'message': f'OTP sent to {email}',
             'phone_number': phone_number,
-            'expires_in': 600,
-            'otp': otp if settings.DEBUG else None  
+            'expires_in': 600
         })
         
     except Exception as e:

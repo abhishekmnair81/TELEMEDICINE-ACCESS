@@ -110,9 +110,7 @@ const AuthSystem = () => {
         setTempPhone(phoneNumber)
         setError("")
 
-        if (data.otp) {
-          console.log("🔐 OTP (DEBUG):", data.otp)
-        }
+        // OTP is sent via email and not exposed in client logs
       } else {
         if (data.requires_registration) {
           setError("No account found. Please register first.")
@@ -276,9 +274,7 @@ const AuthSystem = () => {
         setTempEmail(email)
         setError("")
 
-        if (data.otp) {
-          console.log("🔐 OTP (DEBUG):", data.otp)
-        }
+        // OTP is sent via email and not exposed in client logs
       } else {
         setError(data.error || "Failed to send OTP. Please try again.")
       }
