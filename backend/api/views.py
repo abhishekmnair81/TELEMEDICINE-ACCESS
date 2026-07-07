@@ -155,7 +155,7 @@ def generate_otp():
 
 
 def send_otp_email_sync(phone_number, email, otp, purpose='login'):
-
+    print(f"📧 [SMTP] Background email send process started for {email}...")
     try:
         subject = f"🌿 Your OTP for {purpose.title()} - Rural HealthCare"
         purpose_text = "login request" if purpose == 'login' else "registration account sign-up"
@@ -211,10 +211,12 @@ def send_otp_email_sync(phone_number, email, otp, purpose='login'):
         )
         
         logger.info(f"[send_otp_email_sync] HTML Email sent to {email}")
+        print(f"✅ [SMTP] HTML Email successfully sent to {email}!")
         return True
         
     except Exception as e:
         logger.error(f"[send_otp_email_sync] Error sending email: {str(e)}")
+        print(f"❌ [SMTP] Error sending email to {email}: {str(e)}")
         return False
 
 
@@ -298,25 +300,33 @@ def send_otp_for_login(request):
             expires_at=expires_at
         )
 
-        # Schedule auto-deletion in Celery in 10 minutes to resolve storage issues
+        # Schedule auto-deletion in Celery in 10 minutes to resolve storage issues (in a background thread to prevent blocking if Redis is down)
+        import threading
+        def schedule_celery_delete():
+            try:
+                from .tasks import delete_otp_record
+                delete_otp_record.apply_async((str(otp_record.id),), countdown=600)
+            except Exception as e:
+                logger.warning(f"Could not schedule auto-delete Celery task: {e}")
+        
         try:
-            from .tasks import delete_otp_record
-            delete_otp_record.apply_async((str(otp_record.id),), countdown=600)
+            threading.Thread(target=schedule_celery_delete, daemon=True).start()
         except Exception as e:
-            logger.warning(f"Could not schedule auto-delete Celery task: {e}")
+            logger.error(f"Failed to start Celery scheduler thread: {e}")
         
         logger.info(f"📱 LOGIN OTP for {phone_number} ({user.user_type}): {otp}")
         print(f"📱 LOGIN OTP for {phone_number} ({user.user_type}): {otp}")
         
-        email_sent = False
+        import threading
         try:
-            email_sent = send_otp_email_sync(phone_number, email_to_use, otp, purpose='login')
-            if email_sent:
-                logger.info(f"[send_otp_for_login]  OTP sent to email: {email_to_use}")
-            else:
-                logger.warning(f"[send_otp_for_login]  Email send returned False")
+            threading.Thread(
+                target=send_otp_email_sync,
+                args=(phone_number, email_to_use, otp, 'login'),
+                daemon=True
+            ).start()
+            logger.info(f"[send_otp_for_login] Background thread started to send OTP to: {email_to_use}")
         except Exception as e:
-            logger.error(f"[send_otp_for_login]  Email send exception: {str(e)}")
+            logger.error(f"[send_otp_for_login] Thread start exception: {str(e)}")
         
         return Response({
             'success': True,
@@ -325,7 +335,7 @@ def send_otp_for_login(request):
             'user_type': user.user_type,
             'expires_in': 600,
             'otp': otp if settings.DEBUG else None,
-            'email_sent': email_sent
+            'email_sent': True
         })
         
     except Exception as e:
@@ -473,12 +483,16 @@ def send_otp_for_registration(request):
         logger.info(f"📱 REGISTRATION OTP for {phone_number}: {otp}")
         print(f"📱 REGISTRATION OTP for {phone_number}: {otp}")
         
-        email_sent = send_otp_email_sync(phone_number, email, otp, purpose='registration')
-        
-        if email_sent:
-            logger.info(f"[send_otp_for_registration]  OTP sent to email: {email}")
-        else:
-            logger.warning(f"[send_otp_for_registration]  Email send failed, but OTP is available in console")
+        import threading
+        try:
+            threading.Thread(
+                target=send_otp_email_sync,
+                args=(phone_number, email, otp, 'registration'),
+                daemon=True
+            ).start()
+            logger.info(f"[send_otp_for_registration] Background thread started to send OTP to: {email}")
+        except Exception as e:
+            logger.error(f"[send_otp_for_registration] Thread start exception: {str(e)}")
         
         return Response({
             'success': True,
