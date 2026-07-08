@@ -1258,13 +1258,14 @@ export default function LabTests() {
                   <div className="h-0.5 bg-teal-600 flex-1 mx-1.5"></div>
                   <div className="flex flex-col items-center flex-1">
                     <div className={`w-7 h-7 sm:w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                      ['completed'].includes(bookingDetailModal.status) ? 'bg-teal-600 text-white' : 
+                      ['collected', 'completed'].includes(bookingDetailModal.status) ? 'bg-teal-600 text-white' : 
                       bookingDetailModal.status === 'cancelled' ? 'bg-red-400 text-white' : 'bg-amber-500 text-white'
                     }`}>
-                      {['completed'].includes(bookingDetailModal.status) ? '✓' : '2'}
+                      {['collected', 'completed'].includes(bookingDetailModal.status) ? '✓' : '2'}
                     </div>
-                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-600 mt-1.5">
-                      {bookingDetailModal.status === 'cancelled' ? 'Cancelled' : 'In Progress'}
+                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-600 mt-1.5 font-semibold">
+                      {bookingDetailModal.status === 'cancelled' ? 'Cancelled' : 
+                       ['collected', 'completed'].includes(bookingDetailModal.status) ? 'Sample Collected' : 'Pending Collection'}
                     </span>
                   </div>
                   <div className={`h-0.5 flex-1 mx-1.5 ${bookingDetailModal.status === 'completed' ? 'bg-teal-600' : 'bg-slate-200'}`}></div>
@@ -1274,7 +1275,7 @@ export default function LabTests() {
                     }`}>
                       {bookingDetailModal.status === 'completed' ? '✓' : '3'}
                     </div>
-                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 mt-1.5">Report Ready</span>
+                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 mt-1.5 font-semibold">Report Ready</span>
                   </div>
                 </div>
               </div>
@@ -1302,7 +1303,9 @@ export default function LabTests() {
                 <div>
                   <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider block">Collection Method</span>
                   <span className="font-bold text-slate-700 block mt-1 capitalize">{bookingDetailModal.collection_type.replace('_', ' ')}</span>
-                  {bookingDetailModal.collection_type === 'home' && (
+                  {bookingDetailModal.assigned_technician_name ? (
+                    <span className="text-[10px] text-emerald-600 font-bold block mt-0.5">Assigned: {bookingDetailModal.assigned_technician_name}</span>
+                  ) : bookingDetailModal.collection_type === 'home' && (
                     <span className="text-[11px] text-slate-500 block truncate max-w-[160px]">{bookingDetailModal.address}</span>
                   )}
                 </div>
@@ -1332,7 +1335,11 @@ export default function LabTests() {
                 {bookingDetailModal.status === 'completed' ? (
                   <button 
                     onClick={() => {
-                      alert("Downloading Digital Clinical Laboratory Report PDF...");
+                      if (bookingDetailModal.report_file) {
+                        window.open(bookingDetailModal.report_file, '_blank');
+                      } else {
+                        alert("Downloading Digital Clinical Laboratory Report PDF...");
+                      }
                     }}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 sm:px-5 rounded-xl text-xs sm:text-sm transition flex items-center gap-2 shadow-sm"
                   >

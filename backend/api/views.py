@@ -254,7 +254,8 @@ def send_otp_for_login(request):
                 'patient': 'Patient',
                 'doctor': 'Doctor',
                 'pharmacist': 'Pharmacist',
-                'ashaworker': 'ASHA Worker'
+                'ashaworker': 'ASHA Worker',
+                'laboratory': 'Laboratory Staff'
             }
             actual_role = type_names.get(user.user_type, user.user_type.title())
             return Response(
@@ -398,7 +399,8 @@ def verify_otp_and_login(request):
                 'patient': 'Patient',
                 'doctor': 'Doctor',
                 'pharmacist': 'Pharmacist',
-                'ashaworker': 'ASHA Worker'
+                'ashaworker': 'ASHA Worker',
+                'laboratory': 'Laboratory Staff'
             }
             actual_role = type_names.get(user.user_type, user.user_type.title())
             return Response(
@@ -610,6 +612,10 @@ def verify_otp_and_register(request):
             )
             asha_group, _ = Group.objects.get_or_create(name='AshaWorker')
             user.groups.add(asha_group)
+            
+        elif user_type == 'laboratory':
+            laboratory_group, _ = Group.objects.get_or_create(name='Laboratory')
+            user.groups.add(laboratory_group)
         
         # OTP is successfully used, delete immediately to invalidate it
         otp_record.delete()
@@ -723,6 +729,10 @@ def register_user(request):
             asha_group, _ = Group.objects.get_or_create(name='AshaWorker')
             user.groups.add(asha_group)
             
+        elif user_type == 'laboratory':
+            laboratory_group, _ = Group.objects.get_or_create(name='Laboratory')
+            user.groups.add(laboratory_group)
+            
         else:
             patient_group, _ = Group.objects.get_or_create(name='Patient')
             user.groups.add(patient_group)
@@ -768,7 +778,7 @@ def unified_login(request, user_type):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        if user_type not in ['patient', 'doctor', 'pharmacist', 'ashaworker']:
+        if user_type not in ['patient', 'doctor', 'pharmacist', 'ashaworker', 'laboratory']:
             return Response(
                 {'success': False, 'error': 'Invalid user type'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -786,7 +796,8 @@ def unified_login(request, user_type):
             'patient': 'Patient',
             'doctor': 'Doctor', 
             'pharmacist': 'Pharmacist',
-            'ashaworker': 'AshaWorker'
+            'ashaworker': 'AshaWorker',
+            'laboratory': 'Laboratory'
         }
         
         group_name = user_type_mapping.get(user_type)
@@ -8569,6 +8580,13 @@ class LabTestBookingViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(patient_phone=phone)
         elif self.request.user.is_authenticated and self.request.user.user_type == 'patient':
             queryset = queryset.filter(patient=self.request.user)
+        elif self.request.user.is_authenticated and self.request.user.user_type == 'laboratory':
+            # View all assigned bookings or unclaimed bookings
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(assigned_technician=self.request.user) |
+                Q(assigned_technician__isnull=True, collection_type='home')
+            )
             
         return queryset
 
@@ -8577,6 +8595,176 @@ class LabTestBookingViewSet(viewsets.ModelViewSet):
             serializer.save(patient=self.request.user)
         else:
             serializer.save()
+
+    @action(detail=True, methods=['post'], url_path='claim', permission_classes=[IsAuthenticated])
+    def claim_booking(self, request, pk=None):
+        booking = self.get_object()
+        if request.user.user_type != 'laboratory':
+            return Response({'error': 'Only laboratory staff can claim bookings.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        booking.assigned_technician = request.user
+        if booking.status == 'pending':
+            booking.status = 'confirmed'
+        booking.save()
+        
+        serializer = self.get_serializer(booking)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], url_path='collect', permission_classes=[IsAuthenticated])
+    def collect_sample(self, request, pk=None):
+        booking = self.get_object()
+        if request.user.user_type != 'laboratory':
+            return Response({'error': 'Only laboratory staff can collect samples.'}, status=status.HTTP_403_FORBIDDEN)
+            
+        booking.status = 'collected'
+        booking.collected_at = timezone.now()
+        booking.save()
+        
+        serializer = self.get_serializer(booking)
+        return Response(serializer.data)
+
+    @action(
+        detail=True,
+        methods=['post'],
+        url_path='upload-report',
+        permission_classes=[IsAuthenticated],
+        parser_classes=[MultiPartParser, FormParser]
+    )
+    def upload_report(self, request, pk=None):
+        booking = self.get_object()
+        if request.user.user_type != 'laboratory':
+            return Response({'error': 'Only laboratory staff can upload reports.'}, status=status.HTTP_403_FORBIDDEN)
+            
+        file = request.FILES.get('report_file')
+        if not file:
+            return Response({'error': 'No report file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        booking.report_file = file
+        booking.status = 'completed'
+        booking.save()
+        
+        # Send clinical report PDF to patient's email
+        recipient_email = booking.patient_email or (booking.patient.email if booking.patient else None)
+        if recipient_email:
+            try:
+                from django.core.mail import EmailMessage
+                
+                # Get phlebotomist info
+                phleb_name = request.user.get_full_name() or request.user.username
+                phleb_email = request.user.email
+                
+                # Resolve list of tests
+                test_names = []
+                if isinstance(booking.tests, list):
+                    for t in booking.tests:
+                        if isinstance(t, dict) and 'name' in t:
+                            test_names.append(t['name'])
+                        elif isinstance(t, str):
+                            test_names.append(t)
+                tests_str = ", ".join(test_names) if test_names else "Diagnostic Panel"
+                
+                subject = f"🔬 Your Lab Test Report is Ready: {booking.patient_name}"
+                
+                html_body = f"""
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; padding: 40px 16px; margin: 0; width: 100%;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0;">
+    <!-- Brand Header -->
+    <div style="background-color: #00755b; padding: 32px 24px; text-align: center;">
+      <div style="text-align: center; margin: 0 auto;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#ffffff"/>
+          <path d="M6 10H8.5L10.5 6L13 14L15 10H18" stroke="#00755b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span style="font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; display: inline-block; vertical-align: middle;">Rural<span style="color: #c8eae3;">HealthCare</span></span>
+      </div>
+      <p style="color: #e6f7f4; font-size: 13px; font-weight: 600; margin: 8px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">Diagnostic Lab Report</p>
+    </div>
+    
+    <!-- Email Content -->
+    <div style="padding: 40px 32px;">
+      <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 16px 0;">Hello {booking.patient_name},</h2>
+      <p style="font-size: 15px; color: #475569; line-height: 1.6; margin: 0 0 24px 0;">
+        Your clinical diagnostic laboratory report is now ready. The laboratory technician has completed processing your samples and uploaded the official signed document to your patient portal.
+      </p>
+      
+      <!-- Call to Action Button -->
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="http://localhost:3000/lab-tests" style="background-color: #00755b; color: #ffffff; font-size: 14px; font-weight: 700; text-decoration: none; padding: 14px 28px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0, 117, 91, 0.25);">
+          View Report in Portal
+        </a>
+      </div>
+      
+      <!-- Report & Appointment Metadata Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin: 24px 0;">
+        <h3 style="font-size: 12px; font-weight: 800; color: #00755b; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 0.5px;">📋 Test & Collection Details</h3>
+        
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 40%;">Patient Name:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">{booking.patient_name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Scheduled Date:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">{booking.booking_date}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Time Slot:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">{booking.booking_time_slot}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600; vertical-align: top;">Prescribed Tests:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">{tests_str}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 0 6px 0; color: #64748b; font-weight: 600; border-top: 1px dashed #e2e8f0;">Assigned Phlebotomist:</td>
+            <td style="padding: 12px 0 6px 0; color: #00755b; font-weight: 700; border-top: 1px dashed #e2e8f0;">{phleb_name}</td>
+          </tr>
+        </table>
+      </div>
+      
+      <!-- Professional Disclaimer / Notes -->
+      <div style="border-left: 3px solid #00755b; padding-left: 16px; margin: 24px 0;">
+        <p style="font-size: 13px; color: #475569; line-height: 1.5; font-style: italic; margin: 0;">
+          Your medical records are encrypted and stored securely. If you have any medical queries or require diagnostic explanation, please schedule a consultation with your prescribing practitioner.
+        </p>
+      </div>
+      
+      <p style="font-size: 14px; color: #475569; line-height: 1.6; margin: 24px 0 0 0;">
+        If you have any questions or would like to follow up regarding these results, you can reply directly to this email to contact your phlebotomist ({phleb_name}) at <strong>{phleb_email or 'their registered email'}</strong>.
+      </p>
+    </div>
+    
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 24px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin: 0;">
+        &copy; 2026 Rural HealthCare Diagnostics. All rights reserved.<br>
+        This is an automated notification. Please reply directly to follow up with your phlebotomist.
+      </p>
+    </div>
+  </div>
+</div>
+"""
+                
+                email_msg = EmailMessage(
+                    subject=subject,
+                    body=html_body,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[recipient_email],
+                    reply_to=[phleb_email] if phleb_email else []
+                )
+                email_msg.content_subtype = "html"
+                
+                # Seek to start of file to ensure full read
+                file.seek(0)
+                email_msg.attach(file.name, file.read(), file.content_type)
+                
+                email_msg.send(fail_silently=False)
+                logger.info(f"Report email successfully sent to {recipient_email} with reply_to={phleb_email}")
+            except Exception as e:
+                logger.error(f"Failed to send lab report email to {recipient_email}: {str(e)}")
+        
+        serializer = self.get_serializer(booking)
+        return Response(serializer.data)
 
 
 class LabTestViewSet(viewsets.ModelViewSet):

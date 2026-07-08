@@ -13,6 +13,7 @@ class CustomUser(AbstractUser):
         ('doctor', 'Doctor'),
         ('pharmacist', 'Pharmacist'),
         ('ashaworker', 'ASHA Worker'),
+        ('laboratory', 'Laboratory Staff'),
         ('admin', 'Admin'),
     ]
 
@@ -2308,6 +2309,7 @@ class LabTestBooking(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
+        ('collected', 'Sample Collected'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     ]
@@ -2337,6 +2339,17 @@ class LabTestBooking(models.Model):
     
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    report_file = models.FileField(upload_to='lab_reports/', null=True, blank=True)
+    assigned_technician = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={'user_type': 'laboratory'},
+        related_name='assigned_collections'
+    )
+    collected_at = models.DateTimeField(null=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

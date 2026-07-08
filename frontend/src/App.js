@@ -18,6 +18,7 @@ import DoctorDetailPage from './components/DoctorDetailPage';
 import AllDoctors from './components/AllDoctors';
 import LabTests from './components/LabTests';
 import AshaDashboard from './components/asha/AshaDashboard';
+import LabDashboard from './components/laboratory/LabDashboard';
 
 import PharmacistDashboard from './components/PharmacistDashboard';
 import PharmacistHomepage from './components/PharmacistHomepage';
@@ -166,6 +167,7 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/lab-tests" element={<LabTests />} />
           <Route path="/asha-dashboard" element={<AshaDashboard />} />
+          <Route path="/lab-dashboard" element={<LabDashboard />} />
 
         </Routes>
       </div>

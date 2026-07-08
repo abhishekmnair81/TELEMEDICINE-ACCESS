@@ -1523,15 +1523,23 @@ class PharmacistUserSerializer(serializers.ModelSerializer):
 
 
 class LabTestBookingSerializer(serializers.ModelSerializer):
+    assigned_technician_name = serializers.SerializerMethodField()
+
     class Meta:
         model = LabTestBooking
         fields = [
             'id', 'patient', 'patient_name', 'patient_phone', 'patient_email',
             'patient_age', 'patient_gender', 'tests', 'booking_date',
             'booking_time_slot', 'collection_type', 'address', 'pincode',
-            'total_price', 'status', 'created_at', 'updated_at'
+            'total_price', 'status', 'report_file', 'assigned_technician',
+            'assigned_technician_name', 'collected_at', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_assigned_technician_name(self, obj):
+        if obj.assigned_technician:
+            return obj.assigned_technician.get_full_name() or obj.assigned_technician.username
+        return ""
 
 
 class LabTestSerializer(serializers.ModelSerializer):

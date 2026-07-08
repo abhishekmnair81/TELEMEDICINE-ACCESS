@@ -13,7 +13,8 @@ import {
   FaKey,
   FaShieldAlt,
   FaUserShield,
-  FaStethoscope
+  FaStethoscope,
+  FaFlask
 } from "react-icons/fa"
 import "./AuthSystem.css"
 
@@ -58,7 +59,7 @@ const AuthSystem = () => {
     const type = searchParams.get('type')
     const view = searchParams.get('view')
 
-    if (type && ['patient', 'doctor', 'pharmacist', 'ashaworker'].includes(type)) {
+    if (type && ['patient', 'doctor', 'pharmacist', 'ashaworker', 'laboratory'].includes(type)) {
       setUserType(type)
       if (view === 'login' || view === 'register') {
         setCurrentView(view)
@@ -194,6 +195,8 @@ const AuthSystem = () => {
             navigate('/pharmacy-home')
           } else if (loginUserType === 'ashaworker') {
             navigate('/asha-dashboard')
+          } else if (loginUserType === 'laboratory') {
+            navigate('/lab-dashboard')
           } else {
             navigate('/')
           }
@@ -367,6 +370,7 @@ const AuthSystem = () => {
         else if (userType === 'doctor') navigate('/doctor-dashboard')
         else if (userType === 'pharmacist') navigate('/pharmacy-home')
         else if (userType === 'ashaworker') navigate('/asha-dashboard')
+        else if (userType === 'laboratory') navigate('/lab-dashboard')
       } else {
         setError(data.error || 'Invalid OTP or registration failed. Please try again.')
       }
@@ -423,6 +427,7 @@ const AuthSystem = () => {
     if (userType === "doctor") return <FaUserMd size={32} className="text-teal-600" />
     if (userType === "pharmacist") return <FaPills size={32} className="text-emerald-600" />
     if (userType === "ashaworker") return <FaUserShield size={32} className="text-teal-600" />
+    if (userType === "laboratory") return <FaFlask size={32} className="text-emerald-600" />
     return <FaUser size={32} className="text-sky-600" />
   }
 
@@ -430,6 +435,7 @@ const AuthSystem = () => {
     if (userType === "doctor") return "Doctor"
     if (userType === "pharmacist") return "Pharmacist"
     if (userType === "ashaworker") return "ASHA Worker"
+    if (userType === "laboratory") return "Laboratory Staff"
     return "Patient"
   }
 
@@ -441,7 +447,7 @@ const AuthSystem = () => {
     <div className="min-h-screen bg-gradient-to-b from-teal-50/40 via-slate-50 to-white flex flex-col items-center justify-center py-6 px-4 sm:px-6 lg:px-8 overflow-hidden">
 
       {currentView === "select" && (
-        <div className="w-full max-w-4xl bg-white border border-slate-200/80 rounded-3xl p-8 shadow-xl flex flex-col items-center">
+        <div className="w-full max-w-6xl bg-white border border-slate-200/80 rounded-3xl p-8 shadow-xl flex flex-col items-center">
           <div className="flex flex-col items-center text-center mb-6">
             <div className="w-14 h-14 bg-teal-600/10 text-teal-600 border border-teal-500/10 rounded-2xl flex items-center justify-center text-3xl mb-3 shadow-inner">
               <FaHeartbeat className="animate-pulse" />
@@ -453,49 +459,60 @@ const AuthSystem = () => {
           <h2 className="text-base font-bold text-slate-800 mb-1.5">Select Account Type</h2>
           <p className="text-[10px] text-slate-400 mb-6 text-center font-bold uppercase tracking-wider">Choose your role to get started</p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
             <button
-              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-sky-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
+              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-sky-500/30 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
               onClick={() => selectUserType("patient")}
             >
               <div className="w-12 h-12 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center text-xl group-hover:bg-sky-500 group-hover:text-white transition-all duration-300 shadow-sm mb-4">
                 <FaUser />
               </div>
-              <h3 className="text-sm font-bold text-slate-900 group-hover:text-sky-600 transition-colors">Patient Portal</h3>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed font-semibold">Book appointments, order medications & consult doctors</p>
+              <h3 className="text-xs font-extrabold text-slate-900 group-hover:text-sky-600 transition-colors">Patient Portal</h3>
+              <p className="text-[11px] text-slate-500 mt-2 leading-relaxed font-semibold">Book appointments, order medicines & consult doctors</p>
             </button>
 
             <button
-              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-teal-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
+              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-teal-500/30 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
               onClick={() => selectUserType("doctor")}
             >
               <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-xl group-hover:bg-teal-500 group-hover:text-white transition-all duration-300 shadow-sm mb-4">
                 <FaUserMd />
               </div>
-              <h3 className="text-sm font-bold text-slate-900 group-hover:text-teal-600 transition-colors">Doctor Portal</h3>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed font-semibold">Consult patients, generate medical prescriptions & schedules</p>
+              <h3 className="text-xs font-extrabold text-slate-900 group-hover:text-teal-600 transition-colors">Doctor Portal</h3>
+              <p className="text-[11px] text-slate-500 mt-2 leading-relaxed font-semibold">Consult patients, generate medical prescriptions & schedules</p>
             </button>
-
+            
             <button
-              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-emerald-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
+              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-emerald-500/30 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
               onClick={() => selectUserType("pharmacist")}
             >
               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm mb-4">
                 <FaPills />
               </div>
-              <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">Pharmacist Portal</h3>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed font-semibold">Verify scripts, manage inventory & handle orders</p>
+              <h3 className="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Pharmacist Portal</h3>
+              <p className="text-[11px] text-slate-500 mt-2 leading-relaxed font-semibold">Verify scripts, manage inventory & handle orders</p>
             </button>
 
             <button
-              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-teal-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
+              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-teal-500/30 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
               onClick={() => selectUserType("ashaworker")}
             >
               <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-xl group-hover:bg-teal-500 group-hover:text-white transition-all duration-300 shadow-sm mb-4">
                 <FaUserShield />
               </div>
-              <h3 className="text-sm font-bold text-slate-900 group-hover:text-teal-600 transition-colors">ASHA Worker</h3>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed font-semibold">Rural healthcare support, proxy patient booking & rapid tests</p>
+              <h3 className="text-xs font-extrabold text-slate-900 group-hover:text-teal-600 transition-colors">ASHA Worker</h3>
+              <p className="text-[11px] text-slate-500 mt-2 leading-relaxed font-semibold">Rural support, proxy patient booking & rapid POCT tests</p>
+            </button>
+
+            <button
+              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-emerald-500/30 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
+              onClick={() => selectUserType("laboratory")}
+            >
+              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm mb-4">
+                <FaFlask />
+              </div>
+              <h3 className="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Lab Portal</h3>
+              <p className="text-[11px] text-slate-500 mt-2 leading-relaxed font-semibold">Track collections, manage blood/pathology & upload reports</p>
             </button>
           </div>
         </div>
