@@ -72,15 +72,16 @@ from .models import (
     CustomUser,
     HealthRecord, EnhancedPrescription, Medicine, MedicineOrder,
     HealthVaultDocument, DoctorConsultationNote,
-    AIHealthInsight, CustomUser, DoctorProfile, PharmacistProfile,
+    AIHealthInsight, DoctorProfile, PharmacistProfile,
     VideoConsultationRoom, VideoCallMessage, WebRTCSignal,
     CallConnectionLog, VideoConsultationPrescription,
     ScreenShareSession, ConsultationFollowUp, HealthMetric, HealthGoal, HealthActivity,
-    HealthReport, MedicationReminder, MedicationLog, DoctorRating, OTPVerification, 
+    HealthReport, DoctorRating, OTPVerification, 
     Conversation, HealthReportData,
-    MedicalProduct, InventoryBatch, Supplier, CartItem, SavedForLater, Coupon, CouponUsage, Medicine,CustomUser, PharmacistProfile,
+    MedicalProduct, InventoryBatch, Supplier, CartItem, SavedForLater, Coupon, CouponUsage,
     LabTestBooking,
     LabTest,
+    AshaProfile, PointOfCareTest,
 )
 
 
@@ -128,7 +129,8 @@ from .serializers import (
     ChatHistorySerializer,
     HealthReportDataSerializer,CartItemSerializer, CartSummarySerializer, AddToCartSerializer,
     UpdateCartItemSerializer, ApplyCouponSerializer, SavedForLaterSerializer,
-    CouponSerializer, LabTestBookingSerializer, LabTestSerializer
+    CouponSerializer, LabTestBookingSerializer, LabTestSerializer,
+    AshaProfileSerializer, PointOfCareTestSerializer
 )
 from .helpers import (
     get_chatbot, 
@@ -157,7 +159,7 @@ def generate_otp():
 
 
 def send_otp_email_sync(phone_number, email, otp, purpose='login'):
-    print(f"📧 [SMTP] Background email send process started for {email}...")
+    print(f"[SMTP] Background email send process started for {email}...")
     try:
         subject = f"🌿 Your OTP for {purpose.title()} - Rural HealthCare"
         purpose_text = "login request" if purpose == 'login' else "registration account sign-up"
@@ -213,12 +215,12 @@ def send_otp_email_sync(phone_number, email, otp, purpose='login'):
         )
         
         logger.info(f"[send_otp_email_sync] HTML Email sent to {email}")
-        print(f"✅ [SMTP] HTML Email successfully sent to {email}!")
+        print(f"[SMTP] HTML Email successfully sent to {email}!")
         return True
         
     except Exception as e:
         logger.error(f"[send_otp_email_sync] Error sending email: {str(e)}")
-        print(f"❌ [SMTP] Error sending email to {email}: {str(e)}")
+        print(f"[SMTP] Error sending email to {email}: {str(e)}")
         return False
 
 
@@ -251,7 +253,8 @@ def send_otp_for_login(request):
             type_names = {
                 'patient': 'Patient',
                 'doctor': 'Doctor',
-                'pharmacist': 'Pharmacist'
+                'pharmacist': 'Pharmacist',
+                'ashaworker': 'ASHA Worker'
             }
             actual_role = type_names.get(user.user_type, user.user_type.title())
             return Response(
@@ -316,8 +319,8 @@ def send_otp_for_login(request):
         except Exception as e:
             logger.error(f"Failed to start Celery scheduler thread: {e}")
         
-        logger.info(f"📱 LOGIN OTP for {phone_number} ({user.user_type}): {otp}")
-        print(f"📱 LOGIN OTP for {phone_number} ({user.user_type}): {otp}")
+        logger.info(f"LOGIN OTP for {phone_number} ({user.user_type}): {otp}")
+        print(f"LOGIN OTP for {phone_number} ({user.user_type}): {otp}")
         
         import threading
         try:
@@ -394,7 +397,8 @@ def verify_otp_and_login(request):
             type_names = {
                 'patient': 'Patient',
                 'doctor': 'Doctor',
-                'pharmacist': 'Pharmacist'
+                'pharmacist': 'Pharmacist',
+                'ashaworker': 'ASHA Worker'
             }
             actual_role = type_names.get(user.user_type, user.user_type.title())
             return Response(
@@ -481,8 +485,8 @@ def send_otp_for_registration(request):
             expires_at=expires_at
         )
         
-        logger.info(f"📱 REGISTRATION OTP for {phone_number}: {otp}")
-        print(f"📱 REGISTRATION OTP for {phone_number}: {otp}")
+        logger.info(f"REGISTRATION OTP for {phone_number}: {otp}")
+        print(f"REGISTRATION OTP for {phone_number}: {otp}")
         
         import threading
         try:
@@ -594,6 +598,18 @@ def verify_otp_and_register(request):
             )
             pharmacist_group, _ = Group.objects.get_or_create(name='Pharmacist')
             user.groups.add(pharmacist_group)
+            
+        elif user_type == 'ashaworker':
+            AshaProfile.objects.create(
+                user=user,
+                village_name=request.data.get('village_name', ''),
+                block_name=request.data.get('block_name', ''),
+                district=request.data.get('district', ''),
+                state=request.data.get('state', ''),
+                government_id=request.data.get('government_id', 'ASHA' + phone_number)
+            )
+            asha_group, _ = Group.objects.get_or_create(name='AshaWorker')
+            user.groups.add(asha_group)
         
         # OTP is successfully used, delete immediately to invalidate it
         otp_record.delete()
@@ -695,6 +711,18 @@ def register_user(request):
             pharmacist_group, _ = Group.objects.get_or_create(name='Pharmacist')
             user.groups.add(pharmacist_group)
             
+        elif user_type == 'ashaworker':
+            AshaProfile.objects.create(
+                user=user,
+                village_name=request.data.get('village_name', ''),
+                block_name=request.data.get('block_name', ''),
+                district=request.data.get('district', ''),
+                state=request.data.get('state', ''),
+                government_id=request.data.get('government_id', 'ASHA' + phone_number)
+            )
+            asha_group, _ = Group.objects.get_or_create(name='AshaWorker')
+            user.groups.add(asha_group)
+            
         else:
             patient_group, _ = Group.objects.get_or_create(name='Patient')
             user.groups.add(patient_group)
@@ -740,7 +768,7 @@ def unified_login(request, user_type):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        if user_type not in ['patient', 'doctor', 'pharmacist']:
+        if user_type not in ['patient', 'doctor', 'pharmacist', 'ashaworker']:
             return Response(
                 {'success': False, 'error': 'Invalid user type'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -757,7 +785,8 @@ def unified_login(request, user_type):
         user_type_mapping = {
             'patient': 'Patient',
             'doctor': 'Doctor', 
-            'pharmacist': 'Pharmacist'
+            'pharmacist': 'Pharmacist',
+            'ashaworker': 'AshaWorker'
         }
         
         group_name = user_type_mapping.get(user_type)
@@ -8570,5 +8599,127 @@ class LabTestViewSet(viewsets.ModelViewSet):
         if self.action not in ['list', 'retrieve']:
             if not (request.user.is_staff or request.user.is_superuser or getattr(request.user, 'user_type', '') == 'admin'):
                 self.permission_denied(request, message="Only administrators can manage lab test catalog items.")
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def register_patient_by_asha(request):
+    try:
+        if request.user.user_type != 'ashaworker':
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        phone_number = request.data.get('phone_number')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name', '')
+        email = request.data.get('email', '')
+        gender = request.data.get('gender', '')
+        date_of_birth = request.data.get('date_of_birth', None)
+        blood_group = request.data.get('blood_group', '')
+        city = request.data.get('city', '')
+        state = request.data.get('state', '')
+        address = request.data.get('address', '')
+        pincode = request.data.get('pincode', '')
+        if not phone_number or not first_name:
+            return Response({'error': 'Phone number and first name are required'}, status=status.HTTP_400_BAD_REQUEST)
+        if CustomUser.objects.filter(phone_number=phone_number).exists():
+            return Response({'error': 'User with this phone number already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        asha_profile = AshaProfile.objects.get(user=request.user)
+        user = CustomUser.objects.create_user(
+            username=phone_number,
+            phone_number=phone_number,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            user_type='patient',
+            is_verified=True,
+            gender=gender,
+            date_of_birth=date_of_birth,
+            blood_group=blood_group,
+            city=city,
+            state=state,
+            address=address,
+            pincode=pincode,
+            assigned_asha=asha_profile,
+            password='RuralUser@123'
+        )
+        from django.contrib.auth.models import Group
+        patient_group, _ = Group.objects.get_or_create(name='Patient')
+        user.groups.add(patient_group)
+        return Response({'success': True, 'patient': {
+            'id': str(user.id),
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'phone_number': user.phone_number
+        }}, status=status.HTTP_201_CREATED)
+    except AshaProfile.DoesNotExist:
+        return Response({'error': 'ASHA Profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_asha_patients(request):
+    try:
+        if request.user.user_type != 'ashaworker':
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        asha_profile = AshaProfile.objects.get(user=request.user)
+        patients = CustomUser.objects.filter(assigned_asha=asha_profile)
+        serializer = UserSerializer(patients, many=True)
+        return Response(serializer.data)
+    except AshaProfile.DoesNotExist:
+        return Response({'error': 'ASHA Profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def record_point_of_care_test(request):
+    try:
+        if request.user.user_type != 'ashaworker':
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        patient_id = request.data.get('patient_id')
+        test_type = request.data.get('test_type')
+        results = request.data.get('results', {})
+        notes = request.data.get('notes', '')
+        test_strip_image = request.FILES.get('test_strip_image', None)
+        if not patient_id or not test_type:
+            return Response({'error': 'Patient ID and test type are required'}, status=status.HTTP_400_BAD_REQUEST)
+        patient = CustomUser.objects.get(id=patient_id, user_type='patient')
+        if isinstance(results, str):
+            try:
+                results = json.loads(results)
+            except Exception:
+                results = {'value': results}
+        poct = PointOfCareTest.objects.create(
+            asha_worker=request.user,
+            patient=patient,
+            test_type=test_type,
+            results=results,
+            notes=notes,
+            test_strip_image=test_strip_image
+        )
+        serializer = PointOfCareTestSerializer(poct)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except CustomUser.DoesNotExist:
+        return Response({'error': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_poct_history(request, patient_id):
+    try:
+        patient = CustomUser.objects.get(id=patient_id)
+        if request.user.user_type not in ['ashaworker', 'doctor'] and request.user.id != patient.id:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        tests = PointOfCareTest.objects.filter(patient=patient)
+        serializer = PointOfCareTestSerializer(tests, many=True)
+        return Response(serializer.data)
+    except CustomUser.DoesNotExist:
+        return Response({'error': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

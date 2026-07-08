@@ -8,11 +8,11 @@ from django.contrib.auth import get_user_model
 
 
 class CustomUser(AbstractUser):
-    """Custom user model with role-based access"""
     USER_TYPES = [
         ('patient', 'Patient'),
         ('doctor', 'Doctor'),
         ('pharmacist', 'Pharmacist'),
+        ('ashaworker', 'ASHA Worker'),
         ('admin', 'Admin'),
     ]
 
@@ -63,6 +63,7 @@ class CustomUser(AbstractUser):
     chronic_conditions = models.TextField(blank=True)
     current_medications = models.TextField(blank=True)
     medical_history = models.TextField(blank=True)
+    assigned_asha = models.ForeignKey('AshaProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_patients')
 
     def __str__(self):
         return f"{self.username} ({self.user_type})"
@@ -2364,4 +2365,37 @@ class LabTest(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return f"{self.name} ({self.category}) - ₹{self.price}"
+        return f"{self.name} ({self.category}) - ₹{self.price}"
+
+
+class AshaProfile(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='asha_profile')
+    village_name = models.CharField(max_length=100)
+    block_name = models.CharField(max_length=100)
+    district = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    government_id = models.CharField(max_length=50, unique=True)
+    is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.village_name}"
+
+
+class PointOfCareTest(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    asha_worker = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='recorded_poct_tests')
+    patient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='poct_tests')
+    test_type = models.CharField(max_length=100)
+    results = models.JSONField(default=dict)
+    test_strip_image = models.ImageField(upload_to='poct_tests/', null=True, blank=True)
+    notes = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.test_type} for {self.patient.get_full_name()} on {self.created_at:%Y-%m-%d}"

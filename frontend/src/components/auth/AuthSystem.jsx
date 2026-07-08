@@ -45,7 +45,12 @@ const AuthSystem = () => {
     specialization: "",
     qualification: "",
     pharmacyName: "",
-    pharmacyAddress: ""
+    pharmacyAddress: "",
+    villageName: "",
+    blockName: "",
+    district: "",
+    state: "",
+    governmentId: ""
   })
 
 
@@ -53,7 +58,7 @@ const AuthSystem = () => {
     const type = searchParams.get('type')
     const view = searchParams.get('view')
 
-    if (type && ['patient', 'doctor', 'pharmacist'].includes(type)) {
+    if (type && ['patient', 'doctor', 'pharmacist', 'ashaworker'].includes(type)) {
       setUserType(type)
       if (view === 'login' || view === 'register') {
         setCurrentView(view)
@@ -187,6 +192,8 @@ const AuthSystem = () => {
             navigate('/doctor-dashboard')
           } else if (loginUserType === 'pharmacist') {
             navigate('/pharmacy-home')
+          } else if (loginUserType === 'ashaworker') {
+            navigate('/asha-dashboard')
           } else {
             navigate('/')
           }
@@ -256,6 +263,12 @@ const AuthSystem = () => {
       return
     }
 
+    if (userType === 'ashaworker' && !registerForm.governmentId) {
+      setError("Government ID is required")
+      setLoading(false)
+      return
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/auth/send-otp-register/`, {
         method: "POST",
@@ -316,6 +329,12 @@ const AuthSystem = () => {
         registrationData.pharmacy_license = registerForm.licenseNumber
         registrationData.pharmacy_name = registerForm.pharmacyName || 'Pharmacy'
         registrationData.pharmacy_address = registerForm.pharmacyAddress || ''
+      } else if (userType === 'ashaworker') {
+        registrationData.government_id = registerForm.governmentId
+        registrationData.village_name = registerForm.villageName
+        registrationData.block_name = registerForm.blockName
+        registrationData.district = registerForm.district
+        registrationData.state = registerForm.state
       }
 
       const response = await fetch(`${API_BASE_URL}/auth/verify-otp-register/`, {
@@ -347,6 +366,7 @@ const AuthSystem = () => {
         if (userType === 'patient') navigate('/')
         else if (userType === 'doctor') navigate('/doctor-dashboard')
         else if (userType === 'pharmacist') navigate('/pharmacy-home')
+        else if (userType === 'ashaworker') navigate('/asha-dashboard')
       } else {
         setError(data.error || 'Invalid OTP or registration failed. Please try again.')
       }
@@ -390,19 +410,26 @@ const AuthSystem = () => {
       specialization: "",
       qualification: "",
       pharmacyName: "",
-      pharmacyAddress: ""
+      pharmacyAddress: "",
+      villageName: "",
+      blockName: "",
+      district: "",
+      state: "",
+      governmentId: ""
     })
   }
 
   const getUserIcon = () => {
     if (userType === "doctor") return <FaUserMd size={32} className="text-teal-600" />
     if (userType === "pharmacist") return <FaPills size={32} className="text-emerald-600" />
+    if (userType === "ashaworker") return <FaUserShield size={32} className="text-teal-600" />
     return <FaUser size={32} className="text-sky-600" />
   }
 
   const getUserTitle = () => {
     if (userType === "doctor") return "Doctor"
     if (userType === "pharmacist") return "Pharmacist"
+    if (userType === "ashaworker") return "ASHA Worker"
     return "Patient"
   }
 
@@ -426,7 +453,7 @@ const AuthSystem = () => {
           <h2 className="text-base font-bold text-slate-800 mb-1.5">Select Account Type</h2>
           <p className="text-[10px] text-slate-400 mb-6 text-center font-bold uppercase tracking-wider">Choose your role to get started</p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
             <button
               className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-sky-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
               onClick={() => selectUserType("patient")}
@@ -458,6 +485,17 @@ const AuthSystem = () => {
               </div>
               <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">Pharmacist Portal</h3>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed font-semibold">Verify scripts, manage inventory & handle orders</p>
+            </button>
+
+            <button
+              className="bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-teal-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group cursor-pointer"
+              onClick={() => selectUserType("ashaworker")}
+            >
+              <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-xl group-hover:bg-teal-500 group-hover:text-white transition-all duration-300 shadow-sm mb-4">
+                <FaUserShield />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 group-hover:text-teal-600 transition-colors">ASHA Worker</h3>
+              <p className="text-xs text-slate-500 mt-2 leading-relaxed font-semibold">Rural healthcare support, proxy patient booking & rapid tests</p>
             </button>
           </div>
         </div>
@@ -849,6 +887,84 @@ const AuthSystem = () => {
                             onChange={handleRegisterChange}
                             placeholder="Pharmacy store full address"
                             className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
+                            disabled={loading}
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* ASHA-WORKER-SPECIFIC FIELDS */}
+                    {userType === "ashaworker" && (
+                      <>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Government ID</label>
+                          <div className="relative flex items-center">
+                            <FaIdCard className="absolute left-3 text-slate-400 text-xs pointer-events-none" />
+                            <input
+                              type="text"
+                              name="governmentId"
+                              value={registerForm.governmentId}
+                              onChange={handleRegisterChange}
+                              placeholder="Govt ID"
+                              className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
+                              required
+                              disabled={loading}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Village Name</label>
+                          <input
+                            type="text"
+                            name="villageName"
+                            value={registerForm.villageName}
+                            onChange={handleRegisterChange}
+                            placeholder="Village Name"
+                            className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
+                            required
+                            disabled={loading}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Block Name</label>
+                          <input
+                            type="text"
+                            name="blockName"
+                            value={registerForm.blockName}
+                            onChange={handleRegisterChange}
+                            placeholder="Block Name"
+                            className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
+                            required
+                            disabled={loading}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">District</label>
+                          <input
+                            type="text"
+                            name="district"
+                            value={registerForm.district}
+                            onChange={handleRegisterChange}
+                            placeholder="District"
+                            className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
+                            required
+                            disabled={loading}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">State</label>
+                          <input
+                            type="text"
+                            name="state"
+                            value={registerForm.state}
+                            onChange={handleRegisterChange}
+                            placeholder="State"
+                            className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none transition-all placeholder-slate-400"
+                            required
                             disabled={loading}
                           />
                         </div>

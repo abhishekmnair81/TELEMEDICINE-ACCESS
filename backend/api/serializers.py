@@ -5,7 +5,8 @@ from .models import (
     Prescription,
     HealthRecord, 
     CustomUser, 
-    MedicineImage, Conversation, OCRProcessingLog, ExtractedMedicalData,CustomUser, PharmacistProfile,
+    MedicineImage, Conversation, OCRProcessingLog, ExtractedMedicalData, PharmacistProfile,
+    AshaProfile, PointOfCareTest,
     CartItem, SavedForLater, Coupon, CouponUsage,
     DoctorProfile, 
     PharmacistProfile,
@@ -1542,5 +1543,21 @@ class LabTestSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class AshaProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    class Meta:
+        model = AshaProfile
+        fields = '__all__'
+
+
+class PointOfCareTestSerializer(serializers.ModelSerializer):
+    patient_details = UserSerializer(source='patient', read_only=True)
+    asha_details = UserSerializer(source='asha_worker', read_only=True)
+    class Meta:
+        model = PointOfCareTest
+        fields = '__all__'
+        read_only_fields = ['id', 'created_at']
 
 

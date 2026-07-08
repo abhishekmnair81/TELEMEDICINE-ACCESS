@@ -17,6 +17,7 @@ import PatientProfile from './components/PatientProfile';
 import DoctorDetailPage from './components/DoctorDetailPage';
 import AllDoctors from './components/AllDoctors';
 import LabTests from './components/LabTests';
+import AshaDashboard from './components/asha/AshaDashboard';
 
 import PharmacistDashboard from './components/PharmacistDashboard';
 import PharmacistHomepage from './components/PharmacistHomepage';
@@ -164,6 +165,7 @@ function App() {
           <Route path="/cart" element={<ShoppingCart />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/lab-tests" element={<LabTests />} />
+          <Route path="/asha-dashboard" element={<AshaDashboard />} />
 
         </Routes>
       </div>

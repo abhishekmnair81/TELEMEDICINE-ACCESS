@@ -32,6 +32,7 @@ from .views import (
     patient_prescription_detail, voice_to_text,
     run_email_reminders_now,
     LabTestBookingViewSet, LabTestViewSet,
+    get_asha_patients, register_patient_by_asha, record_point_of_care_test, get_poct_history,
 )
 
 router = DefaultRouter()
@@ -169,4 +170,8 @@ urlpatterns = [
     path('autocorrect/', views.autocorrect_query, name='autocorrect'),
     path('test-language-detection/', views.test_language_detection, name='test-language-detection'),
     path('analytics/ocr-stats/', views.ocr_statistics, name='ocr-statistics'),
+    path('asha/patients/', get_asha_patients, name='asha-patients'),
+    path('asha/register-patient/', register_patient_by_asha, name='asha-register-patient'),
+    path('asha/record-poct/', record_point_of_care_test, name='asha-record-poct'),
+    path('asha/patients/<uuid:patient_id>/poct-history/', get_poct_history, name='asha-poct-history'),
 ]
