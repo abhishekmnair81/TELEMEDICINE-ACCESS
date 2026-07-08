@@ -37,22 +37,22 @@
 ## 📸 Platform Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    RURAL TELEMEDICINE ACCESS                    │
-│                                                                 │
-│   👤 Patient          🩺 Doctor             💊 Pharmacist       │
-│   ───────────         ───────────           ──────────────      │
-│   • Book Visits       • Video Consultation  • Verify Rx         │
-│   • AI Chatbot        • Write Digital Rx    • Manage Inventory  │
-│   • Order Medicines   • Manage Schedule     • Dispatch Orders   │
-│   • Track Vitals      • View Analytics      • AI Drug Entry     │
-└────────┬───────────────────┬──────────────────────┬─────────────┘
-         │                   │                      │
-         └─────────────► 🗄️ SQLite Database ◄────────┘
-                             ▲
-                             │ (Celery Beat Reminders)
-                             │
-                      ⏰ Redis Broker
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          RURAL TELEMEDICINE ACCESS                           │
+│                                                                              │
+│ 👤 Patient        🩺 Doctor           💊 Pharmacist       🔬 Lab Technician  │
+│ ───────────       ───────────         ──────────────      ─────────────────  │
+│ • Book Visits     • Video Consult     • Verify Rx         • Claim Home Tasks │
+│ • AI Chatbot      • Digital Rx        • Inventory Control • Collect Samples  │
+│ • Order Meds      • Schedule Editor   • Dispatch Orders   • Upload PDF       │
+│ • Home Lab Tests  • Analytics Dashboard • AI Drug Entry   • Direct Email Rx  │
+└──────┬─────────────────┬──────────────────────┬───────────────────┬──────────┘
+       │                 │                      │                   │
+       └─────────────────┴────────► 🗄️ Database ◄───────────────────┘
+                                       ▲
+                                       │ (Celery Beat Reminders)
+                                       │
+                                ⏰ Redis Broker
 ```
 
 ---
@@ -82,6 +82,11 @@
 * **Shopping Cart**: Fully functional checkout flow linking patients directly with nearby registered pharmacies.
 * **Order Status Pipeline**: End-to-end tracking: `Pending` ➔ `Confirmed` ➔ `Shipped` ➔ `Delivered`.
 
+### 🔬 Home Lab Test Booking & PDF Report Workflow
+* **Sample Collection Management**: Integrated phlebotomy workflow where registered laboratory technicians claim home collections, track progress from `Pending` ➔ `Confirmed` ➔ `Sample Collected` ➔ `Completed`.
+* **Secure PDF Report Upload**: Laboratory staff can upload diagnostic PDF reports directly from their field dashboard.
+* **Automated Patient Email Delivery**: The system automatically emails the signed PDF report to the patient using advanced HTML formatting styled with the brand's primary color (`#00755b`), with a `reply_to` header configured to route patient replies directly to the phlebotomist.
+
 ### ⏰ Medicine Reminders & Offline Sync
 * **Celery & Redis**: Background task execution preventing main thread blockage.
 * **Periodic Schedules**: `django-celery-beat` triggers automated daily email alerts reminding patients to take their medications.
@@ -107,6 +112,12 @@
 * **Inventory Control**: Add products, track expiry dates, manage batch numbers, and update stock.
 * **AI Medication Input**: Autofill details (name, generic name, usage) using AI-based parsing of package details.
 * **OTP Verification**: Secure login workflows validating pharmacist identities.
+
+### 🔬 Laboratory / Phlebotomist Portal
+* **Unclaimed Tasks**: View and claim home blood collection requests matching their sector.
+* **My Workload**: Mark samples as collected and upload official clinical PDF reports directly from the field.
+* **My Archives**: Track historical collections and completed diagnostic test logs.
+* **Direct Patient Outreach**: Email notification dispatch system with reply routing capabilities.
 
 ---
 
@@ -243,7 +254,7 @@ The interface is now live at **http://localhost:3000**
 
 | Category | Endpoint | Method | Description |
 | :--- | :--- | :--- | :--- |
-| **Authentication** | `/api/auth/register/` | `POST` | Registers a CustomUser (Patient/Doctor/Pharmacist) |
+| **Authentication** | `/api/auth/register/` | `POST` | Registers a CustomUser (Patient/Doctor/Pharmacist/Laboratory) |
 | | `/api/auth/login/<str:user_type>/` | `POST` | Exchanges credentials for JWT access/refresh tokens |
 | | `/api/auth/send-otp-login/` | `POST` | Dispatches passwordless OTP authentication code |
 | | `/api/auth/verify-otp-login/` | `POST` | Verifies OTP code and authenticates the session |
@@ -254,6 +265,10 @@ The interface is now live at **http://localhost:3000**
 | | `/api/medicines/analyze-image/` | `POST` | Uses AI to classify & parse medicine package details |
 | **Orders** | `/api/orders/` | `GET/POST` | Order medicines, view cart checkout, track shipment |
 | **Chatbot** | `/api/chatbot/` | `POST` | Triggers LLM diagnosis check using Ollama RAG |
+| **Lab Tests** | `/api/lab-test-bookings/` | `GET/POST` | Book lab tests and manage booking queues |
+| | `/api/lab-test-bookings/<id>/claim/` | `POST` | Claim an unclaimed booking for home collection |
+| | `/api/lab-test-bookings/<id>/collect/` | `POST` | Mark sample as collected in the field |
+| | `/api/lab-test-bookings/<id>/upload-report/` | `POST` | Upload PDF report and trigger email dispatch |
 | **Med Reminders** | `/api/medication-reminders/sync-logs/` | `POST` | Reconciles cached offline logs with backend server |
 | | `/api/medication-reminders/adherence-prediction/` | `GET` | Generates adherence metrics and prediction models |
 | **Consultation** | `/api/video-consultations/process-copilot-audio/` | `POST` | Processes doctor live audio stream for inline copilot |
